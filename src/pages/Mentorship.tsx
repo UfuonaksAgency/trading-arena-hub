@@ -109,7 +109,7 @@ const Mentorship = () => {
           <h2 className="section-header text-center mb-12">What You'll Get</h2>
           <div className="grid md:grid-cols-2 gap-8">
             {benefits.map((benefit, index) => (
-              <Card key={index} className="trading-card">
+              <Card key={index} className="minimal-card">
                 <div className="p-6">
                   <div className="flex items-center mb-4">
                     <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mr-4">
@@ -131,7 +131,7 @@ const Mentorship = () => {
           <h2 className="section-header text-center mb-12">Success Stories</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="trading-card">
+              <Card key={index} className="minimal-card">
                 <div className="p-6">
                   <div className="flex items-center mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
@@ -160,7 +160,7 @@ const Mentorship = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="consultation-form">
+          <form onSubmit={handleSubmit} className="minimal-card max-w-2xl mx-auto">
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <Label htmlFor="name">Full Name *</Label>

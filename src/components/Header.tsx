@@ -10,7 +10,7 @@ const Header = () => {
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'Mentorship', href: '/mentorship' },
-    { name: 'Resources', href: '/#resources' },
+    { name: 'Free Resources', href: '/free-resources' },
     { name: 'Contact', href: '/#contact' },
   ];
 
@@ -49,7 +49,7 @@ const Header = () => {
               </Link>
             ))}
             <button className="btn-ghost text-sm px-6 py-2">
-              <Link to="/mentorship">Book Consultation</Link>
+              <Link to="/#contact">Book Consultation</Link>
             </button>
           </div>
 
@@ -86,7 +86,7 @@ const Header = () => {
               ))}
               <div className="pt-2">
                 <button className="btn-ghost text-sm w-full">
-                  <Link to="/mentorship" onClick={() => setIsMenuOpen(false)}>
+                  <Link to="/#contact" onClick={() => setIsMenuOpen(false)}>
                     Book Consultation
                   </Link>
                 </button>
