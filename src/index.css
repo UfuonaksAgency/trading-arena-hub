@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Aurora Borealis Design System - Minimalist Black & White */
+/* Minimalist Black & White Design System */
 
 @layer base {
   :root {
@@ -14,60 +14,42 @@
 
     /* Card & Surface Colors */
     --card: 0 0% 5%; /* Very dark gray */
-    --card-foreground: 0 0% 100%;
-    --card-border: 0 0% 15%;
+    --card-foreground: 0 0% 100%; /* White text */
 
     /* Interactive Elements */
     --popover: 0 0% 5%;
     --popover-foreground: 0 0% 100%;
 
-    /* Aurora Colors - Only colorful elements */
-    --aurora-cyan: 180 100% 75%; /* #7DF9FF */
-    --aurora-green: 120 100% 55%; /* #39FF14 */
-    --aurora-magenta: 300 100% 67%; /* #FF61F6 */
-    --aurora-violet: 271 76% 53%; /* #8A2BE2 */
-    --aurora-blue: 180 100% 50%; /* #00FFFF */
-
-    /* Monochrome System */
+    /* Primary System - White */
     --primary: 0 0% 100%; /* White */
     --primary-foreground: 0 0% 0%; /* Black */
-    --primary-glow: 0 0% 90%;
 
+    /* Secondary System - Dark Gray */
     --secondary: 0 0% 15%; /* Dark gray */
-    --secondary-foreground: 0 0% 100%;
+    --secondary-foreground: 0 0% 100%; /* White text */
 
+    /* Accent System */
     --accent: 0 0% 20%; /* Medium gray */
-    --accent-foreground: 0 0% 100%;
-    --accent-glow: 0 0% 30%;
+    --accent-foreground: 0 0% 100%; /* White text */
+
+    /* Muted System */
+    --muted: 0 0% 10%; /* Very dark */
+    --muted-foreground: 0 0% 70%; /* Light gray text */
 
     /* Semantic Colors */
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 70%;
-
-    --destructive: 0 84% 60%;
+    --destructive: 0 84% 60%; /* Red */
     --destructive-foreground: 0 0% 100%;
 
     /* UI Elements */
-    --border: 0 0% 15%;
-    --input: 0 0% 10%;
-    --ring: 0 0% 100%;
+    --border: 0 0% 20%; /* Light gray borders */
+    --input: 0 0% 10%; /* Dark input backgrounds */
+    --ring: 0 0% 100%; /* White focus rings */
 
-    /* Aurora Gradients */
-    --gradient-aurora: linear-gradient(135deg, 
-      hsl(180 100% 75% / 0.3), 
-      hsl(120 100% 55% / 0.3), 
-      hsl(300 100% 67% / 0.3), 
-      hsl(271 76% 53% / 0.3));
-    --gradient-aurora-intense: linear-gradient(45deg, 
-      hsl(180 100% 75%), 
-      hsl(120 100% 55%), 
-      hsl(300 100% 67%), 
-      hsl(271 76% 53%));
+    /* Gradients */
     --gradient-dark: linear-gradient(135deg, hsl(0 0% 0%), hsl(0 0% 5%));
     --gradient-card: linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 10%));
 
     /* Shadows & Effects */
-    --shadow-aurora: 0 0 50px hsl(180 100% 75% / 0.5);
     --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.8);
     --shadow-elegant: 0 20px 60px -10px hsl(0 0% 0% / 0.9);
 
@@ -77,59 +59,38 @@
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar Colors */
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 0 0% 100%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Dark mode uses same values since we're already dark themed */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 0 0% 20%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 20%;
+    --input: 0 0% 10%;
+    --ring: 0 0% 100%;
   }
 }
 
@@ -166,31 +127,31 @@
     border-color: hsl(0 0% 30%);
   }
 
-  /* Ghost Button Variants */
+  /* Button Variants */
   .btn-ghost {
-    @apply border border-primary text-primary font-semibold px-8 py-4 rounded-lg bg-transparent;
+    @apply border border-white text-white font-semibold px-8 py-4 rounded-lg bg-transparent;
     transition: var(--transition-smooth);
   }
 
   .btn-ghost:hover {
-    @apply bg-primary text-primary-foreground;
+    @apply bg-white text-black;
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px hsl(0 0% 100% / 0.2);
+    box-shadow: 0 10px 30px hsl(0 0% 100% / 0.3);
   }
 
   .btn-primary {
-    @apply bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-lg;
+    @apply bg-white text-black font-semibold px-8 py-4 rounded-lg;
     transition: var(--transition-smooth);
   }
 
   .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px hsl(0 0% 100% / 0.2);
+    box-shadow: 0 10px 30px hsl(0 0% 100% / 0.3);
   }
 
   /* Section Headers */
   .section-header {
-    @apply text-3xl md:text-4xl font-bold mb-6 text-primary;
+    @apply text-3xl md:text-4xl font-bold mb-6 text-white;
   }
 
   /* Tool Grid Animation */
@@ -202,64 +163,6 @@
   .tool-grid-item:hover {
     transform: translateY(-8px) scale(1.05);
     box-shadow: 0 20px 40px hsl(0 0% 0% / 0.6);
-  }
-
-  /* Consultation Form Styles */
-  .consultation-form {
-    @apply minimal-card max-w-2xl mx-auto;
-  }
-
-  /* Glow Effects */
-  .glow-primary {
-    box-shadow: var(--shadow-primary);
-  }
-
-  .glow-accent {
-    box-shadow: var(--shadow-accent);
-  }
-
-  /* Animated Underline */
-  .animated-underline {
-    @apply relative;
-  }
-
-  .animated-underline::after {
-    @apply absolute bottom-0 left-0 w-full h-0.5 bg-primary origin-bottom-right;
-    content: '';
-    transform: scaleX(0);
-    transition: transform 0.3s ease-out;
-  }
-
-  .animated-underline:hover::after {
-    transform: scaleX(1);
-    transform-origin: bottom-left;
-  }
-
-  /* Custom Scrollbar */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-muted rounded-full;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-primary rounded-full;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary-glow;
-  }
-
-
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-20px);
-    }
   }
 
   /* Scroll Reveal Animations */
@@ -274,27 +177,17 @@
     transform: translateY(0);
   }
 
-  /* Parallax Container */
-  .parallax-container {
-    perspective: 1px;
-    height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
+  /* Animation Utilities */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
   }
 
-  .parallax-element {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-  }
-
-  .parallax-back {
-    transform: translateZ(-1px) scale(2);
-  }
-
-  .parallax-base {
-    transform: translateZ(0);
+  .float {
+    animation: float 3s ease-in-out infinite;
   }
 }
