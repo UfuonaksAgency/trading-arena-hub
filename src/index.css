@@ -238,3 +238,4 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     @apply bg-primary-glow;
   }
+}
