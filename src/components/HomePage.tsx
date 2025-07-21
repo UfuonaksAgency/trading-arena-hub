@@ -80,30 +80,34 @@ const HomePage = () => {
       {/* Hero Section */}
       <section className="simple-hero">
         <div className="container mx-auto px-6 text-center">
-          <div className="inline-flex items-center px-6 py-3 border border-white/20 rounded-full text-white text-sm font-medium mb-8 backdrop-blur-sm bg-white/5">
+          <div className="inline-flex items-center px-6 py-3 border border-black/20 rounded-full text-black text-sm font-medium mb-8 backdrop-blur-sm bg-black/5">
             <Star className="w-4 h-4 mr-2" />
             Professional Trading Guidance
           </div>
-          <h1 className="stage-light-title text-6xl md:text-8xl font-bold mb-8 text-white tracking-tight">
+          <h1 className="stage-light-title text-6xl md:text-8xl font-bold mb-8 text-black tracking-tight">
             Mr. K Trading Arena
           </h1>
-          <div className="section-header text-2xl md:text-3xl mb-8 max-w-4xl mx-auto text-white">
+          <div className="section-header text-2xl md:text-3xl mb-8 max-w-4xl mx-auto text-black">
             Where Strategy Meets Success
           </div>
-          <p className="text-lg md:text-xl text-gray-100 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Helping traders grow through <span className="text-white font-semibold">free resources</span>, 
-            <span className="text-white font-semibold"> proven strategies</span>, and personalized guidance.
+          <p className="text-lg md:text-xl text-gray-700 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Helping traders grow through <span className="text-black font-semibold">free resources</span>, 
+            <span className="text-black font-semibold"> proven strategies</span>, and personalized guidance.
             Join thousands who've transformed their trading journey.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Button className="btn-primary text-lg px-10 py-4">
-              <TrendingUp className="mr-3 h-6 w-6" />
-              <Link to="/free-resources">Explore Resources</Link>
-            </Button>
-            <Button className="btn-ghost text-lg px-10 py-4">
-              <Calendar className="mr-3 h-6 w-6" />
-              <Link to="/book-consultation">Book 30-Min Call</Link>
-            </Button>
+            <Link to="/free-resources">
+              <Button className="btn-primary text-lg px-10 py-4">
+                <TrendingUp className="mr-3 h-6 w-6" />
+                Explore Resources
+              </Button>
+            </Link>
+            <Link to="/book-consultation">
+              <Button className="btn-ghost text-lg px-10 py-4">
+                <Calendar className="mr-3 h-6 w-6" />
+                Book 30-Min Call
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -113,7 +117,7 @@ const HomePage = () => {
         <div className="max-w-4xl mx-auto text-center scroll-reveal">
           <h2 className="section-header">About Mr. K</h2>
           <div className="minimal-card">
-            <p className="text-lg text-white leading-relaxed mb-8">
+            <p className="text-lg text-foreground leading-relaxed mb-8">
               With over 8 years in the trading industry, I've helped thousands of traders 
               develop profitable strategies and maintain disciplined risk management. 
               My mission is simple: provide you with the tools, knowledge, and guidance 
@@ -122,16 +126,16 @@ const HomePage = () => {
             </p>
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center group">
-                <div className="text-4xl font-bold text-white mb-2 group-hover:text-primary transition-colors">8+</div>
-                <div className="text-gray-100">Years Trading</div>
+                <div className="text-4xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">8+</div>
+                <div className="text-muted-foreground">Years Trading</div>
               </div>
               <div className="text-center group">
-                <div className="text-4xl font-bold text-white mb-2 group-hover:text-primary transition-colors">1000+</div>
-                <div className="text-gray-100">Students Mentored</div>
+                <div className="text-4xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">1000+</div>
+                <div className="text-muted-foreground">Students Mentored</div>
               </div>
               <div className="text-center group">
-                <div className="text-4xl font-bold text-white mb-2 group-hover:text-primary transition-colors">95%</div>
-                <div className="text-gray-100">Success Rate</div>
+                <div className="text-4xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">95%</div>
+                <div className="text-muted-foreground">Success Rate</div>
               </div>
             </div>
           </div>
@@ -143,7 +147,7 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto scroll-reveal">
           <div className="text-center mb-16">
             <h2 className="section-header">Tools I Use</h2>
-            <p className="text-white text-lg">
+            <p className="text-foreground text-lg">
               The essential platforms and tools that power my daily trading operations
             </p>
           </div>
@@ -152,17 +156,17 @@ const HomePage = () => {
               <div key={index} className="tool-grid-item group">
                 <div className="p-8">
                   <div className="flex items-center mb-6">
-                    <div className="w-14 h-14 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white group-hover:text-black transition-all duration-300">
+                    <div className="w-14 h-14 bg-secondary border border-border rounded-xl flex items-center justify-center mr-4 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                       <tool.icon className="w-7 h-7" />
                     </div>
-                    <h3 className="text-xl font-semibold text-white">{tool.name}</h3>
+                    <h3 className="text-xl font-semibold text-foreground">{tool.name}</h3>
                   </div>
-                  <p className="text-gray-100 mb-6 leading-relaxed">{tool.description}</p>
+                  <p className="text-muted-foreground mb-6 leading-relaxed">{tool.description}</p>
                   <a 
                     href={tool.url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-white hover:text-primary transition-colors text-sm font-medium group"
+                    className="text-foreground hover:text-primary transition-colors text-sm font-medium group"
                   >
                     Visit Platform <ExternalLink className="ml-2 w-4 h-4 inline group-hover:translate-x-1 transition-transform" />
                   </a>
@@ -178,7 +182,7 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto scroll-reveal">
           <div className="text-center mb-16">
             <h2 className="section-header">Free Resources</h2>
-            <p className="text-white text-lg">
+            <p className="text-foreground text-lg">
               Valuable trading resources to kickstart your journey—completely free
             </p>
           </div>
@@ -187,13 +191,13 @@ const HomePage = () => {
               <div key={index} className="minimal-card group">
                 <div className="p-8">
                   <div className="flex items-center justify-between mb-6">
-                    <span className="px-4 py-2 bg-white/10 text-white text-xs font-medium rounded-full border border-white/20">
+                    <span className="px-4 py-2 bg-secondary text-secondary-foreground text-xs font-medium rounded-full border border-border">
                       {resource.type}
                     </span>
-                    <Download className="w-5 h-5 text-gray-100 group-hover:text-primary transition-colors" />
+                    <Download className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-3 text-white">{resource.title}</h3>
-                  <p className="text-gray-100 mb-6 leading-relaxed">{resource.description}</p>
+                  <h3 className="text-xl font-semibold mb-3 text-foreground">{resource.title}</h3>
+                  <p className="text-muted-foreground mb-6 leading-relaxed">{resource.description}</p>
                   <Button className="btn-ghost w-full">
                     <Download className="mr-2 w-4 h-4" />
                     Download
@@ -217,18 +221,20 @@ const HomePage = () => {
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="section-header">Ready to Level Up Your Trading?</h2>
-          <p className="text-white text-lg mb-8 max-w-2xl mx-auto">
+          <p className="text-foreground text-lg mb-8 max-w-2xl mx-auto">
             Book a personalized 30-minute consultation to discuss your trading goals, 
             get strategy recommendations, and receive professional guidance.
           </p>
-          <div className="inline-flex items-center px-4 py-2 bg-accent/10 border border-accent/20 rounded-full text-accent text-sm font-medium mb-8">
+          <div className="inline-flex items-center px-4 py-2 bg-accent border border-border rounded-full text-accent-foreground text-sm font-medium mb-8">
             <Clock className="w-4 h-4 mr-2" />
             30-minute session • $50 USD
           </div>
-          <Button className="btn-primary text-lg px-10 py-4">
-            <Calendar className="mr-3 h-6 w-6" />
-            <Link to="/book-consultation">Schedule Your Call</Link>
-          </Button>
+          <Link to="/book-consultation">
+            <Button className="btn-primary text-lg px-10 py-4">
+              <Calendar className="mr-3 h-6 w-6" />
+              Schedule Your Call
+            </Button>
+          </Link>
         </div>
       </section>
     </div>
