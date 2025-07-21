@@ -116,7 +116,8 @@ const HomePage = () => {
       <section className="py-16 bg-muted/5 overflow-hidden">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-8">
-            <p className="text-white/90 text-sm uppercase tracking-wide">Tools I Use in Trading</p>
+            <h2 className="text-white text-2xl md:text-3xl font-bold mb-2 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Tools I Use in Trading</h2>
+            <p className="text-white/70 text-sm">Professional-grade platforms and analytics</p>
           </div>
           <div className="relative">
             <div className="flex animate-scroll-brands">
@@ -124,6 +125,7 @@ const HomePage = () => {
                 <div 
                   key={index} 
                   className="text-xl md:text-2xl font-bold text-white/60 hover:text-white/80 transition-colors duration-300 cursor-default whitespace-nowrap mx-8 flex-shrink-0"
+                  style={{ fontFamily: 'cursive' }}
                 >
                   {brand}
                 </div>

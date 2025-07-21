@@ -24,7 +24,7 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 bg-white/5 border border-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 group-hover:border-aurora-cyan">
+            <div className="w-10 h-10 bg-white/5 border border-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 group-hover:border-primary">
               <TrendingUp className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold section-header text-lg mb-0">
@@ -38,7 +38,7 @@ const Header = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`text-sm font-medium transition-colors hover:text-aurora-cyan ${
+                className={`text-sm font-medium transition-colors hover:text-primary ${
                   isActive(item.href)
                     ? 'text-white'
                     : 'text-gray-400'
@@ -60,7 +60,7 @@ const Header = () => {
               variant="ghost"
               size="sm"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-white hover:text-aurora-cyan"
+              className="text-white hover:text-primary"
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>

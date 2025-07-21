@@ -58,19 +58,19 @@ const Mentorship = () => {
     {
       name: 'Sarah M.',
       role: 'Crypto Trader',
-      content: 'Mr. K transformed my approach to trading. His risk management strategies saved me from significant losses.',
+      content: 'Mr. K transformed my crypto trading strategy. His DeFi insights and risk management saved me from major losses during the market crash.',
       rating: 5,
     },
     {
-      name: 'David L.',
-      role: 'Forex Trader',
-      content: 'The personalized mentorship helped me develop discipline and consistency in my trading.',
+      name: 'Alex Chen',
+      role: 'Crypto Day Trader',
+      content: 'The altcoin strategies and technical analysis Mr. K taught me increased my portfolio by 340% in 6 months.',
       rating: 5,
     },
     {
-      name: 'Maria R.',
-      role: 'Day Trader',
-      content: 'Best investment I made was in Mr. K\'s mentorship program. ROI was incredible.',
+      name: 'Maria Rodriguez',
+      role: 'Bitcoin Trader',
+      content: 'Best investment I made was Mr. K\'s crypto mentorship. Finally profitable trading Bitcoin and understanding market cycles.',
       rating: 5,
     },
   ];
@@ -82,17 +82,17 @@ const Mentorship = () => {
       {/* Hero Section */}
       <section className="px-4 mb-16">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center px-4 py-2 bg-accent/10 border border-accent/20 rounded-full text-accent text-sm font-medium mb-6">
+          <div className="inline-flex items-center px-4 py-2 bg-white/20 border border-white/30 rounded-full text-white text-sm font-medium mb-6 backdrop-blur-sm">
             <Star className="w-4 h-4 mr-2" />
             Exclusive Mentorship Program
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
             1-on-1 Mentorship with{' '}
-            <span className="bg-gradient-accent bg-clip-text text-transparent">
+            <span className="text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.5)] font-extrabold">
               Mr. K
             </span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-8">
+          <p className="text-xl text-white/80 mb-8">
             Selection-only mentorship for serious traders ready to take their skills 
             to the professional level. Limited spots available.
           </p>
@@ -135,7 +135,7 @@ const Mentorship = () => {
                 <div className="p-6">
                   <div className="flex items-center mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-accent text-accent" />
+                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
                   <p className="text-muted-foreground mb-4">"{testimonial.content}"</p>

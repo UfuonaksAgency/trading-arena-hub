@@ -34,7 +34,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-2">
             <Link to="/" className="flex items-center space-x-3 mb-6 group">
-              <div className="w-10 h-10 bg-white/5 border border-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 group-hover:border-aurora-cyan">
+              <div className="w-10 h-10 bg-white/5 border border-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 group-hover:border-primary">
                 <TrendingUp className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold section-header text-lg mb-0">
@@ -42,8 +42,8 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-gray-400 mb-8 max-w-md leading-relaxed">
-              Guided by Aurora's light, helping traders illuminate their path to success 
-              through proven strategies and genuine insights.
+              Expert trading guidance through proven strategies and genuine insights, 
+              helping traders navigate their path to consistent success.
             </p>
             
             {/* Social Links */}
@@ -65,25 +65,25 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-6 text-white">Aurora Navigation</h3>
+            <h3 className="text-lg font-semibold mb-6 text-white">Quick Navigation</h3>
             <ul className="space-y-3">
               <li>
-                <Link to="/" className="text-gray-400 hover:text-aurora-cyan transition-colors text-sm">
+                <Link to="/" className="text-gray-400 hover:text-primary transition-colors text-sm">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/mentorship" className="text-gray-400 hover:text-aurora-green transition-colors text-sm">
+                <Link to="/mentorship" className="text-gray-400 hover:text-primary transition-colors text-sm">
                   1-on-1 Mentorship
                 </Link>
               </li>
               <li>
-                <a href="/#resources" className="text-gray-400 hover:text-aurora-magenta transition-colors text-sm">
+                <a href="/#resources" className="text-gray-400 hover:text-primary transition-colors text-sm">
                   Free Resources
                 </a>
               </li>
               <li>
-                <a href="/#contact" className="text-gray-400 hover:text-aurora-violet transition-colors text-sm">
+                <a href="/#contact" className="text-gray-400 hover:text-primary transition-colors text-sm">
                   Contact
                 </a>
               </li>
@@ -92,10 +92,10 @@ const Footer = () => {
 
           {/* Legal */}
           <div>
-            <h3 className="text-lg font-semibold mb-6 text-white">Legal Aurora</h3>
+            <h3 className="text-lg font-semibold mb-6 text-white">Legal Information</h3>
             <ul className="space-y-3">
               {legalLinks.map((link, index) => {
-                const colors = ['hover:text-aurora-cyan', 'hover:text-aurora-green', 'hover:text-aurora-magenta', 'hover:text-aurora-violet'];
+                const colors = ['hover:text-primary', 'hover:text-accent', 'hover:text-secondary', 'hover:text-muted-foreground'];
                 return (
                   <li key={link.name}>
                     <Link
@@ -118,7 +118,7 @@ const Footer = () => {
           <p className="text-xs text-gray-500 mt-3">
             Trading involves substantial risk. Past performance is not indicative of future results.
             <br />
-            <span className="text-aurora-cyan">Illuminated by Aurora's wisdom.</span>
+            <span className="text-primary">Guided by professional expertise.</span>
           </p>
         </div>
       </div>
