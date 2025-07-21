@@ -169,6 +169,15 @@
     }
   }
 
+  @keyframes scroll-brands {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
   /* Simple Hero Section */
   .simple-hero {
     @apply relative min-h-screen bg-black overflow-hidden flex items-center;

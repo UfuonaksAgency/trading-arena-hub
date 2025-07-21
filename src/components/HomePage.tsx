@@ -72,7 +72,7 @@ const HomePage = () => {
     }
   };
 
-  const brands = ['Nike', 'Apple', 'Tesla', 'Amazon', 'Google'];
+  const tradingBrands = ['TradingView', 'Notion', 'Coinglass', 'CoinMarketMan', 'BingX (Exchange)', 'WEEX (Exchange)'];
 
 
   return (
@@ -112,122 +112,57 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Static Brand Display */}
-      <section className="py-16 bg-muted/5">
+      {/* Trading Tools Animation Section */}
+      <section className="py-16 bg-muted/5 overflow-hidden">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-8">
-            <p className="text-gray-100 text-sm uppercase tracking-wide">Trusted by traders worldwide</p>
+            <p className="text-white/90 text-sm uppercase tracking-wide">Tools I Use in Trading</p>
           </div>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
-            {brands.map((brand, index) => (
-              <div 
-                key={index} 
-                className="text-2xl md:text-3xl font-bold text-white/80 hover:text-white transition-colors duration-300 cursor-default"
-              >
-                {brand}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* About Mr. K Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center scroll-reveal">
-          <h2 className="section-header">About Mr. K</h2>
-          <div className="minimal-card">
-            <p className="text-lg text-white leading-relaxed mb-8">
-              With over 8 years in the trading industry, I've helped thousands of traders 
-              develop profitable strategies and maintain disciplined risk management. 
-              My mission is simple: provide you with the tools, knowledge, and guidance 
-              needed to succeed in today's volatile markets. No get-rich-quick schemes—just 
-              proven strategies backed by real experience.
-            </p>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center group">
-                <div className="text-4xl font-bold text-white mb-2 group-hover:text-primary transition-colors">8+</div>
-                <div className="text-gray-100">Years Trading</div>
-              </div>
-              <div className="text-center group">
-                <div className="text-4xl font-bold text-white mb-2 group-hover:text-primary transition-colors">1000+</div>
-                <div className="text-gray-100">Students Mentored</div>
-              </div>
-              <div className="text-center group">
-                <div className="text-4xl font-bold text-white mb-2 group-hover:text-primary transition-colors">95%</div>
-                <div className="text-gray-100">Success Rate</div>
-              </div>
+          <div className="relative">
+            <div className="flex animate-scroll-brands">
+              {[...tradingBrands, ...tradingBrands].map((brand, index) => (
+                <div 
+                  key={index} 
+                  className="text-xl md:text-2xl font-bold text-white/60 hover:text-white/80 transition-colors duration-300 cursor-default whitespace-nowrap mx-8 flex-shrink-0"
+                >
+                  {brand}
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Tools I Use Section */}
-      <section id="tools" className="py-20 px-4">
-        <div className="max-w-7xl mx-auto scroll-reveal">
-          <div className="text-center mb-16">
-            <h2 className="section-header">Tools I Use</h2>
-            <p className="text-white text-lg">
-              The essential platforms and tools that power my daily trading operations
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {tradingTools.map((tool, index) => (
-              <div key={index} className="tool-grid-item group">
-                <div className="p-8">
-                  <div className="flex items-center mb-6">
-                    <div className="w-14 h-14 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white group-hover:text-black transition-all duration-300">
-                      <tool.icon className="w-7 h-7" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white">{tool.name}</h3>
-                  </div>
-                  <p className="text-gray-100 mb-6 leading-relaxed">{tool.description}</p>
-                  <a 
-                    href={tool.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-white hover:text-primary transition-colors text-sm font-medium group"
-                  >
-                    Visit Platform <ExternalLink className="ml-2 w-4 h-4 inline group-hover:translate-x-1 transition-transform" />
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Free Resources Preview Section */}
-      <section id="resources" className="py-20 px-4 bg-muted/10">
-        <div className="max-w-7xl mx-auto scroll-reveal">
-          <div className="text-center mb-16">
-            <h2 className="section-header">Free Resources</h2>
-            <p className="text-white text-lg">
-              Valuable trading resources to kickstart your journey—completely free
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Free Resources</h2>
+            <p className="text-white/80 text-lg">
+              Get started with these essential trading resources—completely free
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
             {featuredResources.map((resource) => (
-              <div key={resource.id} className="minimal-card group">
-                <div className="p-8">
-                  <div className="flex items-center justify-between mb-6">
-                    <span className="px-4 py-2 bg-white/10 text-white text-xs font-medium rounded-full border border-white/20">
-                      {resource.type}
-                    </span>
-                    <Download className="w-5 h-5 text-gray-100 group-hover:text-primary transition-colors" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3 text-white">{resource.title}</h3>
-                  <p className="text-gray-100 mb-6 leading-relaxed">{resource.description}</p>
-                  <Button className="btn-ghost w-full">
-                    <Download className="mr-2 w-4 h-4" />
-                    Download
-                  </Button>
+              <div key={resource.id} className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="px-3 py-1 bg-white/10 text-white text-xs font-medium rounded-full">
+                    {resource.type}
+                  </span>
+                  <Download className="w-5 h-5 text-white/60 group-hover:text-white transition-colors" />
                 </div>
+                <h3 className="text-lg font-semibold mb-2 text-white">{resource.title}</h3>
+                <p className="text-white/70 text-sm mb-4 leading-relaxed">{resource.description}</p>
+                <Button className="bg-white text-black hover:bg-white/90 w-full text-sm py-2">
+                  <Download className="mr-2 w-4 h-4" />
+                  Download
+                </Button>
               </div>
             ))}
           </div>
-          <div className="text-center mt-12">
+          <div className="text-center">
             <Link to="/free-resources">
-              <Button className="btn-primary">
+              <Button className="bg-white text-black hover:bg-white/90 px-8 py-3">
                 View All Resources
                 <ExternalLink className="ml-2 w-4 h-4" />
               </Button>
@@ -236,11 +171,11 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Talk to a Pro Section */}
+      {/* Ready to Level Up Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="section-header">Ready to Level Up Your Trading?</h2>
-          <p className="text-white text-lg mb-8 max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Level Up Your Trading?</h2>
+          <p className="text-white/80 text-lg mb-8 max-w-2xl mx-auto">
             Book a personalized 30-minute consultation to discuss your trading goals, 
             get strategy recommendations, and receive professional guidance.
           </p>
@@ -249,7 +184,7 @@ const HomePage = () => {
             30-minute session • $50 USD
           </div>
           <Link to="/book-consultation">
-            <Button className="btn-primary text-lg px-10 py-4">
+            <Button className="bg-white text-black hover:bg-white/90 text-lg px-10 py-4">
               <Calendar className="mr-3 h-6 w-6" />
               Schedule Your Call
             </Button>
