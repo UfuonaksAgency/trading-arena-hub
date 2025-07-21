@@ -1,6 +1,9 @@
+
 import { ExternalLink, BarChart3, FileText, TrendingUp, Target } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 const Tools = () => {
   const tradingTools = [
@@ -49,77 +52,81 @@ const Tools = () => {
   ];
 
   return (
-    <div className="min-h-screen pt-20">
-      {/* Header */}
-      <section className="py-16 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="section-header">My Trading Arsenal</h1>
-          <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
-            The essential platforms and tools that power my daily trading operations. 
-            Each tool serves a specific purpose in my systematic approach to market analysis and execution.
-          </p>
-        </div>
-      </section>
-
-      {/* Tools Grid */}
-      <section className="py-16 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-8">
-            {tradingTools.map((tool, index) => (
-              <Card key={index} className="minimal-card group">
-                <div className="p-8">
-                  <div className="flex items-center mb-6">
-                    <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center mr-6 group-hover:bg-white group-hover:text-black transition-all duration-300">
-                      <tool.icon className="w-8 h-8" />
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-semibold text-white mb-2">{tool.name}</h3>
-                      <a 
-                        href={tool.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-primary hover:text-white transition-colors text-sm font-medium group inline-flex items-center"
-                      >
-                        Visit Platform <ExternalLink className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </a>
-                    </div>
-                  </div>
-                  
-                  <p className="text-muted-foreground mb-6 leading-relaxed">{tool.description}</p>
-                  
-                  <div className="space-y-2">
-                    <h4 className="text-white font-medium mb-3">Key Features:</h4>
-                    <ul className="space-y-1">
-                      {tool.features.map((feature, idx) => (
-                        <li key={idx} className="text-muted-foreground text-sm flex items-center">
-                          <span className="w-2 h-2 bg-primary rounded-full mr-3"></span>
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Why These Tools Section */}
-      <section className="py-16 px-4 bg-muted/10">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="section-header">Why These Tools?</h2>
-          <div className="minimal-card">
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              After 8+ years in trading, I've tested countless platforms and tools. These six represent 
-              the core of my trading infrastructure - each chosen for reliability, functionality, and 
-              the specific edge they provide in today's markets. From charting to execution, 
-              journaling to analytics, this stack covers every aspect of professional trading.
+    <>
+      <Header />
+      <div className="min-h-screen pt-20">
+        {/* Header */}
+        <section className="py-16 px-4">
+          <div className="max-w-7xl mx-auto text-center">
+            <h1 className="section-header">My Trading Arsenal</h1>
+            <p className="text-white text-lg max-w-3xl mx-auto">
+              The essential platforms and tools that power my daily trading operations. 
+              Each tool serves a specific purpose in my systematic approach to market analysis and execution.
             </p>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+
+        {/* Tools Grid */}
+        <section className="py-16 px-4">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-8">
+              {tradingTools.map((tool, index) => (
+                <Card key={index} className="minimal-card group">
+                  <div className="p-8">
+                    <div className="flex items-center mb-6">
+                      <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center mr-6 group-hover:bg-white group-hover:text-black transition-all duration-300">
+                        <tool.icon className="w-8 h-8" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-semibold text-white mb-2">{tool.name}</h3>
+                        <a 
+                          href={tool.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-white transition-colors text-sm font-medium group inline-flex items-center"
+                        >
+                          Visit Platform <ExternalLink className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </a>
+                      </div>
+                    </div>
+                    
+                    <p className="text-white mb-6 leading-relaxed">{tool.description}</p>
+                    
+                    <div className="space-y-2">
+                      <h4 className="text-white font-medium mb-3">Key Features:</h4>
+                      <ul className="space-y-1">
+                        {tool.features.map((feature, idx) => (
+                          <li key={idx} className="text-gray-100 text-sm flex items-center">
+                            <span className="w-2 h-2 bg-primary rounded-full mr-3"></span>
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Why These Tools Section */}
+        <section className="py-16 px-4 bg-muted/10">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="section-header">Why These Tools?</h2>
+            <div className="minimal-card">
+              <p className="text-lg text-white leading-relaxed">
+                After 8+ years in trading, I've tested countless platforms and tools. These six represent 
+                the core of my trading infrastructure - each chosen for reliability, functionality, and 
+                the specific edge they provide in today's markets. From charting to execution, 
+                journaling to analytics, this stack covers every aspect of professional trading.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+      <Footer />
+    </>
   );
 };
 

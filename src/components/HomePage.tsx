@@ -1,3 +1,4 @@
+
 import { Download, ExternalLink, Calendar, Star, TrendingUp, FileText, BarChart3, Users, Target, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -83,13 +84,13 @@ const HomePage = () => {
             <Star className="w-4 h-4 mr-2" />
             Professional Trading Guidance
           </div>
-          <h1 className="text-6xl md:text-8xl font-bold mb-8 text-white tracking-tight">
+          <h1 className="stage-light-title text-6xl md:text-8xl font-bold mb-8 text-white tracking-tight">
             Mr. K Trading Arena
           </h1>
-          <div className="section-header text-2xl md:text-3xl mb-8 max-w-4xl mx-auto">
+          <div className="section-header text-2xl md:text-3xl mb-8 max-w-4xl mx-auto text-white">
             Where Strategy Meets Success
           </div>
-          <p className="text-lg md:text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-gray-100 mb-12 max-w-3xl mx-auto leading-relaxed">
             Helping traders grow through <span className="text-white font-semibold">free resources</span>, 
             <span className="text-white font-semibold"> proven strategies</span>, and personalized guidance.
             Join thousands who've transformed their trading journey.
@@ -112,7 +113,7 @@ const HomePage = () => {
         <div className="max-w-4xl mx-auto text-center scroll-reveal">
           <h2 className="section-header">About Mr. K</h2>
           <div className="minimal-card">
-            <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+            <p className="text-lg text-white leading-relaxed mb-8">
               With over 8 years in the trading industry, I've helped thousands of traders 
               develop profitable strategies and maintain disciplined risk management. 
               My mission is simple: provide you with the tools, knowledge, and guidance 
@@ -122,15 +123,15 @@ const HomePage = () => {
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center group">
                 <div className="text-4xl font-bold text-white mb-2 group-hover:text-primary transition-colors">8+</div>
-                <div className="text-muted-foreground">Years Trading</div>
+                <div className="text-gray-100">Years Trading</div>
               </div>
               <div className="text-center group">
                 <div className="text-4xl font-bold text-white mb-2 group-hover:text-primary transition-colors">1000+</div>
-                <div className="text-muted-foreground">Students Mentored</div>
+                <div className="text-gray-100">Students Mentored</div>
               </div>
               <div className="text-center group">
                 <div className="text-4xl font-bold text-white mb-2 group-hover:text-primary transition-colors">95%</div>
-                <div className="text-muted-foreground">Success Rate</div>
+                <div className="text-gray-100">Success Rate</div>
               </div>
             </div>
           </div>
@@ -142,7 +143,7 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto scroll-reveal">
           <div className="text-center mb-16">
             <h2 className="section-header">Tools I Use</h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-white text-lg">
               The essential platforms and tools that power my daily trading operations
             </p>
           </div>
@@ -156,7 +157,7 @@ const HomePage = () => {
                     </div>
                     <h3 className="text-xl font-semibold text-white">{tool.name}</h3>
                   </div>
-                  <p className="text-muted-foreground mb-6 leading-relaxed">{tool.description}</p>
+                  <p className="text-gray-100 mb-6 leading-relaxed">{tool.description}</p>
                   <a 
                     href={tool.url} 
                     target="_blank" 
@@ -177,7 +178,7 @@ const HomePage = () => {
         <div className="max-w-7xl mx-auto scroll-reveal">
           <div className="text-center mb-16">
             <h2 className="section-header">Free Resources</h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-white text-lg">
               Valuable trading resources to kickstart your journey—completely free
             </p>
           </div>
@@ -189,10 +190,10 @@ const HomePage = () => {
                     <span className="px-4 py-2 bg-white/10 text-white text-xs font-medium rounded-full border border-white/20">
                       {resource.type}
                     </span>
-                    <Download className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <Download className="w-5 h-5 text-gray-100 group-hover:text-primary transition-colors" />
                   </div>
                   <h3 className="text-xl font-semibold mb-3 text-white">{resource.title}</h3>
-                  <p className="text-muted-foreground mb-6 leading-relaxed">{resource.description}</p>
+                  <p className="text-gray-100 mb-6 leading-relaxed">{resource.description}</p>
                   <Button className="btn-ghost w-full">
                     <Download className="mr-2 w-4 h-4" />
                     Download
@@ -216,7 +217,7 @@ const HomePage = () => {
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="section-header">Ready to Level Up Your Trading?</h2>
-          <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
+          <p className="text-white text-lg mb-8 max-w-2xl mx-auto">
             Book a personalized 30-minute consultation to discuss your trading goals, 
             get strategy recommendations, and receive professional guidance.
           </p>
