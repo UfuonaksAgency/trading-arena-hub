@@ -1,42 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Mr. K Trading Arena Design System - Dark Mode Only */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Dark Background System */
+    --background: 222 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Card & Surface Colors */
+    --card: 222 84% 6.5%;
+    --card-foreground: 210 40% 98%;
+    --card-border: 217.2 32.6% 12%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    /* Interactive Elements */
+    --popover: 222 84% 6.5%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 222.2 47.4% 11.2%;
+    /* Brand Colors - Trading Theme */
+    --primary: 142 76% 36%; /* Green for gains */
     --primary-foreground: 210 40% 98%;
+    --primary-glow: 142 76% 45%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Accent - Gold for premium feel */
+    --accent: 45 93% 58%;
+    --accent-foreground: 222 84% 4.9%;
+    --accent-glow: 45 93% 68%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Semantic Colors */
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84.2% 60.2%; /* Red for losses */
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* UI Elements */
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 142 76% 36%;
 
-    --radius: 0.5rem;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 45%));
+    --gradient-accent: linear-gradient(135deg, hsl(45 93% 58%), hsl(45 93% 68%));
+    --gradient-dark: linear-gradient(135deg, hsl(222 84% 4.9%), hsl(217.2 32.6% 8%));
+    --gradient-card: linear-gradient(135deg, hsl(222 84% 6.5%), hsl(217.2 32.6% 12%));
+
+    /* Shadows & Effects */
+    --shadow-primary: 0 0 30px hsl(142 76% 36% / 0.3);
+    --shadow-accent: 0 0 30px hsl(45 93% 58% / 0.3);
+    --shadow-card: 0 8px 32px hsl(222 84% 4.9% / 0.5);
+    --shadow-elegant: 0 20px 60px -10px hsl(222 84% 4.9% / 0.8);
+
+    /* Animation Variables */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +126,115 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-inter;
+    font-feature-settings: 'cv11', 'ss01';
+    font-variation-settings: 'opsz' 32;
   }
 }
+
+@layer components {
+  /* Trading Card Components */
+  .trading-card {
+    @apply bg-card border border-border rounded-lg p-6;
+    background: var(--gradient-card);
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-smooth);
+  }
+
+  .trading-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-elegant);
+  }
+
+  /* Hero Button Variants */
+  .btn-hero {
+    @apply bg-primary text-primary-foreground font-semibold px-8 py-4 rounded-lg;
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-primary);
+    transition: var(--transition-bounce);
+  }
+
+  .btn-hero:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 40px hsl(142 76% 36% / 0.5);
+  }
+
+  .btn-accent {
+    @apply bg-accent text-accent-foreground font-semibold px-8 py-4 rounded-lg;
+    background: var(--gradient-accent);
+    box-shadow: var(--shadow-accent);
+    transition: var(--transition-bounce);
+  }
+
+  .btn-accent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 40px hsl(45 93% 58% / 0.5);
+  }
+
+  /* Tool Grid Animation */
+  .tool-grid-item {
+    @apply trading-card cursor-pointer;
+    transition: var(--transition-smooth);
+  }
+
+  .tool-grid-item:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-elegant);
+  }
+
+  /* Section Headers */
+  .section-header {
+    @apply text-3xl md:text-4xl font-bold mb-6;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Consultation Form Styles */
+  .consultation-form {
+    @apply trading-card max-w-2xl mx-auto;
+  }
+
+  /* Glow Effects */
+  .glow-primary {
+    box-shadow: var(--shadow-primary);
+  }
+
+  .glow-accent {
+    box-shadow: var(--shadow-accent);
+  }
+
+  /* Animated Underline */
+  .animated-underline {
+    @apply relative;
+  }
+
+  .animated-underline::after {
+    @apply absolute bottom-0 left-0 w-full h-0.5 bg-primary origin-bottom-right;
+    content: '';
+    transform: scaleX(0);
+    transition: transform 0.3s ease-out;
+  }
+
+  .animated-underline:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom-left;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-muted rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-primary rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-glow;
+  }
