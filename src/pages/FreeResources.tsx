@@ -1,86 +1,62 @@
+import { useState, useEffect } from 'react';
 import { Download, FileText, Video, Calculator, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { supabase } from '@/integrations/supabase/client';
+
+interface FreeResource {
+  id: string;
+  title: string;
+  type: 'PDF' | 'VIDEO' | 'TOOL';
+  description: string;
+  features: string[];
+  download_url?: string;
+  icon_name: string;
+  size_info: string;
+  page_info: string;
+  display_order: number;
+}
 
 const FreeResources = () => {
-  const resources = [
-    {
-      title: 'Complete Trading Strategy Guide',
-      type: 'PDF',
-      description: 'Comprehensive 50-page guide covering risk management, entry/exit strategies, market analysis, and psychology. Perfect for beginners to intermediate traders.',
-      features: ['Risk Management Framework', 'Chart Pattern Recognition', 'Entry/Exit Strategies', 'Market Psychology'],
-      downloadUrl: '#',
-      icon: FileText,
-      size: '4.2 MB',
-      pages: '50 pages'
-    },
-    {
-      title: 'Weekly Market Analysis Webinar',
-      type: 'VIDEO',
-      description: 'Live recorded sessions where Mr. K breaks down weekly market trends, identifies opportunities, and shares trade setups.',
-      features: ['Live Market Analysis', 'Trade Setup Examples', 'Q&A Sessions', 'Market Outlook'],
-      downloadUrl: '#',
-      icon: Video,
-      size: '720p HD',
-      pages: '45 min'
-    },
-    {
-      title: 'Risk Management Calculator',
-      type: 'TOOL',
-      description: 'Excel spreadsheet tool to calculate position sizes, risk-to-reward ratios, and manage your trading portfolio effectively.',
-      features: ['Position Size Calculator', 'R:R Ratio Analysis', 'Portfolio Tracker', 'Stop Loss Calculator'],
-      downloadUrl: '#',
-      icon: Calculator,
-      size: '1.1 MB',
-      pages: 'Excel Tool'
-    },
-    {
-      title: 'Crypto Trading Cheat Sheet',
-      type: 'PDF',
-      description: 'Quick reference guide for crypto trading including key indicators, support/resistance levels, and trading patterns.',
-      features: ['Technical Indicators', 'Chart Patterns', 'Crypto-specific Tips', 'Quick Reference'],
-      downloadUrl: '#',
-      icon: FileText,
-      size: '2.8 MB',
-      pages: '12 pages'
-    },
-    {
-      title: 'Psychology of Trading Course',
-      type: 'VIDEO',
-      description: 'Deep dive into the mental aspects of trading, overcoming FOMO, managing emotions, and developing discipline.',
-      features: ['Emotional Control', 'FOMO Management', 'Discipline Building', 'Mindset Training'],
-      downloadUrl: '#',
-      icon: Video,
-      size: '1080p HD',
-      pages: '2.5 hours'
-    },
-    {
-      title: 'Market Scanner Setup Guide',
-      type: 'PDF',
-      description: 'Step-by-step guide to setting up market scanners in TradingView and other platforms to find the best trading opportunities.',
-      features: ['Scanner Configuration', 'Alert Setup', 'Screening Criteria', 'Platform Guides'],
-      downloadUrl: '#',
-      icon: FileText,
-      size: '3.5 MB',
-      pages: '28 pages'
-    }
-  ];
+  const [resources, setResources] = useState<FreeResource[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleDownload = (resourceTitle: string, downloadUrl: string) => {
-    // This will be connected to Supabase once integration is set up
-    console.log(`Downloading: ${resourceTitle}`);
-    // For now, just log the action
+  useEffect(() => {
+    fetchResources();
+  }, []);
+
+  const fetchResources = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('free_resources')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order');
+
+      if (error) throw error;
+      setResources((data || []) as FreeResource[]);
+    } catch (error) {
+      console.error('Error fetching resources:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'PDF':
+  const handleDownload = (resourceTitle: string, downloadUrl?: string) => {
+    if (downloadUrl) {
+      window.open(downloadUrl, '_blank');
+    }
+  };
+
+  const getTypeIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'FileText':
         return FileText;
-      case 'VIDEO':
+      case 'Video':
         return Video;
-      case 'TOOL':
+      case 'Calculator':
         return Calculator;
       default:
         return FileText;
@@ -131,63 +107,69 @@ const FreeResources = () => {
         {/* Resources Grid */}
         <section className="px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {resources.map((resource, index) => {
-                const IconComponent = getTypeIcon(resource.type);
-                return (
-                  <Card key={index} className="minimal-card group">
-                    <div className="p-6">
-                      {/* Header */}
-                      <div className="flex items-center justify-between mb-6">
-                        <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getTypeColor(resource.type)}`}>
-                          {resource.type}
-                        </span>
-                        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                          <span>{resource.size}</span>
-                          <span>•</span>
-                          <span>{resource.pages}</span>
+            {loading ? (
+              <div className="text-center py-20">
+                <div className="text-white">Loading resources...</div>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {resources.map((resource) => {
+                  const IconComponent = getTypeIcon(resource.icon_name);
+                  return (
+                    <Card key={resource.id} className="minimal-card group">
+                      <div className="p-6">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-6">
+                          <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getTypeColor(resource.type)}`}>
+                            {resource.type}
+                          </span>
+                          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                            <span>{resource.size_info}</span>
+                            <span>•</span>
+                            <span>{resource.page_info}</span>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Icon and Title */}
-                      <div className="flex items-center mb-4">
-                        <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                          <IconComponent className="w-6 h-6 text-primary" />
+                        {/* Icon and Title */}
+                        <div className="flex items-center mb-4">
+                          <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                            <IconComponent className="w-6 h-6 text-primary" />
+                          </div>
+                          <h3 className="text-xl font-semibold text-white">{resource.title}</h3>
                         </div>
-                        <h3 className="text-xl font-semibold text-white">{resource.title}</h3>
+
+                        {/* Description */}
+                        <p className="text-muted-foreground mb-6 leading-relaxed">
+                          {resource.description}
+                        </p>
+
+                        {/* Features */}
+                        <div className="mb-6">
+                          <h4 className="text-sm font-medium text-white mb-3">What's Included:</h4>
+                          <ul className="space-y-2">
+                            {resource.features.map((feature, featureIndex) => (
+                              <li key={featureIndex} className="flex items-center text-sm text-muted-foreground">
+                                <div className="w-1.5 h-1.5 bg-primary rounded-full mr-3"></div>
+                                {feature}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* Download Button */}
+                        <Button 
+                          onClick={() => handleDownload(resource.title, resource.download_url)}
+                          className="w-full btn-primary"
+                        >
+                          <Download className="mr-2 w-4 h-4" />
+                          Download Now
+                        </Button>
                       </div>
-
-                      {/* Description */}
-                      <p className="text-muted-foreground mb-6 leading-relaxed">
-                        {resource.description}
-                      </p>
-
-                      {/* Features */}
-                      <div className="mb-6">
-                        <h4 className="text-sm font-medium text-white mb-3">What's Included:</h4>
-                        <ul className="space-y-2">
-                          {resource.features.map((feature, featureIndex) => (
-                            <li key={featureIndex} className="flex items-center text-sm text-muted-foreground">
-                              <div className="w-1.5 h-1.5 bg-primary rounded-full mr-3"></div>
-                              {feature}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      {/* Download Button */}
-                      <Button 
-                        onClick={() => handleDownload(resource.title, resource.downloadUrl)}
-                        className="w-full btn-primary"
-                      >
-                        <Download className="mr-2 w-4 h-4" />
-                        Download Now
-                      </Button>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </section>
 

@@ -11,8 +11,8 @@ import Footer from '@/components/Footer';
 const BookConsultation = () => {
   const handleConsultationSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // This will be connected to Calendly integration
-    console.log('30-minute consultation form submitted');
+    // Redirect to Calendly or external booking system
+    window.open('https://calendly.com', '_blank');
   };
 
   return (

@@ -23,8 +23,8 @@ const Mentorship = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // This will be connected to Supabase once integration is set up
-    console.log('Mentorship application submitted:', formData);
+    // Integration with form handling service would go here
+    alert('Thank you for your interest! We will contact you within 24 hours.');
   };
 
   const handleInputChange = (field: string, value: string) => {

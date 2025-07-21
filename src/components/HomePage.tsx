@@ -1,4 +1,5 @@
 
+import { useState, useEffect } from 'react';
 import { Download, ExternalLink, Calendar, Star, TrendingUp, FileText, BarChart3, Users, Target, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -7,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const HomePage = () => {
   const tradingTools = [
@@ -48,34 +50,30 @@ const HomePage = () => {
     },
   ];
 
-  const featuredResources = [
-    {
-      title: 'Complete Trading Strategy Guide',
-      type: 'PDF',
-      description: 'Comprehensive 50-page guide covering risk management, entry/exit strategies, and market analysis.',
-      downloadUrl: '#',
-    },
-    {
-      title: 'Weekly Market Analysis',
-      type: 'VIDEO',
-      description: 'Live recorded sessions with market breakdowns and trade setups.',
-      downloadUrl: '#',
-    },
-    {
-      title: 'Risk Management Calculator',
-      type: 'TOOL',
-      description: 'Excel tool to calculate position sizes and risk-to-reward ratios.',
-      downloadUrl: '#',
-    },
-  ];
+  const [featuredResources, setFeaturedResources] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchFeaturedResources();
+  }, []);
+
+  const fetchFeaturedResources = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('free_resources')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order')
+        .limit(3);
+
+      if (error) throw error;
+      setFeaturedResources(data || []);
+    } catch (error) {
+      console.error('Error fetching featured resources:', error);
+    }
+  };
 
   const brands = ['Nike', 'Apple', 'Tesla', 'Amazon', 'Google'];
 
-  const handleConsultationSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // This will be connected to Calendly integration
-    console.log('30-minute consultation form submitted');
-  };
 
   return (
     <div className="min-h-screen">
@@ -208,8 +206,8 @@ const HomePage = () => {
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredResources.slice(0, 3).map((resource, index) => (
-              <div key={index} className="minimal-card group">
+            {featuredResources.map((resource) => (
+              <div key={resource.id} className="minimal-card group">
                 <div className="p-8">
                   <div className="flex items-center justify-between mb-6">
                     <span className="px-4 py-2 bg-white/10 text-white text-xs font-medium rounded-full border border-white/20">
