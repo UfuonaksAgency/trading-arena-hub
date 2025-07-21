@@ -69,6 +69,8 @@ const HomePage = () => {
     },
   ];
 
+  const brands = ['Nike', 'Apple', 'Tesla', 'Amazon', 'Google'];
+
   const handleConsultationSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // This will be connected to Calendly integration
@@ -112,14 +114,22 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Scrolling Brand Animation */}
-      <section className="py-16 overflow-hidden">
-        <div className="brand-scroll-container">
-          <div className="brand-scroll-text">Nike</div>
-          <div className="brand-scroll-text">Apple</div>
-          <div className="brand-scroll-text">Tesla</div>
-          <div className="brand-scroll-text">Amazon</div>
-          <div className="brand-scroll-text">Google</div>
+      {/* Static Brand Display */}
+      <section className="py-16 bg-muted/5">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <p className="text-gray-100 text-sm uppercase tracking-wide">Trusted by traders worldwide</p>
+          </div>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+            {brands.map((brand, index) => (
+              <div 
+                key={index} 
+                className="text-2xl md:text-3xl font-bold text-white/80 hover:text-white transition-colors duration-300 cursor-default"
+              >
+                {brand}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
