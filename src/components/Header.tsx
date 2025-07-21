@@ -20,15 +20,15 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center glow-primary group-hover:scale-110 transition-transform">
-              <TrendingUp className="w-5 h-5 text-primary-foreground" />
+          <Link to="/" className="flex items-center space-x-3 group">
+            <div className="w-10 h-10 bg-white/5 border border-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 group-hover:border-aurora-cyan">
+              <TrendingUp className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <span className="text-xl font-bold section-header text-lg mb-0">
               Mr. K Trading Arena
             </span>
           </Link>
@@ -39,18 +39,18 @@ const Header = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`text-sm font-medium transition-colors animated-underline ${
+                className={`text-sm font-medium transition-colors hover:text-aurora-cyan ${
                   isActive(item.href)
-                    ? 'text-primary'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'text-white'
+                    : 'text-gray-400'
                 }`}
               >
                 {item.name}
               </Link>
             ))}
-            <Button variant="outline" size="sm" asChild>
+            <button className="btn-ghost text-sm px-6 py-2">
               <Link to="/mentorship">Book Consultation</Link>
-            </Button>
+            </button>
           </div>
 
           {/* Mobile menu button */}
@@ -59,6 +59,7 @@ const Header = () => {
               variant="ghost"
               size="sm"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-white hover:text-aurora-cyan"
             >
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
@@ -68,15 +69,15 @@ const Header = () => {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 trading-card mt-2">
+            <div className="px-2 pt-2 pb-3 space-y-1 minimal-card mt-2">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
                     isActive(item.href)
-                      ? 'text-primary bg-primary/10'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      ? 'text-white bg-white/10'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -84,11 +85,11 @@ const Header = () => {
                 </Link>
               ))}
               <div className="pt-2">
-                <Button variant="outline" size="sm" className="w-full" asChild>
+                <button className="btn-ghost text-sm w-full">
                   <Link to="/mentorship" onClick={() => setIsMenuOpen(false)}>
                     Book Consultation
                   </Link>
-                </Button>
+                </button>
               </div>
             </div>
           </div>

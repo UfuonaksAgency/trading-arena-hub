@@ -28,22 +28,22 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-card border-t border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <footer className="bg-black border-t border-white/10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="md:col-span-2">
-            <Link to="/" className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center glow-primary">
-                <TrendingUp className="w-5 h-5 text-primary-foreground" />
+            <Link to="/" className="flex items-center space-x-3 mb-6 group">
+              <div className="w-10 h-10 bg-white/5 border border-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 group-hover:border-aurora-cyan">
+                <TrendingUp className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+              <span className="text-xl font-bold section-header text-lg mb-0">
                 Mr. K Trading Arena
               </span>
             </Link>
-            <p className="text-muted-foreground mb-6 max-w-md">
-              Helping traders grow through free tools and real-world insights. 
-              No fluff, just strategy.
+            <p className="text-gray-400 mb-8 max-w-md leading-relaxed">
+              Guided by Aurora's light, helping traders illuminate their path to success 
+              through proven strategies and genuine insights.
             </p>
             
             {/* Social Links */}
@@ -54,7 +54,7 @@ const Footer = () => {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors glow-primary"
+                  className="w-12 h-12 bg-white/5 border border-white/20 rounded-xl flex items-center justify-center hover:bg-white hover:text-black transition-all duration-300 hover:scale-110 group"
                   aria-label={link.name}
                 >
                   <link.icon className="w-5 h-5" />
@@ -65,25 +65,25 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-semibold mb-6 text-white">Aurora Navigation</h3>
+            <ul className="space-y-3">
               <li>
-                <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors animated-underline">
+                <Link to="/" className="text-gray-400 hover:text-aurora-cyan transition-colors text-sm">
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/mentorship" className="text-muted-foreground hover:text-foreground transition-colors animated-underline">
+                <Link to="/mentorship" className="text-gray-400 hover:text-aurora-green transition-colors text-sm">
                   1-on-1 Mentorship
                 </Link>
               </li>
               <li>
-                <a href="/#resources" className="text-muted-foreground hover:text-foreground transition-colors animated-underline">
+                <a href="/#resources" className="text-gray-400 hover:text-aurora-magenta transition-colors text-sm">
                   Free Resources
                 </a>
               </li>
               <li>
-                <a href="/#contact" className="text-muted-foreground hover:text-foreground transition-colors animated-underline">
+                <a href="/#contact" className="text-gray-400 hover:text-aurora-violet transition-colors text-sm">
                   Contact
                 </a>
               </li>
@@ -92,28 +92,33 @@ const Footer = () => {
 
           {/* Legal */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Legal</h3>
-            <ul className="space-y-2">
-              {legalLinks.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-muted-foreground hover:text-foreground transition-colors animated-underline"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
+            <h3 className="text-lg font-semibold mb-6 text-white">Legal Aurora</h3>
+            <ul className="space-y-3">
+              {legalLinks.map((link, index) => {
+                const colors = ['hover:text-aurora-cyan', 'hover:text-aurora-green', 'hover:text-aurora-magenta', 'hover:text-aurora-violet'];
+                return (
+                  <li key={link.name}>
+                    <Link
+                      to={link.href}
+                      className={`text-gray-400 transition-colors text-sm ${colors[index % colors.length]}`}
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-border mt-8 pt-8 text-center">
-          <p className="text-muted-foreground">
+        <div className="border-t border-white/10 mt-12 pt-8 text-center">
+          <p className="text-gray-400 text-sm">
             © {new Date().getFullYear()} Mr. K Trading Arena. All rights reserved.
           </p>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-xs text-gray-500 mt-3">
             Trading involves substantial risk. Past performance is not indicative of future results.
+            <br />
+            <span className="text-aurora-cyan">Illuminated by Aurora's wisdom.</span>
           </p>
         </div>
       </div>
