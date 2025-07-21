@@ -96,15 +96,30 @@ const HomePage = () => {
             Join thousands who've transformed their trading journey.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Button className="btn-primary text-lg px-10 py-4">
-              <TrendingUp className="mr-3 h-6 w-6" />
-              <Link to="/free-resources">Explore Resources</Link>
-            </Button>
-            <Button className="btn-ghost text-lg px-10 py-4">
-              <Calendar className="mr-3 h-6 w-6" />
-              <Link to="/book-consultation">Book 30-Min Call</Link>
-            </Button>
+            <Link to="/free-resources">
+              <Button className="btn-primary text-lg px-10 py-4">
+                <TrendingUp className="mr-3 h-6 w-6" />
+                Explore Resources
+              </Button>
+            </Link>
+            <Link to="/book-consultation">
+              <Button className="btn-ghost text-lg px-10 py-4">
+                <Calendar className="mr-3 h-6 w-6" />
+                Book 30-Min Call
+              </Button>
+            </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Scrolling Brand Animation */}
+      <section className="py-16 overflow-hidden">
+        <div className="brand-scroll-container">
+          <div className="brand-scroll-text">Nike</div>
+          <div className="brand-scroll-text">Apple</div>
+          <div className="brand-scroll-text">Tesla</div>
+          <div className="brand-scroll-text">Amazon</div>
+          <div className="brand-scroll-text">Google</div>
         </div>
       </section>
 
@@ -173,7 +188,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Free Resources Section */}
+      {/* Free Resources Preview Section */}
       <section id="resources" className="py-20 px-4 bg-muted/10">
         <div className="max-w-7xl mx-auto scroll-reveal">
           <div className="text-center mb-16">
@@ -183,7 +198,7 @@ const HomePage = () => {
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredResources.map((resource, index) => (
+            {featuredResources.slice(0, 3).map((resource, index) => (
               <div key={index} className="minimal-card group">
                 <div className="p-8">
                   <div className="flex items-center justify-between mb-6">
@@ -225,10 +240,12 @@ const HomePage = () => {
             <Clock className="w-4 h-4 mr-2" />
             30-minute session • $50 USD
           </div>
-          <Button className="btn-primary text-lg px-10 py-4">
-            <Calendar className="mr-3 h-6 w-6" />
-            <Link to="/book-consultation">Schedule Your Call</Link>
-          </Button>
+          <Link to="/book-consultation">
+            <Button className="btn-primary text-lg px-10 py-4">
+              <Calendar className="mr-3 h-6 w-6" />
+              Schedule Your Call
+            </Button>
+          </Link>
         </div>
       </section>
     </div>

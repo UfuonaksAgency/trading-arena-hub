@@ -47,9 +47,11 @@ const Header = () => {
                 {item.name}
               </Link>
             ))}
-            <button className="btn-ghost text-sm px-6 py-2">
-              <Link to="/book-consultation">Book Consultation</Link>
-            </button>
+            <Link to="/book-consultation">
+              <Button className="btn-ghost text-sm px-6 py-2">
+                Book Consultation
+              </Button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -84,11 +86,11 @@ const Header = () => {
                 </Link>
               ))}
               <div className="pt-2">
-                <button className="btn-ghost text-sm w-full">
-                  <Link to="/book-consultation" onClick={() => setIsMenuOpen(false)}>
+                <Link to="/book-consultation" onClick={() => setIsMenuOpen(false)}>
+                  <Button className="btn-ghost text-sm w-full">
                     Book Consultation
-                  </Link>
-                </button>
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
