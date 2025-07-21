@@ -8,50 +8,50 @@
 
 @layer base {
   :root {
-    /* White Background & Black Text */
-    --background: 0 0% 100%; /* Pure white */
-    --foreground: 0 0% 0%; /* Pure black */
+    /* Pure Black & White Base */
+    --background: 0 0% 0%; /* Pure black */
+    --foreground: 0 0% 100%; /* Pure white */
 
     /* Card & Surface Colors */
-    --card: 0 0% 98%; /* Very light gray */
-    --card-foreground: 0 0% 0%; /* Black text */
+    --card: 0 0% 5%; /* Very dark gray */
+    --card-foreground: 0 0% 100%; /* White text */
 
     /* Interactive Elements */
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Primary System - Black */
-    --primary: 0 0% 0%; /* Black */
-    --primary-foreground: 0 0% 100%; /* White */
+    /* Primary System - White */
+    --primary: 0 0% 100%; /* White */
+    --primary-foreground: 0 0% 0%; /* Black */
 
-    /* Secondary System - Light Gray */
-    --secondary: 0 0% 95%; /* Light gray */
-    --secondary-foreground: 0 0% 0%; /* Black text */
+    /* Secondary System - Dark Gray */
+    --secondary: 0 0% 15%; /* Dark gray */
+    --secondary-foreground: 0 0% 100%; /* White text */
 
     /* Accent System */
-    --accent: 0 0% 90%; /* Light gray */
-    --accent-foreground: 0 0% 0%; /* Black text */
+    --accent: 0 0% 20%; /* Medium gray */
+    --accent-foreground: 0 0% 100%; /* White text */
 
     /* Muted System */
-    --muted: 0 0% 96%; /* Very light */
-    --muted-foreground: 0 0% 40%; /* Dark gray text */
+    --muted: 0 0% 10%; /* Very dark */
+    --muted-foreground: 0 0% 70%; /* Light gray text */
 
     /* Semantic Colors */
     --destructive: 0 84% 60%; /* Red */
     --destructive-foreground: 0 0% 100%;
 
     /* UI Elements */
-    --border: 0 0% 85%; /* Light gray borders */
-    --input: 0 0% 98%; /* Light input backgrounds */
-    --ring: 0 0% 0%; /* Black focus rings */
+    --border: 0 0% 20%; /* Light gray borders */
+    --input: 0 0% 10%; /* Dark input backgrounds */
+    --ring: 0 0% 100%; /* White focus rings */
 
     /* Gradients */
-    --gradient-light: linear-gradient(135deg, hsl(0 0% 100%), hsl(0 0% 98%));
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 98%), hsl(0 0% 96%));
+    --gradient-dark: linear-gradient(135deg, hsl(0 0% 0%), hsl(0 0% 5%));
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 10%));
 
     /* Shadows & Effects */
-    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.1);
-    --shadow-elegant: 0 20px 60px -10px hsl(0 0% 0% / 0.15);
+    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.8);
+    --shadow-elegant: 0 20px 60px -10px hsl(0 0% 0% / 0.9);
 
     /* Animation Variables */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -110,16 +110,16 @@
   /* Stage Light Effect for Main Title */
   .stage-light-title {
     position: relative;
-    background: linear-gradient(45deg, #000000, #333333, #000000);
+    background: linear-gradient(45deg, #ffffff, #f0f0f0, #ffffff);
     background-size: 400% 400%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     animation: stageLight 4s ease-in-out infinite;
     text-shadow: 
-      0 0 20px rgba(0, 0, 0, 0.8),
-      0 0 40px rgba(0, 0, 0, 0.6),
-      0 0 60px rgba(0, 0, 0, 0.4);
+      0 0 20px rgba(255, 255, 255, 0.8),
+      0 0 40px rgba(255, 255, 255, 0.6),
+      0 0 60px rgba(255, 255, 255, 0.4);
   }
   
   .stage-light-title::before {
@@ -130,8 +130,8 @@
     right: -20%;
     bottom: -50%;
     background: radial-gradient(ellipse at center, 
-      rgba(0, 0, 0, 0.3) 0%, 
-      rgba(0, 0, 0, 0.1) 30%, 
+      rgba(255, 255, 255, 0.3) 0%, 
+      rgba(255, 255, 255, 0.1) 30%, 
       transparent 70%);
     animation: spotlightMove 6s ease-in-out infinite;
     pointer-events: none;
@@ -170,8 +170,8 @@
 
   /* Simple Hero Section */
   .simple-hero {
-    @apply relative min-h-screen bg-white overflow-hidden flex items-center;
-    background: radial-gradient(ellipse at center, hsl(0 0% 98%) 0%, hsl(0 0% 100%) 100%);
+    @apply relative min-h-screen bg-black overflow-hidden flex items-center;
+    background: radial-gradient(ellipse at center, hsl(0 0% 8%) 0%, hsl(0 0% 0%) 100%);
   }
 
   /* Minimalist Card Components */
@@ -190,29 +190,29 @@
 
   /* Button Variants */
   .btn-ghost {
-    @apply border border-black text-black font-semibold px-8 py-4 rounded-lg bg-transparent;
+    @apply border border-white text-white font-semibold px-8 py-4 rounded-lg bg-transparent;
     transition: var(--transition-smooth);
   }
 
   .btn-ghost:hover {
-    @apply bg-black text-white;
+    @apply bg-white text-black;
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px hsl(0 0% 0% / 0.3);
+    box-shadow: 0 10px 30px hsl(0 0% 100% / 0.3);
   }
 
   .btn-primary {
-    @apply bg-black text-white font-semibold px-8 py-4 rounded-lg;
+    @apply bg-white text-black font-semibold px-8 py-4 rounded-lg;
     transition: var(--transition-smooth);
   }
 
   .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px hsl(0 0% 0% / 0.3);
+    box-shadow: 0 10px 30px hsl(0 0% 100% / 0.3);
   }
 
   /* Section Headers */
   .section-header {
-    @apply text-3xl md:text-4xl font-bold mb-6 text-black;
+    @apply text-3xl md:text-4xl font-bold mb-6 text-white;
   }
 
   /* Tool Grid Animation */
