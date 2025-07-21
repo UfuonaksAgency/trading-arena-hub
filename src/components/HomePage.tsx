@@ -101,14 +101,14 @@ const HomePage = () => {
             </Button>
             <Button className="btn-ghost text-lg px-10 py-4">
               <Calendar className="mr-3 h-6 w-6" />
-              <a href="#contact">Book 30-Min Call</a>
+              <Link to="/book-consultation">Book 30-Min Call</Link>
             </Button>
           </div>
         </div>
       </section>
 
       {/* About Mr. K Section */}
-      <section className="py-20 px-4 bg-muted/5">
+      <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center scroll-reveal">
           <h2 className="section-header">About Mr. K</h2>
           <div className="minimal-card">
@@ -173,7 +173,7 @@ const HomePage = () => {
       </section>
 
       {/* Free Resources Section */}
-      <section id="resources" className="py-20 px-4 bg-muted/5">
+      <section id="resources" className="py-20 px-4 bg-muted/10">
         <div className="max-w-7xl mx-auto scroll-reveal">
           <div className="text-center mb-16">
             <h2 className="section-header">Free Resources</h2>
@@ -213,85 +213,21 @@ const HomePage = () => {
       </section>
 
       {/* Talk to a Pro Section */}
-      <section id="contact" className="py-20 px-4">
-        <div className="max-w-4xl mx-auto scroll-reveal">
-          <div className="text-center mb-16">
-            <h2 className="section-header">Talk to a Pro</h2>
-            <p className="text-muted-foreground text-lg">
-              Book a 30-minute consultation call to discuss your trading goals and get personalized advice.
-            </p>
-            <div className="inline-flex items-center px-4 py-2 bg-accent/10 border border-accent/20 rounded-full text-accent text-sm font-medium mt-4">
-              <Clock className="w-4 h-4 mr-2" />
-              30-minute session • $50 USD
-            </div>
+      <section className="py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="section-header">Ready to Level Up Your Trading?</h2>
+          <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
+            Book a personalized 30-minute consultation to discuss your trading goals, 
+            get strategy recommendations, and receive professional guidance.
+          </p>
+          <div className="inline-flex items-center px-4 py-2 bg-accent/10 border border-accent/20 rounded-full text-accent text-sm font-medium mb-8">
+            <Clock className="w-4 h-4 mr-2" />
+            30-minute session • $50 USD
           </div>
-          
-          <form onSubmit={handleConsultationSubmit} className="minimal-card max-w-2xl mx-auto">
-            <div className="grid md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <Label htmlFor="name" className="text-white">Full Name</Label>
-                <Input id="name" placeholder="Enter your full name" required className="bg-white/5 border-white/20 text-white placeholder:text-gray-400" />
-              </div>
-              <div>
-                <Label htmlFor="email" className="text-white">Email Address</Label>
-                <Input id="email" type="email" placeholder="Enter your email" required className="bg-white/5 border-white/20 text-white placeholder:text-gray-400" />
-              </div>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <Label htmlFor="telegram" className="text-white">Telegram Handle</Label>
-                <Input id="telegram" placeholder="@yourusername" className="bg-white/5 border-white/20 text-white placeholder:text-gray-400" />
-              </div>
-              <div>
-                <Label htmlFor="timePreference" className="text-white">Preferred Time</Label>
-                <Select>
-                  <SelectTrigger className="bg-white/5 border-white/20 text-white">
-                    <SelectValue placeholder="Select preferred time" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-black border-white/20">
-                    <SelectItem value="morning">Morning (9AM - 12PM)</SelectItem>
-                    <SelectItem value="afternoon">Afternoon (12PM - 5PM)</SelectItem>
-                    <SelectItem value="evening">Evening (5PM - 8PM)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="mb-8">
-              <Label htmlFor="purpose" className="text-white">What would you like to discuss?</Label>
-              <Textarea 
-                id="purpose" 
-                placeholder="Tell me about your trading experience, specific challenges, and what you'd like to focus on during our 30-minute call..."
-                rows={4}
-                required
-                className="bg-white/5 border-white/20 text-white placeholder:text-gray-400"
-              />
-            </div>
-            
-            <div className="mb-6">
-              <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                <p className="text-sm text-muted-foreground mb-2">
-                  <strong>What to expect:</strong>
-                </p>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Personalized trading advice based on your experience level</li>
-                  <li>• Strategy recommendations and risk management tips</li>
-                  <li>• Platform recommendations and setup guidance</li>
-                  <li>• Q&A session for your specific trading questions</li>
-                </ul>
-              </div>
-            </div>
-            
-            <Button type="submit" className="btn-primary w-full">
-              <Calendar className="mr-2 w-5 h-5" />
-              Book 30-Minute Consultation
-            </Button>
-            
-            <p className="text-center text-sm text-muted-foreground mt-4">
-              You'll receive a Calendly link to schedule your preferred time slot.
-            </p>
-          </form>
+          <Button className="btn-primary text-lg px-10 py-4">
+            <Calendar className="mr-3 h-6 w-6" />
+            <Link to="/book-consultation">Schedule Your Call</Link>
+          </Button>
         </div>
       </section>
     </div>

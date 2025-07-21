@@ -4,8 +4,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Tools from "./pages/Tools";
 import Mentorship from "./pages/Mentorship";
 import FreeResources from "./pages/FreeResources";
+import BookConsultation from "./pages/BookConsultation";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Refund from "./pages/Refund";
@@ -22,8 +24,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/tools" element={<Tools />} />
           <Route path="/mentorship" element={<Mentorship />} />
           <Route path="/free-resources" element={<FreeResources />} />
+          <Route path="/book-consultation" element={<BookConsultation />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/refund" element={<Refund />} />
