@@ -240,7 +240,7 @@
 
   /* Consultation Form Styles */
   .consultation-form {
-    @apply trading-card max-w-2xl mx-auto;
+    @apply minimal-card max-w-2xl mx-auto;
   }
 
   /* Glow Effects */
