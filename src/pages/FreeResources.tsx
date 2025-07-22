@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
+import { ScrollReveal } from '@/hooks/useScrollReveal';
 
 interface FreeResource {
   id: string;
@@ -81,8 +82,9 @@ const FreeResources = () => {
       <Header />
       <div className="min-h-screen pt-24 pb-16">
         {/* Hero Section */}
-        <section className="px-4 mb-16">
-          <div className="max-w-4xl mx-auto text-center">
+        <ScrollReveal delay={200} duration={1000} distance="50px">
+          <section className="px-4 mb-16">
+            <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-sm font-medium mb-6">
               <Download className="w-4 h-4 mr-2" />
               100% Free Resources
@@ -101,22 +103,25 @@ const FreeResources = () => {
               <Star className="w-5 h-5 mr-2" />
               <span className="font-medium">All resources are regularly updated</span>
             </div>
-          </div>
-        </section>
+            </div>
+          </section>
+        </ScrollReveal>
 
         {/* Resources Grid */}
-        <section className="px-4">
-          <div className="max-w-7xl mx-auto">
-            {loading ? (
-              <div className="text-center py-20">
-                <div className="text-white">Loading resources...</div>
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {resources.map((resource) => {
-                  const IconComponent = getTypeIcon(resource.icon_name);
-                  return (
-                    <Card key={resource.id} className="minimal-card group">
+        <ScrollReveal delay={400} duration={800}>
+          <section className="px-4">
+            <div className="max-w-7xl mx-auto">
+              {loading ? (
+                <div className="text-center py-20">
+                  <div className="text-white">Loading resources...</div>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {resources.map((resource, index) => {
+                    const IconComponent = getTypeIcon(resource.icon_name);
+                    return (
+                      <ScrollReveal key={resource.id} delay={600 + (index * 100)} duration={600}>
+                        <Card className="minimal-card group">
                       <div className="p-6">
                         {/* Header */}
                         <div className="flex items-center justify-between mb-6">
@@ -164,18 +169,21 @@ const FreeResources = () => {
                           <Download className="mr-2 w-4 h-4" />
                           Download Now
                         </Button>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </section>
+                        </div>
+                      </Card>
+                      </ScrollReveal>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </section>
+        </ScrollReveal>
 
         {/* Call to Action */}
-        <section className="px-4 mt-20">
-          <div className="max-w-4xl mx-auto text-center">
+        <ScrollReveal delay={800} duration={800}>
+          <section className="px-4 mt-20">
+            <div className="max-w-4xl mx-auto text-center">
             <div className="minimal-card">
               <h2 className="text-3xl font-bold mb-4 text-white">
                 Found These Resources Helpful?
@@ -192,8 +200,9 @@ const FreeResources = () => {
                 </Button>
               </div>
             </div>
-          </div>
-        </section>
+            </div>
+          </section>
+        </ScrollReveal>
       </div>
       <Footer />
     </>

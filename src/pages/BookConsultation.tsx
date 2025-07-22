@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { ScrollReveal } from '@/hooks/useScrollReveal';
 
 const BookConsultation = () => {
   const handleConsultationSubmit = (e: React.FormEvent) => {
@@ -20,8 +21,9 @@ const BookConsultation = () => {
       <Header />
       <div className="min-h-screen pt-20">
         {/* Header */}
-        <section className="py-16 px-4">
-          <div className="max-w-4xl mx-auto text-center">
+        <ScrollReveal delay={200} duration={1000} distance="50px">
+          <section className="py-16 px-4">
+            <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center px-6 py-3 border border-white/20 rounded-full text-white text-sm font-medium mb-8 backdrop-blur-sm bg-white/5">
               <Star className="w-4 h-4 mr-2" />
               Professional Trading Consultation
@@ -35,17 +37,19 @@ const BookConsultation = () => {
               <Clock className="w-4 h-4 mr-2" />
               30-minute session • $50 USD
             </div>
-          </div>
-        </section>
+            </div>
+          </section>
+        </ScrollReveal>
 
         {/* What You'll Get */}
-        <section className="py-16 px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="section-header">What You'll Get</h2>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
+        <ScrollReveal delay={400} duration={800}>
+          <section className="py-16 px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="section-header">What You'll Get</h2>
+              </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
                 {
                   icon: CheckCircle,
                   title: "Personalized Strategy",
@@ -66,22 +70,26 @@ const BookConsultation = () => {
                   title: "Q&A Session",
                   description: "Direct answers to your specific trading questions and challenges"
                 }
-              ].map((benefit, index) => (
-                <Card key={index} className="minimal-card text-center">
+                ].map((benefit, index) => (
+                  <ScrollReveal key={index} delay={600 + (index * 100)} duration={600}>
+                    <Card className="minimal-card text-center">
                   <div className="p-6">
                     <benefit.icon className="w-12 h-12 text-primary mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-white mb-2">{benefit.title}</h3>
                     <p className="text-gray-100 text-sm">{benefit.description}</p>
                   </div>
                 </Card>
-              ))}
+                  </ScrollReveal>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </ScrollReveal>
 
         {/* Booking Form */}
-        <section className="py-16 px-4">
-          <div className="max-w-2xl mx-auto">
+        <ScrollReveal delay={800} duration={800}>
+          <section className="py-16 px-4">
+            <div className="max-w-2xl mx-auto">
             <form onSubmit={handleConsultationSubmit} className="minimal-card">
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-white mb-2">Schedule Your Call</h2>
@@ -154,8 +162,9 @@ const BookConsultation = () => {
                 You'll receive a Calendly link within 24 hours to schedule your preferred time slot.
               </p>
             </form>
-          </div>
-        </section>
+            </div>
+          </section>
+        </ScrollReveal>
       </div>
       <Footer />
     </>

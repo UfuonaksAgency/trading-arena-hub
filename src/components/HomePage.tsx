@@ -79,7 +79,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="simple-hero">
+      <section className="simple-hero min-h-screen flex items-center justify-center">
         <ScrollReveal delay={200} duration={1000} distance="50px">
           <div className="container mx-auto px-6 text-center">
             <div className="inline-flex items-center px-6 py-3 border border-white/20 rounded-full text-white text-sm font-medium mb-8 backdrop-blur-sm bg-white/5">
