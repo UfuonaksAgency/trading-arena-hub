@@ -5,12 +5,19 @@ import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
+// Import logos
+import tradingViewLogo from '@/assets/logos/tradingview-logo.png';
+import notionLogo from '@/assets/logos/notion-logo.png';
+import coinglassLogo from '@/assets/logos/coinglass-logo.webp';
+import bingxLogo from '@/assets/logos/bingx-logo.svg';
+
 const Tools = () => {
   const tradingTools = [
     {
       name: 'TradingView',
       description: 'Advanced charting and technical analysis platform with over 100 built-in indicators, drawing tools, and real-time market data across stocks, forex, crypto, and commodities.',
       icon: BarChart3,
+      logo: tradingViewLogo,
       url: 'https://tradingview.com',
       features: ['100+ Technical Indicators', 'Real-time Data', 'Multi-timeframe Analysis', 'Custom Alerts', 'Social Trading Ideas']
     },
@@ -18,6 +25,7 @@ const Tools = () => {
       name: 'Notion',
       description: 'All-in-one workspace for trading journals, strategy documentation, and performance tracking. Essential for maintaining discipline and analyzing trading patterns.',
       icon: FileText,
+      logo: notionLogo,
       url: 'https://notion.so',
       features: ['Trading Journal Templates', 'Strategy Documentation', 'Performance Analytics', 'Goal Tracking', 'Market Research Notes']
     },
@@ -25,6 +33,7 @@ const Tools = () => {
       name: 'Coinglass',
       description: 'Comprehensive crypto market analytics platform providing liquidation data, funding rates, and derivatives insights for informed trading decisions.',
       icon: TrendingUp,
+      logo: coinglassLogo,
       url: 'https://coinglass.com',
       features: ['Liquidation Heatmaps', 'Funding Rate Analysis', 'Options Flow', 'Futures Data', 'Market Sentiment']
     },
@@ -32,6 +41,7 @@ const Tools = () => {
       name: 'CoinMarketMan',
       description: 'Advanced portfolio tracking and management tool specifically designed for cryptocurrency traders and investors.',
       icon: Target,
+      logo: null,
       url: '#',
       features: ['Portfolio Analytics', 'P&L Tracking', 'Risk Assessment', 'Tax Reporting', 'Performance Metrics']
     },
@@ -39,6 +49,7 @@ const Tools = () => {
       name: 'BingX',
       description: 'Professional cryptocurrency exchange offering spot and derivatives trading with advanced order types and competitive fees.',
       icon: TrendingUp,
+      logo: bingxLogo,
       url: 'https://bingx.com',
       features: ['Spot Trading', 'Futures & Options', 'Copy Trading', 'Low Fees', 'Advanced Order Types']
     },
@@ -46,6 +57,7 @@ const Tools = () => {
       name: 'WEEX',
       description: 'Cutting-edge derivatives trading platform with institutional-grade tools and deep liquidity for professional traders.',
       icon: BarChart3,
+      logo: null,
       url: '#',
       features: ['Perpetual Contracts', 'Options Trading', 'Deep Liquidity', 'API Access', 'Risk Management Tools']
     },
@@ -74,8 +86,16 @@ const Tools = () => {
                 <Card key={index} className="minimal-card group">
                   <div className="p-8">
                     <div className="flex items-center mb-6">
-                      <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center mr-6 group-hover:bg-white group-hover:text-black transition-all duration-300">
-                        <tool.icon className="w-8 h-8" />
+                      <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center mr-6 group-hover:bg-white/10 transition-all duration-300 p-2">
+                        {tool.logo ? (
+                          <img 
+                            src={tool.logo} 
+                            alt={`${tool.name} logo`}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <tool.icon className="w-8 h-8 text-white group-hover:text-primary transition-colors" />
+                        )}
                       </div>
                       <div>
                         <h3 className="text-2xl font-semibold text-white mb-2">{tool.name}</h3>
