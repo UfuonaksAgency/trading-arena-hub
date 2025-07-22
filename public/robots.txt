@@ -1,8 +1,20 @@
 User-agent: *
 Allow: /
 
+# Block admin panel from search engines
+Disallow: /admin
+
 # Sitemap
 Sitemap: https://yoursite.lovable.app/sitemap.xml
 
-# Crawl-delay
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Additional directives for better SEO
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
 Crawl-delay: 1
