@@ -139,7 +139,7 @@ const HomePage = () => {
             <p className="text-white/70 text-lg mb-8">Professional-grade platforms and analytics that power my trading success</p>
           </div>
           <div className="relative mb-12">
-            <div className="flex animate-scroll-brands">
+            <div className="flex animate-scroll-brands md:animate-scroll-brands-md lg:animate-scroll-brands-lg">
               {[...tradingBrands, ...tradingBrands].map((brand, index) => (
                 <div 
                   key={index} 
