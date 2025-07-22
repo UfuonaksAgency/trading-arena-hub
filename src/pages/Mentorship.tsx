@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { ScrollReveal } from '@/hooks/useScrollReveal';
 
 const Mentorship = () => {
   const [formData, setFormData] = useState({
@@ -80,87 +81,98 @@ const Mentorship = () => {
       <Header />
       <div className="min-h-screen pt-24 pb-16">
       {/* Hero Section */}
-      <section className="px-4 mb-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center px-4 py-2 bg-white/20 border border-white/30 rounded-full text-white text-sm font-medium mb-6 backdrop-blur-sm">
-            <Star className="w-4 h-4 mr-2" />
-            Exclusive Mentorship Program
+      <ScrollReveal delay={200} duration={1000}>
+        <section className="px-4 mb-16">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center px-4 py-2 bg-white/20 border border-white/30 rounded-full text-white text-sm font-medium mb-6 backdrop-blur-sm">
+              <Star className="w-4 h-4 mr-2" />
+              Exclusive Mentorship Program
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
+              1-on-1 Mentorship with{' '}
+              <span className="text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.5)] font-extrabold">
+                Mr. K
+              </span>
+            </h1>
+            <p className="text-xl text-white/80 mb-8">
+              Selection-only mentorship for serious traders ready to take their skills 
+              to the professional level. Limited spots available.
+            </p>
+            <div className="inline-flex items-center px-6 py-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive">
+              <Clock className="w-5 h-5 mr-2" />
+              <span className="font-medium">Only 5 spots available this month</span>
+            </div>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold mb-6 text-white">
-            1-on-1 Mentorship with{' '}
-            <span className="text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.5)] font-extrabold">
-              Mr. K
-            </span>
-          </h1>
-          <p className="text-xl text-white/80 mb-8">
-            Selection-only mentorship for serious traders ready to take their skills 
-            to the professional level. Limited spots available.
-          </p>
-          <div className="inline-flex items-center px-6 py-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive">
-            <Clock className="w-5 h-5 mr-2" />
-            <span className="font-medium">Only 5 spots available this month</span>
-          </div>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
 
       {/* Benefits Section */}
-      <section className="px-4 mb-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="section-header text-center mb-12">What You'll Get</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            {benefits.map((benefit, index) => (
-              <Card key={index} className="minimal-card">
-                <div className="p-6">
-                  <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mr-4">
-                      <benefit.icon className="w-6 h-6 text-primary" />
+      <ScrollReveal delay={300} duration={800}>
+        <section className="px-4 mb-16">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="section-header text-center mb-12">What You'll Get</h2>
+            <div className="grid md:grid-cols-2 gap-8">
+              {benefits.map((benefit, index) => (
+                <ScrollReveal key={index} delay={400 + (index * 100)} duration={600}>
+                  <Card className="minimal-card">
+                    <div className="p-6">
+                      <div className="flex items-center mb-4">
+                        <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mr-4">
+                          <benefit.icon className="w-6 h-6 text-primary" />
+                        </div>
+                        <h3 className="text-xl font-semibold">{benefit.title}</h3>
+                      </div>
+                      <p className="text-muted-foreground">{benefit.description}</p>
                     </div>
-                    <h3 className="text-xl font-semibold">{benefit.title}</h3>
-                  </div>
-                  <p className="text-muted-foreground">{benefit.description}</p>
-                </div>
-              </Card>
-            ))}
+                  </Card>
+                </ScrollReveal>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
 
       {/* Testimonials */}
-      <section className="px-4 mb-16 bg-card/50 py-16">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="section-header text-center mb-12">Success Stories</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="minimal-card">
-                <div className="p-6">
-                  <div className="flex items-center mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground mb-4">"{testimonial.content}"</p>
-                  <div>
-                    <div className="font-semibold">{testimonial.name}</div>
-                    <div className="text-sm text-muted-foreground">{testimonial.role}</div>
-                  </div>
-                </div>
-              </Card>
-            ))}
+      <ScrollReveal delay={800} duration={800}>
+        <section className="px-4 mb-16 bg-card/50 py-16">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="section-header text-center mb-12">Success Stories</h2>
+            <div className="grid md:grid-cols-3 gap-8">
+              {testimonials.map((testimonial, index) => (
+                <ScrollReveal key={index} delay={900 + (index * 100)} duration={600}>
+                  <Card className="minimal-card">
+                    <div className="p-6">
+                      <div className="flex items-center mb-4">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                        ))}
+                      </div>
+                      <p className="text-muted-foreground mb-4">"{testimonial.content}"</p>
+                      <div>
+                        <div className="font-semibold">{testimonial.name}</div>
+                        <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                      </div>
+                    </div>
+                  </Card>
+                </ScrollReveal>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
 
       {/* Application Form */}
-      <section className="px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="section-header">Apply for Mentorship</h2>
-            <p className="text-muted-foreground text-lg">
-              Tell me about your trading journey and goals. Selected mentees will be contacted via Telegram/Zoom.
-            </p>
-          </div>
+      <ScrollReveal delay={1200} duration={800}>
+        <section className="px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="section-header">Apply for Mentorship</h2>
+              <p className="text-muted-foreground text-lg">
+                Tell me about your trading journey and goals. Selected mentees will be contacted via Telegram/Zoom.
+              </p>
+            </div>
 
-          <form onSubmit={handleSubmit} className="minimal-card max-w-2xl mx-auto">
+            <form onSubmit={handleSubmit} className="minimal-card max-w-2xl mx-auto">
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <div>
                 <Label htmlFor="name">Full Name *</Label>
@@ -269,6 +281,7 @@ const Mentorship = () => {
           </form>
         </div>
       </section>
+      </ScrollReveal>
       </div>
       <Footer />
     </>

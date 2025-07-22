@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { ScrollReveal } from '@/hooks/useScrollReveal';
 
 const HomePage = () => {
   const tradingTools = [
@@ -79,147 +80,159 @@ const HomePage = () => {
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className="simple-hero">
-        <div className="container mx-auto px-6 text-center">
-          <div className="inline-flex items-center px-6 py-3 border border-white/20 rounded-full text-white text-sm font-medium mb-8 backdrop-blur-sm bg-white/5">
-            <Star className="w-4 h-4 mr-2" />
-            Professional Trading Guidance
+        <ScrollReveal delay={200} duration={1000} distance="50px">
+          <div className="container mx-auto px-6 text-center">
+            <div className="inline-flex items-center px-6 py-3 border border-white/20 rounded-full text-white text-sm font-medium mb-8 backdrop-blur-sm bg-white/5">
+              <Star className="w-4 h-4 mr-2" />
+              Professional Trading Guidance
+            </div>
+            <h1 className="stage-light-title text-6xl md:text-8xl font-bold mb-8 text-white tracking-tight">
+              Mr. K Trading Arena
+            </h1>
+            <div className="section-header text-2xl md:text-3xl mb-8 max-w-4xl mx-auto text-white">
+              Where Strategy Meets Success
+            </div>
+            <p className="text-lg md:text-xl text-gray-100 mb-12 max-w-3xl mx-auto leading-relaxed">
+              Helping traders grow through <span className="text-white font-semibold">free resources</span>, 
+              <span className="text-white font-semibold"> proven strategies</span>, and personalized guidance.
+              Join thousands who've transformed their trading journey.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Link to="/free-resources">
+                <Button className="btn-primary text-lg px-10 py-4">
+                  <TrendingUp className="mr-3 h-6 w-6" />
+                  Explore Resources
+                </Button>
+              </Link>
+              <Link to="/book-consultation">
+                <Button className="btn-ghost text-lg px-10 py-4">
+                  <Calendar className="mr-3 h-6 w-6" />
+                  Book 30-Min Call
+                </Button>
+              </Link>
+            </div>
           </div>
-          <h1 className="stage-light-title text-6xl md:text-8xl font-bold mb-8 text-white tracking-tight">
-            Mr. K Trading Arena
-          </h1>
-          <div className="section-header text-2xl md:text-3xl mb-8 max-w-4xl mx-auto text-white">
-            Where Strategy Meets Success
-          </div>
-          <p className="text-lg md:text-xl text-gray-100 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Helping traders grow through <span className="text-white font-semibold">free resources</span>, 
-            <span className="text-white font-semibold"> proven strategies</span>, and personalized guidance.
-            Join thousands who've transformed their trading journey.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Link to="/free-resources">
-              <Button className="btn-primary text-lg px-10 py-4">
-                <TrendingUp className="mr-3 h-6 w-6" />
-                Explore Resources
-              </Button>
-            </Link>
-            <Link to="/book-consultation">
-              <Button className="btn-ghost text-lg px-10 py-4">
-                <Calendar className="mr-3 h-6 w-6" />
-                Book 30-Min Call
-              </Button>
-            </Link>
-          </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* About Mr. K Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">About Mr. K</h2>
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 md:p-12">
-            <p className="text-white/90 text-lg md:text-xl leading-relaxed mb-6">
-              Professional crypto trader with years of experience navigating volatile markets. 
-              I specialize in technical analysis, risk management, and developing winning strategies 
-              that consistently generate profits.
-            </p>
-            <p className="text-white/80 text-base md:text-lg leading-relaxed">
-              My mission is simple: <span className="text-white font-semibold">help traders like you make money with crypto trading</span>. 
-              Through proven strategies, personalized mentorship, and comprehensive resources, 
-              I've helped hundreds of traders transform their approach and achieve financial success.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Enhanced Trading Tools Section */}
-      <section className="py-20 bg-gradient-to-br from-black/20 to-primary/5 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="stage-light-title text-3xl md:text-4xl font-bold mb-4 text-white">Tools I Use in Trading</h2>
-            <p className="text-white/70 text-lg mb-8">Professional-grade platforms and analytics that power my trading success</p>
-          </div>
-          <div className="relative mb-12">
-            <div className="flex animate-scroll-brands md:animate-scroll-brands-md lg:animate-scroll-brands-lg">
-              {[...tradingBrands, ...tradingBrands].map((brand, index) => (
-                <div 
-                  key={index} 
-                  className="text-2xl md:text-3xl font-bold text-white/60 hover:text-white/90 transition-all duration-300 cursor-default whitespace-nowrap mx-12 flex-shrink-0"
-                  style={{ fontFamily: 'Dancing Script, cursive' }}
-                >
-                  {brand}
-                </div>
-              ))}
+      <ScrollReveal delay={300} duration={800}>
+        <section className="py-20 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">About Mr. K</h2>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-8 md:p-12">
+              <p className="text-white/90 text-lg md:text-xl leading-relaxed mb-6">
+                Professional crypto trader with years of experience navigating volatile markets. 
+                I specialize in technical analysis, risk management, and developing winning strategies 
+                that consistently generate profits.
+              </p>
+              <p className="text-white/80 text-base md:text-lg leading-relaxed">
+                My mission is simple: <span className="text-white font-semibold">help traders like you make money with crypto trading</span>. 
+                Through proven strategies, personalized mentorship, and comprehensive resources, 
+                I've helped hundreds of traders transform their approach and achieve financial success.
+              </p>
             </div>
           </div>
-          <div className="text-center">
-            <Link to="/tools">
-              <Button className="bg-white text-black hover:bg-white/90 text-lg px-8 py-4">
-                <ExternalLink className="mr-3 h-5 w-5" />
-                Explore All Tools
-              </Button>
-            </Link>
+        </section>
+      </ScrollReveal>
+
+      {/* Enhanced Trading Tools Section */}
+      <ScrollReveal delay={400} duration={800}>
+        <section className="py-20 bg-gradient-to-br from-black/20 to-primary/5 overflow-hidden">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="stage-light-title text-3xl md:text-4xl font-bold mb-4 text-white">Tools I Use in Trading</h2>
+              <p className="text-white/70 text-lg mb-8">Professional-grade platforms and analytics that power my trading success</p>
+            </div>
+            <div className="relative mb-12">
+              <div className="flex animate-scroll-brands md:animate-scroll-brands-md lg:animate-scroll-brands-lg">
+                {[...tradingBrands, ...tradingBrands].map((brand, index) => (
+                  <div 
+                    key={index} 
+                    className="text-2xl md:text-3xl font-bold text-white/60 hover:text-white/90 transition-all duration-300 cursor-default whitespace-nowrap mx-12 flex-shrink-0"
+                    style={{ fontFamily: 'Dancing Script, cursive' }}
+                  >
+                    {brand}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="text-center">
+              <Link to="/tools">
+                <Button className="bg-white text-black hover:bg-white/90 text-lg px-8 py-4">
+                  <ExternalLink className="mr-3 h-5 w-5" />
+                  Explore All Tools
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
 
       {/* Free Resources Preview Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Free Resources</h2>
-            <p className="text-white/80 text-lg">
-              Get started with these essential trading resources—completely free
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            {featuredResources.map((resource) => (
-              <div key={resource.id} className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 bg-white/10 text-white text-xs font-medium rounded-full">
-                    {resource.type}
-                  </span>
-                  <Download className="w-5 h-5 text-white/60 group-hover:text-white transition-colors" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2 text-white">{resource.title}</h3>
-                <p className="text-white/70 text-sm mb-4 leading-relaxed">{resource.description}</p>
-                <Button className="bg-white text-black hover:bg-white/90 w-full text-sm py-2">
-                  <Download className="mr-2 w-4 h-4" />
-                  Download
+      <ScrollReveal delay={500} duration={800}>
+        <section className="py-20 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Free Resources</h2>
+              <p className="text-white/80 text-lg">
+                Get started with these essential trading resources—completely free
+              </p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8 mb-12">
+              {featuredResources.map((resource, index) => (
+                <ScrollReveal key={resource.id} delay={600 + (index * 100)} duration={600}>
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300 group">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="px-3 py-1 bg-white/10 text-white text-xs font-medium rounded-full">
+                        {resource.type}
+                      </span>
+                      <Download className="w-5 h-5 text-white/60 group-hover:text-white transition-colors" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2 text-white">{resource.title}</h3>
+                    <p className="text-white/70 text-sm mb-4 leading-relaxed">{resource.description}</p>
+                    <Button className="bg-white text-black hover:bg-white/90 w-full text-sm py-2">
+                      <Download className="mr-2 w-4 h-4" />
+                      Download
+                    </Button>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+            <div className="text-center">
+              <Link to="/free-resources">
+                <Button className="bg-white text-black hover:bg-white/90 px-8 py-3">
+                  View All Resources
+                  <ExternalLink className="ml-2 w-4 h-4" />
                 </Button>
-              </div>
-            ))}
+              </Link>
+            </div>
           </div>
-          <div className="text-center">
-            <Link to="/free-resources">
-              <Button className="bg-white text-black hover:bg-white/90 px-8 py-3">
-                View All Resources
-                <ExternalLink className="ml-2 w-4 h-4" />
+        </section>
+      </ScrollReveal>
+
+      {/* Ready to Level Up Section */}
+      <ScrollReveal delay={700} duration={800}>
+        <section className="py-20 px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Level Up Your Trading?</h2>
+            <p className="text-white/80 text-lg mb-8 max-w-2xl mx-auto">
+              Book a personalized 30-minute consultation to discuss your trading goals, 
+              get strategy recommendations, and receive professional guidance.
+            </p>
+            <div className="inline-flex items-center px-4 py-2 bg-white/10 border border-white/20 rounded-full text-white/90 text-sm font-medium mb-8">
+              <Clock className="w-4 h-4 mr-2" />
+              30-minute session • $50 USD
+            </div>
+            <Link to="/book-consultation">
+              <Button className="bg-white text-black hover:bg-white/90 text-lg px-10 py-4">
+                <Calendar className="mr-3 h-6 w-6" />
+                Schedule Your Call
               </Button>
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* Ready to Level Up Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Level Up Your Trading?</h2>
-          <p className="text-white/80 text-lg mb-8 max-w-2xl mx-auto">
-            Book a personalized 30-minute consultation to discuss your trading goals, 
-            get strategy recommendations, and receive professional guidance.
-          </p>
-          <div className="inline-flex items-center px-4 py-2 bg-white/10 border border-white/20 rounded-full text-white/90 text-sm font-medium mb-8">
-            <Clock className="w-4 h-4 mr-2" />
-            30-minute session • $50 USD
-          </div>
-          <Link to="/book-consultation">
-            <Button className="bg-white text-black hover:bg-white/90 text-lg px-10 py-4">
-              <Calendar className="mr-3 h-6 w-6" />
-              Schedule Your Call
-            </Button>
-          </Link>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
     </div>
   );
 };
