@@ -112,25 +112,52 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Trading Tools Animation Section */}
-      <section className="py-16 bg-muted/5 overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-8">
-            <h2 className="text-white text-2xl md:text-3xl font-bold mb-2 drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">Tools I Use in Trading</h2>
-            <p className="text-white/70 text-sm">Professional-grade platforms and analytics</p>
+      {/* About Mr. K Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">About Mr. K</h2>
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 md:p-12">
+            <p className="text-white/90 text-lg md:text-xl leading-relaxed mb-6">
+              Professional crypto trader with years of experience navigating volatile markets. 
+              I specialize in technical analysis, risk management, and developing winning strategies 
+              that consistently generate profits.
+            </p>
+            <p className="text-white/80 text-base md:text-lg leading-relaxed">
+              My mission is simple: <span className="text-white font-semibold">help traders like you make money with crypto trading</span>. 
+              Through proven strategies, personalized mentorship, and comprehensive resources, 
+              I've helped hundreds of traders transform their approach and achieve financial success.
+            </p>
           </div>
-          <div className="relative">
+        </div>
+      </section>
+
+      {/* Enhanced Trading Tools Section */}
+      <section className="py-20 bg-gradient-to-br from-black/20 to-primary/5 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="stage-light-title text-3xl md:text-4xl font-bold mb-4 text-white">Tools I Use in Trading</h2>
+            <p className="text-white/70 text-lg mb-8">Professional-grade platforms and analytics that power my trading success</p>
+          </div>
+          <div className="relative mb-12">
             <div className="flex animate-scroll-brands">
               {[...tradingBrands, ...tradingBrands].map((brand, index) => (
                 <div 
                   key={index} 
-                  className="text-xl md:text-2xl font-bold text-white/60 hover:text-white/80 transition-colors duration-300 cursor-default whitespace-nowrap mx-8 flex-shrink-0"
-                  style={{ fontFamily: 'cursive' }}
+                  className="text-2xl md:text-3xl font-bold text-white/60 hover:text-white/90 transition-all duration-300 cursor-default whitespace-nowrap mx-12 flex-shrink-0"
+                  style={{ fontFamily: 'Dancing Script, cursive' }}
                 >
                   {brand}
                 </div>
               ))}
             </div>
+          </div>
+          <div className="text-center">
+            <Link to="/tools">
+              <Button className="bg-white text-black hover:bg-white/90 text-lg px-8 py-4">
+                <ExternalLink className="mr-3 h-5 w-5" />
+                Explore All Tools
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
@@ -181,7 +208,7 @@ const HomePage = () => {
             Book a personalized 30-minute consultation to discuss your trading goals, 
             get strategy recommendations, and receive professional guidance.
           </p>
-          <div className="inline-flex items-center px-4 py-2 bg-accent/10 border border-accent/20 rounded-full text-accent text-sm font-medium mb-8">
+          <div className="inline-flex items-center px-4 py-2 bg-white/10 border border-white/20 rounded-full text-white/90 text-sm font-medium mb-8">
             <Clock className="w-4 h-4 mr-2" />
             30-minute session • $50 USD
           </div>
