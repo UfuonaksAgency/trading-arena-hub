@@ -104,7 +104,7 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'scroll-brands': 'scroll-brands 30s linear infinite',
+				'scroll-brands': 'scroll-brands 15s linear infinite',
 				'scroll-brands-md': 'scroll-brands 25s linear infinite',
 				'scroll-brands-lg': 'scroll-brands 20s linear infinite'
 			}
