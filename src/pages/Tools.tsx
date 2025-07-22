@@ -10,6 +10,7 @@ import tradingViewLogo from '@/assets/logos/tradingview-logo.png';
 import notionLogo from '@/assets/logos/notion-logo.png';
 import coinglassLogo from '@/assets/logos/coinglass-logo.webp';
 import bingxLogo from '@/assets/logos/bingx-logo.svg';
+import weexLogo from '@/assets/logos/weex-logo.svg';
 
 const Tools = () => {
   const tradingTools = [
@@ -57,8 +58,8 @@ const Tools = () => {
       name: 'WEEX',
       description: 'Cutting-edge derivatives trading platform with institutional-grade tools and deep liquidity for professional traders.',
       icon: BarChart3,
-      logo: null,
-      url: '#',
+      logo: weexLogo,
+      url: 'https://weex.com',
       features: ['Perpetual Contracts', 'Options Trading', 'Deep Liquidity', 'API Access', 'Risk Management Tools']
     },
   ];
@@ -86,12 +87,16 @@ const Tools = () => {
                 <Card key={index} className="minimal-card group">
                   <div className="p-8">
                     <div className="flex items-center mb-6">
-                      <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center mr-6 group-hover:bg-white/10 transition-all duration-300 p-2">
+                      <div className="w-16 h-16 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center mr-6 group-hover:bg-white/10 transition-all duration-300 p-3">
                         {tool.logo ? (
                           <img 
                             src={tool.logo} 
                             alt={`${tool.name} logo`}
-                            className="w-full h-full object-contain"
+                            className={`object-contain ${
+                              tool.name === 'BingX' || tool.name === 'WEEX' 
+                                ? 'w-full h-full filter brightness-0 invert' 
+                                : 'w-full h-full'
+                            }`}
                           />
                         ) : (
                           <tool.icon className="w-8 h-8 text-white group-hover:text-primary transition-colors" />
