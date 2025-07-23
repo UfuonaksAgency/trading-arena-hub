@@ -18,28 +18,29 @@ interface MentorshipApplication {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-    );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const resendApiKey = Deno.env.get("RESEND_API_KEY")!;
 
-    const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const resend = new Resend(resendApiKey);
 
     const applicationData: MentorshipApplication = await req.json();
 
-    // Insert into database
+    // Insert application into database
     const { data: application, error: dbError } = await supabase
       .from("mentorship_applications")
       .insert({
         name: applicationData.name,
         email: applicationData.email,
         telegram: applicationData.telegram,
-        experience_level: applicationData.experienceLevel,
+        experience: applicationData.experienceLevel,
         trading_history: applicationData.tradingHistory,
         goals: applicationData.goals,
         availability: applicationData.availability,
@@ -49,92 +50,90 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (dbError) {
       console.error("Database error:", dbError);
-      throw new Error("Failed to save application");
+      throw new Error(`Database error: ${dbError.message}`);
     }
 
     // Send confirmation email to applicant
-    await resend.emails.send({
-      from: "Trade with MRK <contact@tradewithmrk.com>",
+    const confirmationEmailResponse = await resend.emails.send({
+      from: "TradeWithMRK <contact@tradewithmrk.com>",
       to: [applicationData.email],
-      subject: "Mentorship Application Received - Trade with MRK",
+      subject: "Mentorship Application Received - TradeWithMRK",
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2563eb;">Thank you for your mentorship application!</h2>
-          
-          <p>Hi ${applicationData.name},</p>
-          
-          <p>We've successfully received your mentorship application. Here's a summary of what you submitted:</p>
-          
-          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Experience Level:</strong> ${applicationData.experienceLevel}</p>
-            <p><strong>Trading History:</strong> ${applicationData.tradingHistory}</p>
-            <p><strong>Goals:</strong> ${applicationData.goals}</p>
-            <p><strong>Availability:</strong> ${applicationData.availability}</p>
-            <p><strong>Telegram:</strong> ${applicationData.telegram}</p>
-          </div>
-          
-          <p>Our team will review your application and get back to you within 24-48 hours. If you're selected, we'll reach out via email and Telegram to discuss the next steps.</p>
-          
-          <p>Thank you for your interest in our mentorship program!</p>
-          
-          <p>Best regards,<br>
-          <strong>Trade with MRK Team</strong></p>
-          
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #e2e8f0;">
-          <p style="font-size: 12px; color: #64748b;">Application ID: ${application.id}</p>
+        <h1>Thank you for your mentorship application!</h1>
+        <p>Hi ${applicationData.name},</p>
+        <p>We have received your mentorship application and will review it carefully. Here's a summary of what you submitted:</p>
+        
+        <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3>Application Details:</h3>
+          <p><strong>Name:</strong> ${applicationData.name}</p>
+          <p><strong>Email:</strong> ${applicationData.email}</p>
+          <p><strong>Telegram:</strong> ${applicationData.telegram}</p>
+          <p><strong>Experience Level:</strong> ${applicationData.experienceLevel}</p>
+          <p><strong>Trading History:</strong> ${applicationData.tradingHistory}</p>
+          <p><strong>Goals:</strong> ${applicationData.goals}</p>
+          <p><strong>Availability:</strong> ${applicationData.availability}</p>
         </div>
+        
+        <p>We will get back to you within 2-3 business days regarding the next steps in the application process.</p>
+        
+        <p>If you have any questions in the meantime, feel free to reach out to us.</p>
+        
+        <p>Best regards,<br>
+        The TradeWithMRK Team</p>
       `,
     });
 
     // Send notification email to admin
-    await resend.emails.send({
-      from: "Trade with MRK <contact@tradewithmrk.com>",
+    const adminEmailResponse = await resend.emails.send({
+      from: "TradeWithMRK <contact@tradewithmrk.com>",
       to: ["contact@tradewithmrk.com"],
       subject: "New Mentorship Application Received",
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #dc2626;">New Mentorship Application</h2>
-          
-          <p>A new mentorship application has been submitted:</p>
-          
-          <div style="background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626;">
-            <p><strong>Name:</strong> ${applicationData.name}</p>
-            <p><strong>Email:</strong> ${applicationData.email}</p>
-            <p><strong>Telegram:</strong> ${applicationData.telegram}</p>
-            <p><strong>Experience Level:</strong> ${applicationData.experienceLevel}</p>
-            <p><strong>Trading History:</strong> ${applicationData.tradingHistory}</p>
-            <p><strong>Goals:</strong> ${applicationData.goals}</p>
-            <p><strong>Availability:</strong> ${applicationData.availability}</p>
-          </div>
-          
-          <p>Application submitted at: ${new Date().toLocaleString()}</p>
-          <p>Application ID: ${application.id}</p>
-          
-          <p>Review this application in your admin panel.</p>
+        <h1>New Mentorship Application</h1>
+        <p>A new mentorship application has been submitted. Here are the details:</p>
+        
+        <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3>Applicant Details:</h3>
+          <p><strong>Name:</strong> ${applicationData.name}</p>
+          <p><strong>Email:</strong> ${applicationData.email}</p>
+          <p><strong>Telegram:</strong> ${applicationData.telegram}</p>
+          <p><strong>Experience Level:</strong> ${applicationData.experienceLevel}</p>
+          <p><strong>Trading History:</strong> ${applicationData.tradingHistory}</p>
+          <p><strong>Goals:</strong> ${applicationData.goals}</p>
+          <p><strong>Availability:</strong> ${applicationData.availability}</p>
+          <p><strong>Application ID:</strong> ${application.id}</p>
+          <p><strong>Submitted:</strong> ${new Date(application.created_at).toLocaleString()}</p>
         </div>
+        
+        <p>Please review the application and respond to the applicant accordingly.</p>
       `,
     });
 
-    console.log("Application processed successfully:", application.id);
+    console.log("Emails sent successfully:", {
+      confirmation: confirmationEmailResponse,
+      admin: adminEmailResponse,
+    });
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         message: "Application submitted successfully",
-        applicationId: application.id 
+        applicationId: application.id,
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
       }
     );
-
   } catch (error: any) {
-    console.error("Error processing application:", error);
+    console.error("Error in submit-mentorship-application function:", error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error.message || "Failed to process application" 
+      JSON.stringify({
+        success: false,
+        error: error.message,
       }),
       {
         status: 500,
