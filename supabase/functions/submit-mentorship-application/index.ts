@@ -40,7 +40,7 @@ const handler = async (req: Request): Promise<Response> => {
         name: applicationData.name,
         email: applicationData.email,
         telegram: applicationData.telegram,
-        experience: applicationData.experienceLevel,
+        experience_level: applicationData.experienceLevel,
         trading_history: applicationData.tradingHistory,
         goals: applicationData.goals,
         availability: applicationData.availability,
