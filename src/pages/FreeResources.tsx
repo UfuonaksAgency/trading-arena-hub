@@ -45,9 +45,25 @@ const FreeResources = () => {
     }
   };
 
-  const handleDownload = (resourceTitle: string, downloadUrl?: string) => {
+  const handleDownload = async (resourceId: string, resourceTitle: string, downloadUrl?: string) => {
+    // Track the download
+    try {
+      await supabase.functions.invoke('track-download', {
+        body: { 
+          resource_id: resourceId,
+          session_id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36)
+        }
+      });
+    } catch (error) {
+      console.error('Error tracking download:', error);
+    }
+
+    // Open download URL if available
     if (downloadUrl) {
       window.open(downloadUrl, '_blank');
+    } else {
+      // For resources without URLs, you could show a message or redirect to contact
+      alert('This resource will be available soon. Please contact us for early access.');
     }
   };
 
@@ -163,7 +179,7 @@ const FreeResources = () => {
 
                         {/* Download Button */}
                         <Button 
-                          onClick={() => handleDownload(resource.title, resource.download_url)}
+                          onClick={() => handleDownload(resource.id, resource.title, resource.download_url)}
                           className="w-full btn-primary"
                         >
                           <Download className="mr-2 w-4 h-4" />

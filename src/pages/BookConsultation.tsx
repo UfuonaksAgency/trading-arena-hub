@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Calendar, Clock, Star, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -8,12 +9,116 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { ScrollReveal } from '@/hooks/useScrollReveal';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+// Declare Calendly type for TypeScript
+declare global {
+  interface Window {
+    Calendly?: {
+      initBadgeWidget: (options: {
+        url: string;
+        text: string;
+        color: string;
+        textColor: string;
+        branding: boolean;
+      }) => void;
+    };
+  }
+}
 
 const BookConsultation = () => {
-  const handleConsultationSubmit = (e: React.FormEvent) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    telegram: '',
+    preferred_time: '',
+    experience_level: '',
+    purpose: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCalendly, setShowCalendly] = useState(false);
+  const { toast } = useToast();
+
+  // Load Calendly widget script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://assets.calendly.com/assets/external/widget.js';
+    script.async = true;
+    document.head.appendChild(script);
+
+    const link = document.createElement('link');
+    link.href = 'https://assets.calendly.com/assets/external/widget.css';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+
+    return () => {
+      document.head.removeChild(script);
+      document.head.removeChild(link);
+    };
+  }, []);
+
+  // Initialize Calendly badge after form submission
+  useEffect(() => {
+    if (showCalendly && window.Calendly) {
+      window.Calendly.initBadgeWidget({ 
+        url: 'https://calendly.com/tradewithmrk', 
+        text: 'Schedule time with me', 
+        color: '#0069ff', 
+        textColor: '#ffffff', 
+        branding: true 
+      });
+    }
+  }, [showCalendly]);
+
+  const handleConsultationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Redirect to Calendly or external booking system
-    window.open('https://calendly.com', '_blank');
+    
+    if (!formData.name || !formData.email || !formData.preferred_time || !formData.experience_level || !formData.purpose) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('submit-consultation-request', {
+        body: formData
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Request Submitted Successfully!",
+        description: "You'll receive a confirmation email shortly. Click the Calendly badge to schedule your time slot.",
+      });
+
+      // Reset form and show Calendly badge
+      setFormData({
+        name: '',
+        email: '',
+        telegram: '',
+        preferred_time: '',
+        experience_level: '',
+        purpose: ''
+      });
+      
+      setShowCalendly(true);
+
+    } catch (error) {
+      console.error('Error submitting consultation request:', error);
+      toast({
+        title: "Submission Failed",
+        description: "There was an error submitting your request. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -99,22 +204,43 @@ const BookConsultation = () => {
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <Label htmlFor="name" className="text-white">Full Name</Label>
-                  <Input id="name" placeholder="Enter your full name" required className="bg-white/5 border-white/20 text-white placeholder:text-gray-400" />
+                  <Input 
+                    id="name" 
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Enter your full name" 
+                    required 
+                    className="bg-white/5 border-white/20 text-white placeholder:text-gray-400" 
+                  />
                 </div>
                 <div>
                   <Label htmlFor="email" className="text-white">Email Address</Label>
-                  <Input id="email" type="email" placeholder="Enter your email" required className="bg-white/5 border-white/20 text-white placeholder:text-gray-400" />
+                  <Input 
+                    id="email" 
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="Enter your email" 
+                    required 
+                    className="bg-white/5 border-white/20 text-white placeholder:text-gray-400" 
+                  />
                 </div>
               </div>
               
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <Label htmlFor="telegram" className="text-white">Telegram Handle (Optional)</Label>
-                  <Input id="telegram" placeholder="@yourusername" className="bg-white/5 border-white/20 text-white placeholder:text-gray-400" />
+                  <Input 
+                    id="telegram"
+                    value={formData.telegram}
+                    onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
+                    placeholder="@yourusername" 
+                    className="bg-white/5 border-white/20 text-white placeholder:text-gray-400" 
+                  />
                 </div>
                 <div>
                   <Label htmlFor="timePreference" className="text-white">Preferred Time</Label>
-                  <Select>
+                  <Select value={formData.preferred_time} onValueChange={(value) => setFormData({ ...formData, preferred_time: value })}>
                     <SelectTrigger className="bg-white/5 border-white/20 text-white">
                       <SelectValue placeholder="Select preferred time" />
                     </SelectTrigger>
@@ -129,7 +255,7 @@ const BookConsultation = () => {
               
               <div className="mb-8">
                 <Label htmlFor="experience" className="text-white">Trading Experience Level</Label>
-                <Select>
+                <Select value={formData.experience_level} onValueChange={(value) => setFormData({ ...formData, experience_level: value })}>
                   <SelectTrigger className="bg-white/5 border-white/20 text-white">
                     <SelectValue placeholder="Select your experience level" />
                   </SelectTrigger>
@@ -145,7 +271,9 @@ const BookConsultation = () => {
               <div className="mb-8">
                 <Label htmlFor="purpose" className="text-white">What would you like to discuss?</Label>
                 <Textarea 
-                  id="purpose" 
+                  id="purpose"
+                  value={formData.purpose}
+                  onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
                   placeholder="Tell me about your trading goals, specific challenges, current strategies, and what you'd like to focus on during our 30-minute call..."
                   rows={4}
                   required
@@ -153,13 +281,21 @@ const BookConsultation = () => {
                 />
               </div>
               
-              <Button type="submit" className="btn-primary w-full">
+              <Button type="submit" className="btn-primary w-full" disabled={isSubmitting}>
                 <Calendar className="mr-2 w-5 h-5" />
-                Request Consultation Link
+                {isSubmitting ? 'Submitting...' : 'Request Consultation'}
               </Button>
               
               <p className="text-center text-sm text-muted-foreground mt-4">
-                You'll receive a Calendly link within 24 hours to schedule your preferred time slot.
+                {showCalendly ? (
+                  <>
+                    <span className="text-green-400">✓ Request submitted!</span> 
+                    <br />
+                    Click the Calendly badge (bottom right) to schedule your time slot.
+                  </>
+                ) : (
+                  "You'll receive a confirmation email and can schedule immediately after submitting."
+                )}
               </p>
             </form>
             </div>

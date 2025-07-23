@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      consultations: {
+        Row: {
+          admin_notes: string | null
+          calendly_event_uri: string | null
+          calendly_invitee_uri: string | null
+          created_at: string
+          email: string
+          experience_level: string
+          id: string
+          name: string
+          payment_status: string | null
+          preferred_time: string
+          purpose: string
+          scheduled_time: string | null
+          status: string
+          telegram: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          calendly_event_uri?: string | null
+          calendly_invitee_uri?: string | null
+          created_at?: string
+          email: string
+          experience_level: string
+          id?: string
+          name: string
+          payment_status?: string | null
+          preferred_time: string
+          purpose: string
+          scheduled_time?: string | null
+          status?: string
+          telegram?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          calendly_event_uri?: string | null
+          calendly_invitee_uri?: string | null
+          created_at?: string
+          email?: string
+          experience_level?: string
+          id?: string
+          name?: string
+          payment_status?: string | null
+          preferred_time?: string
+          purpose?: string
+          scheduled_time?: string | null
+          status?: string
+          telegram?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       free_resources: {
         Row: {
           created_at: string
@@ -103,6 +157,41 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      resource_downloads: {
+        Row: {
+          downloaded_at: string
+          id: string
+          resource_id: string
+          session_id: string | null
+          user_agent: string | null
+          user_ip: string | null
+        }
+        Insert: {
+          downloaded_at?: string
+          id?: string
+          resource_id: string
+          session_id?: string | null
+          user_agent?: string | null
+          user_ip?: string | null
+        }
+        Update: {
+          downloaded_at?: string
+          id?: string
+          resource_id?: string
+          session_id?: string | null
+          user_agent?: string | null
+          user_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_downloads_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "free_resources"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
