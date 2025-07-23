@@ -62,6 +62,48 @@ export type Database = {
         }
         Relationships: []
       }
+      mentorship_applications: {
+        Row: {
+          availability: string
+          created_at: string
+          email: string
+          experience_level: string
+          goals: string
+          id: string
+          name: string
+          status: string
+          telegram: string
+          trading_history: string
+          updated_at: string
+        }
+        Insert: {
+          availability: string
+          created_at?: string
+          email: string
+          experience_level: string
+          goals: string
+          id?: string
+          name: string
+          status?: string
+          telegram: string
+          trading_history: string
+          updated_at?: string
+        }
+        Update: {
+          availability?: string
+          created_at?: string
+          email?: string
+          experience_level?: string
+          goals?: string
+          id?: string
+          name?: string
+          status?: string
+          telegram?: string
+          trading_history?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

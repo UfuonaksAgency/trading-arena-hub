@@ -15,17 +15,52 @@ const Mentorship = () => {
     name: '',
     email: '',
     telegram: '',
-    experience: '',
+    experienceLevel: '',
     tradingHistory: '',
     goals: '',
     availability: '',
-    expectations: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Integration with form handling service would go here
-    alert('Thank you for your interest! We will contact you within 24 hours.');
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(
+        "https://ymfejiadehbsezxmgtuq.supabase.co/functions/v1/submit-mentorship-application",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltZmVqaWFkZWhic2V6eG1ndHVxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTMyMzgsImV4cCI6MjA2ODY4OTIzOH0.dOyY92Jzgy1_AG4O1klOcFQ5YcwuAFjHbbzwEUDcLzY`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Thank you for your application! We'll be in touch soon. Check your email for confirmation.");
+        setFormData({
+          name: '',
+          email: '',
+          telegram: '',
+          experienceLevel: '',
+          tradingHistory: '',
+          goals: '',
+          availability: '',
+        });
+      } else {
+        alert("There was an error submitting your application. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      alert("There was an error submitting your application. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -210,7 +245,7 @@ const Mentorship = () => {
               </div>
               <div>
                 <Label htmlFor="experience">Trading Experience *</Label>
-                <Select onValueChange={(value) => handleInputChange('experience', value)}>
+                <Select onValueChange={(value) => handleInputChange('experienceLevel', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your experience level" />
                   </SelectTrigger>
@@ -274,9 +309,9 @@ const Mentorship = () => {
               </div>
             </div>
 
-            <Button type="submit" size="lg" className="w-full btn-accent">
+            <Button type="submit" size="lg" className="w-full btn-accent" disabled={isSubmitting}>
               <Calendar className="mr-2 w-5 h-5" />
-              Submit Application
+              {isSubmitting ? "Submitting..." : "Submit Application"}
             </Button>
           </form>
         </div>
