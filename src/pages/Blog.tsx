@@ -45,7 +45,7 @@ const Blog = () => {
 
       if (error) throw error;
 
-      const posts = allPosts || [];
+      const posts = (allPosts || []) as BlogPost[];
       setPosts(posts);
 
       // Separate featured posts

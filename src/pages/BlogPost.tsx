@@ -38,9 +38,44 @@ const BlogPost = () => {
   }, [slug]);
 
   const fetchPost = async () => {
+    setLoading(true);
     try {
-      // For now, show not found until blog_posts table exists
-      setNotFound(true);
+      // Fetch the blog post by slug
+      const { data: postData, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('slug', slug)
+        .eq('is_published', true)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          setNotFound(true);
+          return;
+        }
+        throw error;
+      }
+
+      setPost(postData as BlogPost);
+
+      // Increment view count
+      await supabase
+        .from('blog_posts')
+        .update({ view_count: (postData.view_count || 0) + 1 })
+        .eq('id', postData.id);
+
+      // Fetch related posts based on tags
+      if (postData.tags && postData.tags.length > 0) {
+        const { data: relatedData } = await supabase
+          .from('blog_posts')
+          .select('*')
+          .eq('is_published', true)
+          .neq('id', postData.id)
+          .overlaps('tags', postData.tags)
+          .limit(3);
+
+        setRelatedPosts((relatedData || []) as BlogPost[]);
+      }
     } catch (error) {
       console.error('Error fetching blog post:', error);
       setNotFound(true);

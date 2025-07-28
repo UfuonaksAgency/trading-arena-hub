@@ -78,10 +78,19 @@ const HomePage = () => {
 
   const fetchFeaturedBlogPosts = async () => {
     try {
-      // For now, return empty array until blog_posts table exists
-      setFeaturedBlogPosts([]);
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('is_published', true)
+        .eq('is_featured', true)
+        .order('published_at', { ascending: false })
+        .limit(3);
+
+      if (error) throw error;
+      setFeaturedBlogPosts(data || []);
     } catch (error) {
-      console.error('Error fetching featured blog posts:', error);
+      console.error('Error fetching blog posts:', error);
+      setFeaturedBlogPosts([]);
     }
   };
 
