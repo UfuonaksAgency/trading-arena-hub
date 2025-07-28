@@ -36,12 +36,30 @@ const Blog = () => {
 
   const fetchPosts = async () => {
     try {
-      // For now, return empty array until blog_posts table exists
+      // Fetch all published blog posts
+      const { data: allPosts, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('is_published', true)
+        .order('published_at', { ascending: false });
+
+      if (error) throw error;
+
+      const posts = allPosts || [];
+      setPosts(posts);
+
+      // Separate featured posts
+      const featured = posts.filter(post => post.is_featured).slice(0, 3);
+      setFeaturedPosts(featured);
+
+      // Extract unique tags
+      const tags = [...new Set(posts.flatMap(post => post.tags || []))];
+      setAllTags(tags);
+    } catch (error) {
+      console.error('Error fetching blog posts:', error);
       setPosts([]);
       setFeaturedPosts([]);
       setAllTags([]);
-    } catch (error) {
-      console.error('Error fetching blog posts:', error);
     } finally {
       setLoading(false);
     }
