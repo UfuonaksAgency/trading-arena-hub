@@ -227,15 +227,51 @@ const BlogPost = () => {
                   </Button>
                 </div>
 
-                {/* Content */}
-                <div 
-                  className="prose prose-invert prose-lg max-w-none text-white/90 leading-relaxed"
-                  style={{ 
-                    fontSize: '1.125rem',
-                    lineHeight: '1.75'
-                  }}
-                  dangerouslySetInnerHTML={{ __html: post.content }}
-                />
+                {/* Breadcrumbs */}
+                <nav className="mb-8">
+                  <div className="flex items-center space-x-2 text-sm text-white/60">
+                    <Link to="/" className="hover:text-white transition-colors">Home</Link>
+                    <span>›</span>
+                    <Link to="/blog" className="hover:text-white transition-colors">Blog</Link>
+                    <span>›</span>
+                    <span className="text-white/90 truncate">{post.title}</span>
+                  </div>
+                </nav>
+
+                {/* Enhanced Content with better readability */}
+                <div className="prose prose-lg max-w-none prose-headings:text-white prose-p:text-white/90 prose-p:leading-relaxed prose-p:text-lg prose-strong:text-white prose-em:text-white/90 prose-code:text-primary prose-code:bg-white/10 prose-code:px-2 prose-code:py-1 prose-code:rounded prose-pre:bg-white/5 prose-pre:border prose-pre:border-white/10 prose-blockquote:border-l-primary prose-blockquote:bg-white/5 prose-blockquote:pl-6 prose-blockquote:py-4 prose-blockquote:my-6 prose-blockquote:text-white/90 prose-ul:text-white/90 prose-ol:text-white/90 prose-li:text-white/90 prose-li:leading-relaxed prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-6 prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-h4:text-lg prose-h4:mt-6 prose-h4:mb-3">
+                  <div 
+                    className="content-enhanced text-lg leading-relaxed"
+                    style={{ 
+                      fontSize: '1.125rem',
+                      lineHeight: '1.8',
+                      letterSpacing: '0.015em'
+                    }}
+                    dangerouslySetInnerHTML={{ __html: post.content }}
+                  />
+                </div>
+
+                {/* Social Sharing Section */}
+                <div className="mt-16 pt-8 border-t border-white/10">
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center space-x-4">
+                      <span className="text-white/60 font-medium">Found this helpful?</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleShare}
+                        className="btn-ghost"
+                      >
+                        <Share2 className="w-4 h-4 mr-2" />
+                        Share Article
+                      </Button>
+                    </div>
+                    
+                    <div className="text-sm text-white/60">
+                      Published {formatDate(post.published_at)} • {post.reading_time} min read
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </article>
