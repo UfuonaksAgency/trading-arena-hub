@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Save, X, Calendar, Download, BarChart3 } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, X, Calendar, Download, BarChart3, BookOpen, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
@@ -50,13 +51,36 @@ interface DownloadStats {
   recent_downloads: number;
 }
 
+interface BlogPost {
+  id?: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  featured_image_url?: string;
+  tags?: string[];
+  reading_time?: number;
+  seo_title?: string;
+  seo_description?: string;
+  is_published: boolean;
+  is_featured: boolean;
+  author_id: string;
+  view_count?: number;
+  published_at?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 const AdminPanel = () => {
   const [resources, setResources] = useState<FreeResource[]>([]);
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [downloadStats, setDownloadStats] = useState<DownloadStats[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [editingResource, setEditingResource] = useState<FreeResource | null>(null);
   const [editingConsultation, setEditingConsultation] = useState<Consultation | null>(null);
+  const [editingBlogPost, setEditingBlogPost] = useState<BlogPost | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isCreatingBlog, setIsCreatingBlog] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState('resources');
@@ -72,6 +96,21 @@ const AdminPanel = () => {
     page_info: '',
     display_order: 0,
     is_active: true,
+  };
+
+  const emptyBlogPost: BlogPost = {
+    title: '',
+    slug: '',
+    content: '',
+    excerpt: '',
+    featured_image_url: '',
+    tags: [],
+    reading_time: 5,
+    seo_title: '',
+    seo_description: '',
+    is_published: false,
+    is_featured: false,
+    author_id: '',
   };
 
   useEffect(() => {
@@ -102,6 +141,7 @@ const AdminPanel = () => {
       fetchResources();
       fetchConsultations();
       fetchDownloadStats();
+      // fetchBlogPosts(); // Will add after blog_posts table exists
     } catch (error) {
       console.error('Error checking admin access:', error);
       window.location.href = '/';
@@ -544,10 +584,14 @@ const AdminPanel = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="resources" className="flex items-center">
                 <Download className="mr-2 w-4 h-4" />
                 Resources
+              </TabsTrigger>
+              <TabsTrigger value="blog" className="flex items-center">
+                <BookOpen className="mr-2 w-4 h-4" />
+                Blog
               </TabsTrigger>
               <TabsTrigger value="consultations" className="flex items-center">
                 <Calendar className="mr-2 w-4 h-4" />
@@ -633,6 +677,18 @@ const AdminPanel = () => {
                     </div>
                   </Card>
                 ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="blog" className="mt-6">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-white mb-2">Blog Management</h2>
+                <p className="text-gray-100 mb-4">Create and manage blog posts</p>
+                <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4">
+                  <p className="text-yellow-300 text-sm">
+                    ⚠️ Blog functionality will be available after setting up the blog_posts table in the database.
+                  </p>
+                </div>
               </div>
             </TabsContent>
 

@@ -11,6 +11,7 @@ const Header = () => {
     { name: 'Tools', href: '/tools' },
     { name: 'Mentorship', href: '/mentorship' },
     { name: 'Free Resources', href: '/free-resources' },
+    { name: 'Blog', href: '/blog' },
   ];
 
   const isActive = (href: string) => {

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Download, ExternalLink, Calendar, Star, TrendingUp, FileText, BarChart3, Users, Target, Clock } from 'lucide-react';
+import { Download, ExternalLink, Calendar, Star, TrendingUp, FileText, BarChart3, Users, Target, Clock, BookOpen, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ScrollReveal } from '@/hooks/useScrollReveal';
+import BlogCard from '@/components/BlogCard';
 
 const HomePage = () => {
   const tradingTools = [
@@ -52,9 +53,11 @@ const HomePage = () => {
   ];
 
   const [featuredResources, setFeaturedResources] = useState<any[]>([]);
+  const [featuredBlogPosts, setFeaturedBlogPosts] = useState<any[]>([]);
 
   useEffect(() => {
     fetchFeaturedResources();
+    fetchFeaturedBlogPosts();
   }, []);
 
   const fetchFeaturedResources = async () => {
@@ -73,8 +76,60 @@ const HomePage = () => {
     }
   };
 
+  const fetchFeaturedBlogPosts = async () => {
+    try {
+      // For now, return empty array until blog_posts table exists
+      setFeaturedBlogPosts([]);
+    } catch (error) {
+      console.error('Error fetching featured blog posts:', error);
+    }
+  };
+
   const tradingBrands = ['TradingView', 'Notion', 'Coinglass', 'CoinMarketMan', 'BingX (Exchange)', 'WEEX (Exchange)'];
 
+  const BlogPreviewSection = () => (
+    <ScrollReveal delay={600} duration={800}>
+      <section className="py-20 px-4 bg-gradient-to-br from-primary/5 to-black/20">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center px-6 py-3 border border-white/20 rounded-full text-white text-sm font-medium mb-6 backdrop-blur-sm bg-white/5">
+              <BookOpen className="w-4 h-4 mr-2" />
+              Latest Trading Insights
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">From the Blog</h2>
+            <p className="text-white/80 text-lg">
+              Stay updated with the latest trading strategies and market insights
+            </p>
+          </div>
+          
+          {featuredBlogPosts.length > 0 ? (
+            <>
+              <div className="grid md:grid-cols-3 gap-8 mb-12">
+                {featuredBlogPosts.map((post, index) => (
+                  <ScrollReveal key={post.id} delay={700 + (index * 100)} duration={600}>
+                    <BlogCard post={post} />
+                  </ScrollReveal>
+                ))}
+              </div>
+              <div className="text-center">
+                <Link to="/blog">
+                  <Button className="bg-white text-black hover:bg-white/90 px-8 py-3">
+                    Read All Posts
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-12">
+              <BookOpen className="w-16 h-16 text-white/30 mx-auto mb-4" />
+              <p className="text-white/60 text-lg">No blog posts available yet. Check back soon!</p>
+            </div>
+          )}
+        </div>
+      </section>
+    </ScrollReveal>
+  );
 
   return (
     <div className="min-h-screen">
@@ -210,6 +265,9 @@ const HomePage = () => {
           </div>
         </section>
       </ScrollReveal>
+
+      {/* Blog Preview Section */}
+      <BlogPreviewSection />
 
       {/* Ready to Level Up Section */}
       <ScrollReveal delay={700} duration={800}>

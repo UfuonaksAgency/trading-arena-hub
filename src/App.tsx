@@ -14,6 +14,8 @@ import Refund from "./pages/Refund";
 import Disclaimer from "./pages/Disclaimer";
 import NotFound from "./pages/NotFound";
 import AdminPanel from "./pages/AdminPanel";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const App = () => (
           <Route path="/mentorship" element={<Mentorship />} />
           <Route path="/free-resources" element={<FreeResources />} />
           <Route path="/book-consultation" element={<BookConsultation />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/refund" element={<Refund />} />
