@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, FileText, Video, Calculator, Star } from 'lucide-react';
+import { Download, ExternalLink, FileText, Video, Calculator, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Header from '@/components/Header';
@@ -14,6 +14,7 @@ interface FreeResource {
   description: string;
   features: string[];
   download_url?: string;
+  external_link?: string;
   icon_name: string;
   size_info: string;
   page_info: string;
@@ -45,26 +46,29 @@ const FreeResources = () => {
     }
   };
 
-  const handleDownload = async (resourceId: string, resourceTitle: string, downloadUrl?: string) => {
-    // Track the download
+  const handleResourceAccess = async (resource: FreeResource) => {
+    const targetUrl = resource.external_link || resource.download_url;
+    
+    if (!targetUrl) {
+      console.error('No URL available for this resource');
+      alert('This resource will be available soon. Please contact us for early access.');
+      return;
+    }
+
+    // Track the access/download
     try {
       await supabase.functions.invoke('track-download', {
         body: { 
-          resource_id: resourceId,
+          resource_id: resource.id,
           session_id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36)
         }
       });
     } catch (error) {
-      console.error('Error tracking download:', error);
+      console.error('Error tracking resource access:', error);
     }
 
-    // Open download URL if available
-    if (downloadUrl) {
-      window.open(downloadUrl, '_blank');
-    } else {
-      // For resources without URLs, you could show a message or redirect to contact
-      alert('This resource will be available soon. Please contact us for early access.');
-    }
+    // Open URL (external link or download)
+    window.open(targetUrl, '_blank');
   };
 
   const getTypeIcon = (iconName: string) => {
@@ -177,13 +181,23 @@ const FreeResources = () => {
                           </ul>
                         </div>
 
-                        {/* Download Button */}
+                        {/* Access Button */}
                         <Button 
-                          onClick={() => handleDownload(resource.id, resource.title, resource.download_url)}
+                          onClick={() => handleResourceAccess(resource)}
                           className="w-full btn-primary"
+                          disabled={!resource.external_link && !resource.download_url}
                         >
-                          <Download className="mr-2 w-4 h-4" />
-                          Download Now
+                          {resource.external_link ? (
+                            <>
+                              <ExternalLink className="mr-2 w-4 h-4" />
+                              Access Resource
+                            </>
+                          ) : (
+                            <>
+                              <Download className="mr-2 w-4 h-4" />
+                              Download Now
+                            </>
+                          )}
                         </Button>
                         </div>
                       </Card>

@@ -12,6 +12,17 @@ import { supabase } from '@/integrations/supabase/client';
 import { ScrollReveal } from '@/hooks/useScrollReveal';
 import BlogCard from '@/components/BlogCard';
 
+interface FreeResource {
+  id: string;
+  title: string;
+  type: string;
+  description: string;
+  features: string[];
+  download_url?: string;
+  external_link?: string;
+  icon_name: string;
+}
+
 const HomePage = () => {
   const tradingTools = [
     {
@@ -59,6 +70,31 @@ const HomePage = () => {
     fetchFeaturedResources();
     fetchFeaturedBlogPosts();
   }, []);
+
+  const handleResourceAccess = async (resource: FreeResource) => {
+    const targetUrl = resource.external_link || resource.download_url;
+    
+    if (!targetUrl) {
+      console.error('No URL available for this resource');
+      return;
+    }
+
+    // Open the URL (external link or download)
+    window.open(targetUrl, '_blank');
+
+    // Track the access/download
+    try {
+      await supabase.functions.invoke('track-download', {
+        body: {
+          resourceId: resource.id,
+          userAgent: navigator.userAgent,
+          sessionId: sessionStorage.getItem('sessionId') || 'anonymous'
+        }
+      });
+    } catch (error) {
+      console.error('Error tracking resource access:', error);
+    }
+  };
 
   const fetchFeaturedResources = async () => {
     try {
@@ -255,9 +291,22 @@ const HomePage = () => {
                     </div>
                     <h3 className="text-lg font-semibold mb-2 text-white">{resource.title}</h3>
                     <p className="text-white/70 text-sm mb-4 leading-relaxed">{resource.description}</p>
-                    <Button className="bg-white text-black hover:bg-white/90 w-full text-sm py-2">
-                      <Download className="mr-2 w-4 h-4" />
-                      Download
+                    <Button 
+                      className="bg-white text-black hover:bg-white/90 w-full text-sm py-2"
+                      onClick={() => handleResourceAccess(resource)}
+                      disabled={!resource.external_link && !resource.download_url}
+                    >
+                      {resource.external_link ? (
+                        <>
+                          <ExternalLink className="mr-2 w-4 h-4" />
+                          Access
+                        </>
+                      ) : (
+                        <>
+                          <Download className="mr-2 w-4 h-4" />
+                          Download
+                        </>
+                      )}
                     </Button>
                   </div>
                 </ScrollReveal>
