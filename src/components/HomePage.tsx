@@ -71,29 +71,38 @@ const HomePage = () => {
     fetchFeaturedBlogPosts();
   }, []);
 
-  const handleResourceAccess = async (resource: FreeResource) => {
-    const targetUrl = resource.external_link || resource.download_url;
-    
-    if (!targetUrl) {
-      console.error('No URL available for this resource');
-      return;
-    }
+  const handleDownload = async (resource: FreeResource) => {
+    if (!resource.download_url) return;
 
-    // Open the URL (external link or download)
-    window.open(targetUrl, '_blank');
-
-    // Track the access/download
     try {
       await supabase.functions.invoke('track-download', {
         body: {
-          resourceId: resource.id,
-          userAgent: navigator.userAgent,
-          sessionId: sessionStorage.getItem('sessionId') || 'anonymous'
+          resource_id: resource.id,
+          session_id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36)
         }
       });
     } catch (error) {
-      console.error('Error tracking resource access:', error);
+      console.error('Error tracking download:', error);
     }
+
+    window.open(resource.download_url, '_blank');
+  };
+
+  const handleExternalLink = async (resource: FreeResource) => {
+    if (!resource.external_link) return;
+
+    try {
+      await supabase.functions.invoke('track-download', {
+        body: {
+          resource_id: resource.id,
+          session_id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36)
+        }
+      });
+    } catch (error) {
+      console.error('Error tracking access:', error);
+    }
+
+    window.open(resource.external_link, '_blank');
   };
 
   const fetchFeaturedResources = async () => {
@@ -291,23 +300,27 @@ const HomePage = () => {
                     </div>
                     <h3 className="text-lg font-semibold mb-2 text-white">{resource.title}</h3>
                     <p className="text-white/70 text-sm mb-4 leading-relaxed">{resource.description}</p>
-                    <Button 
-                      className="bg-white text-black hover:bg-white/90 w-full text-sm py-2"
-                      onClick={() => handleResourceAccess(resource)}
-                      disabled={!resource.external_link && !resource.download_url}
-                    >
-                      {resource.external_link ? (
-                        <>
-                          <ExternalLink className="mr-2 w-4 h-4" />
-                          Access
-                        </>
-                      ) : (
-                        <>
+                    <div className="flex flex-col gap-2 w-full">
+                      {resource.download_url && (
+                        <Button 
+                          className="bg-white text-black hover:bg-white/90 w-full text-sm py-2"
+                          onClick={() => handleDownload(resource)}
+                        >
                           <Download className="mr-2 w-4 h-4" />
                           Download
-                        </>
+                        </Button>
                       )}
-                    </Button>
+                      {resource.external_link && (
+                        <Button 
+                          className="bg-white/10 text-white hover:bg-white/20 border border-white/20 w-full text-sm py-2"
+                          onClick={() => handleExternalLink(resource)}
+                          variant="outline"
+                        >
+                          <ExternalLink className="mr-2 w-4 h-4" />
+                          Access Link
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </ScrollReveal>
               ))}
