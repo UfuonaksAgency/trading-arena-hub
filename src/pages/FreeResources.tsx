@@ -195,20 +195,22 @@ const FreeResources = () => {
                           {resource.download_url && (
                             <Button 
                               onClick={() => handleDownload(resource)}
-                              className="flex-1 btn-primary"
+                              className="flex-1 btn-primary min-w-0"
+                              size="sm"
                             >
-                              <Download className="mr-2 w-4 h-4" />
-                              Download {resource.type}
+                              <Download className="mr-2 w-4 h-4 flex-shrink-0" />
+                              <span className="truncate">Download {resource.type}</span>
                             </Button>
                           )}
                           {resource.external_link && (
                             <Button 
                               onClick={() => handleExternalLink(resource)}
-                              className="flex-1 btn-ghost"
+                              className="flex-1 btn-ghost min-w-0"
                               variant="outline"
+                              size="sm"
                             >
-                              <ExternalLink className="mr-2 w-4 h-4" />
-                              Access Link
+                              <ExternalLink className="mr-2 w-4 h-4 flex-shrink-0" />
+                              <span className="truncate">Access Link</span>
                             </Button>
                           )}
                         </div>
