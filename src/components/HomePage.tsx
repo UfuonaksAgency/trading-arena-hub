@@ -74,6 +74,10 @@ const HomePage = () => {
   const handleDownload = async (resource: FreeResource) => {
     if (!resource.download_url) return;
 
+    // Open link immediately to prevent popup blocking
+    window.open(resource.download_url, '_blank');
+
+    // Track download asynchronously
     try {
       await supabase.functions.invoke('track-download', {
         body: {
@@ -84,13 +88,15 @@ const HomePage = () => {
     } catch (error) {
       console.error('Error tracking download:', error);
     }
-
-    window.open(resource.download_url, '_blank');
   };
 
   const handleExternalLink = async (resource: FreeResource) => {
     if (!resource.external_link) return;
 
+    // Open link immediately to prevent popup blocking
+    window.open(resource.external_link, '_blank');
+
+    // Track access asynchronously
     try {
       await supabase.functions.invoke('track-download', {
         body: {
@@ -101,8 +107,6 @@ const HomePage = () => {
     } catch (error) {
       console.error('Error tracking access:', error);
     }
-
-    window.open(resource.external_link, '_blank');
   };
 
   const fetchFeaturedResources = async () => {
@@ -303,7 +307,7 @@ const HomePage = () => {
                     <div className="flex flex-col gap-2 w-full">
                       {resource.download_url && (
                         <Button 
-                          className="bg-white text-black hover:bg-white/90 w-full text-sm py-2"
+                          className="bg-white text-black hover:bg-white/90 w-full min-h-[44px] text-sm py-3"
                           onClick={() => handleDownload(resource)}
                         >
                           <Download className="mr-2 w-4 h-4" />
@@ -312,7 +316,7 @@ const HomePage = () => {
                       )}
                       {resource.external_link && (
                         <Button 
-                          className="bg-white/10 text-white hover:bg-white/20 border border-white/20 w-full text-sm py-2"
+                          className="bg-white/10 text-white hover:bg-white/20 border border-white/20 w-full min-h-[44px] text-sm py-3"
                           onClick={() => handleExternalLink(resource)}
                           variant="outline"
                         >
