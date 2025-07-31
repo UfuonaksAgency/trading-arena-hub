@@ -216,7 +216,7 @@ const HomePage = () => {
               <Link to="/book-consultation">
                 <Button className="btn-ghost text-lg px-10 py-4">
                   <Calendar className="mr-3 h-6 w-6" />
-                  Book 30-Min Call
+                  Book Team Session
                 </Button>
               </Link>
             </div>
@@ -346,12 +346,12 @@ const HomePage = () => {
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Level Up Your Trading?</h2>
             <p className="text-white/80 text-lg mb-8 max-w-2xl mx-auto">
-              Book a personalized 30-minute consultation to discuss your trading goals, 
+              Book a personalized 30-minute consultation with our trading team to discuss your trading goals, 
               get strategy recommendations, and receive professional guidance.
             </p>
             <div className="inline-flex items-center px-4 py-2 bg-white/10 border border-white/20 rounded-full text-white/90 text-sm font-medium mb-8">
               <Clock className="w-4 h-4 mr-2" />
-              30-minute session • $50 USD
+              30-minute session • $300 USD
             </div>
             <Link to="/book-consultation">
               <Button className="bg-white text-black hover:bg-white/90 text-lg px-10 py-4">

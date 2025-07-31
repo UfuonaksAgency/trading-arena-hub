@@ -136,11 +136,11 @@ const BookConsultation = () => {
             <h1 className="section-header">Book Your 30-Minute Strategy Call</h1>
             <p className="text-white text-lg max-w-3xl mx-auto leading-relaxed">
               Get personalized trading advice, strategy recommendations, and answers to your specific 
-              trading questions in a focused 30-minute session with Mr. K.
+              trading questions in a focused 30-minute session with our trading team.
             </p>
             <div className="inline-flex items-center px-4 py-2 bg-accent/10 border border-accent/20 rounded-full text-accent text-sm font-medium mt-6">
               <Clock className="w-4 h-4 mr-2" />
-              30-minute session • $50 USD
+              30-minute session • $300 USD
             </div>
             </div>
           </section>
@@ -153,27 +153,17 @@ const BookConsultation = () => {
               <div className="text-center mb-12">
                 <h2 className="section-header">What You'll Get</h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid md:grid-cols-3 gap-6">
                 {[
                 {
                   icon: CheckCircle,
-                  title: "Personalized Strategy",
-                  description: "Tailored trading advice based on your experience level and goals"
+                  title: "Personalized Strategy & Risk Management",
+                  description: "Tailored trading advice based on your experience level, goals, and professional risk assessment with position sizing guidance"
                 },
                 {
                   icon: CheckCircle,
-                  title: "Risk Management",
-                  description: "Professional risk assessment and position sizing guidance"
-                },
-                {
-                  icon: CheckCircle,
-                  title: "Platform Setup",
-                  description: "Recommendations for tools and platform configurations"
-                },
-                {
-                  icon: CheckCircle,
-                  title: "Q&A Session",
-                  description: "Direct answers to your specific trading questions and challenges"
+                  title: "Book a session with our team $300 for 30 minutes",
+                  description: "Direct access to our professional trading team for specific questions, challenges, and personalized guidance"
                 }
                 ].map((benefit, index) => (
                   <ScrollReveal key={index} delay={600 + (index * 100)} duration={600}>
@@ -274,7 +264,7 @@ const BookConsultation = () => {
                   id="purpose"
                   value={formData.purpose}
                   onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
-                  placeholder="Tell me about your trading goals, specific challenges, current strategies, and what you'd like to focus on during our 30-minute call..."
+                  placeholder="Tell me about your trading goals, specific challenges, current strategies, and what you'd like to focus on during our 30-minute team session..."
                   rows={4}
                   required
                   className="bg-white/5 border-white/20 text-white placeholder:text-gray-400"
