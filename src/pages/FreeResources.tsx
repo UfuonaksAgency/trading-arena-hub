@@ -191,11 +191,11 @@ const FreeResources = () => {
                         </div>
 
                         {/* Access Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-3 w-full">
+                        <div className="flex flex-col gap-3 w-full">
                           {resource.download_url && (
                             <Button 
                               onClick={() => handleDownload(resource)}
-                              className="flex-1 btn-primary min-w-0"
+                              className="w-full btn-primary"
                               size="sm"
                             >
                               <Download className="mr-2 w-4 h-4 flex-shrink-0" />
@@ -205,7 +205,7 @@ const FreeResources = () => {
                           {resource.external_link && (
                             <Button 
                               onClick={() => handleExternalLink(resource)}
-                              className="flex-1 btn-ghost min-w-0"
+                              className="w-full btn-ghost"
                               variant="outline"
                               size="sm"
                             >
