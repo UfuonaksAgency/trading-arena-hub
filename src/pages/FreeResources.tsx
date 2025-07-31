@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 import { ScrollReveal } from '@/hooks/useScrollReveal';
+import { useToast } from '@/hooks/use-toast';
 
 interface FreeResource {
   id: string;
@@ -24,6 +25,8 @@ interface FreeResource {
 const FreeResources = () => {
   const [resources, setResources] = useState<FreeResource[]>([]);
   const [loading, setLoading] = useState(true);
+  const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set());
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchResources();
@@ -47,37 +50,126 @@ const FreeResources = () => {
   };
 
   const handleDownload = async (resource: FreeResource) => {
-    if (!resource.download_url) return;
+    if (!resource.download_url || downloadingIds.has(resource.id)) return;
+
+    // Add to downloading set to prevent double clicks
+    setDownloadingIds(prev => new Set(prev).add(resource.id));
 
     try {
-      await supabase.functions.invoke('track-download', {
+      // Open download immediately to avoid popup blocking
+      const downloadWindow = window.open(resource.download_url, '_blank');
+      
+      // Check if popup was blocked
+      if (!downloadWindow || downloadWindow.closed || typeof downloadWindow.closed == 'undefined') {
+        // Fallback: try direct download with link element
+        const link = document.createElement('a');
+        link.href = resource.download_url;
+        link.download = resource.title;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast({
+          title: "Download Started",
+          description: "If download didn't start, check your popup blocker settings.",
+        });
+      } else {
+        toast({
+          title: "Download Started",
+          description: `${resource.title} is now downloading.`,
+        });
+      }
+
+      // Track download asynchronously (don't block the download)
+      supabase.functions.invoke('track-download', {
         body: { 
           resource_id: resource.id,
           session_id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36)
         }
+      }).catch(error => {
+        console.error('Error tracking download:', error);
       });
-    } catch (error) {
-      console.error('Error tracking download:', error);
-    }
 
-    window.open(resource.download_url, '_blank');
+    } catch (error) {
+      console.error('Error handling download:', error);
+      toast({
+        title: "Download Failed",
+        description: "Please try again or check your connection.",
+        variant: "destructive",
+      });
+    } finally {
+      // Remove from downloading set after a delay
+      setTimeout(() => {
+        setDownloadingIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(resource.id);
+          return newSet;
+        });
+      }, 2000);
+    }
   };
 
   const handleExternalLink = async (resource: FreeResource) => {
-    if (!resource.external_link) return;
+    if (!resource.external_link || downloadingIds.has(resource.id + '_link')) return;
+
+    // Add to downloading set to prevent double clicks
+    setDownloadingIds(prev => new Set(prev).add(resource.id + '_link'));
 
     try {
-      await supabase.functions.invoke('track-download', {
+      // Open link immediately to avoid popup blocking
+      const linkWindow = window.open(resource.external_link, '_blank', 'noopener,noreferrer');
+      
+      // Check if popup was blocked
+      if (!linkWindow || linkWindow.closed || typeof linkWindow.closed == 'undefined') {
+        // Fallback: copy link to clipboard
+        try {
+          await navigator.clipboard.writeText(resource.external_link);
+          toast({
+            title: "Link Copied",
+            description: "The link has been copied to your clipboard. Popup blocker detected.",
+          });
+        } catch (clipboardError) {
+          toast({
+            title: "Popup Blocked",
+            description: "Please disable popup blocker or manually visit the link.",
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Link Opened",
+          description: `Opening ${resource.title} in a new tab.`,
+        });
+      }
+
+      // Track access asynchronously (don't block the link opening)
+      supabase.functions.invoke('track-download', {
         body: { 
           resource_id: resource.id,
           session_id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36)
         }
+      }).catch(error => {
+        console.error('Error tracking access:', error);
       });
-    } catch (error) {
-      console.error('Error tracking access:', error);
-    }
 
-    window.open(resource.external_link, '_blank');
+    } catch (error) {
+      console.error('Error handling external link:', error);
+      toast({
+        title: "Link Failed",
+        description: "Please try again or check your connection.",
+        variant: "destructive",
+      });
+    } finally {
+      // Remove from downloading set after a delay
+      setTimeout(() => {
+        setDownloadingIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(resource.id + '_link');
+          return newSet;
+        });
+      }, 2000);
+    }
   };
 
   const getTypeIcon = (iconName: string) => {
@@ -195,22 +287,28 @@ const FreeResources = () => {
                           {resource.download_url && (
                             <Button 
                               onClick={() => handleDownload(resource)}
-                              className="w-full btn-primary"
-                              size="sm"
+                              className="w-full btn-primary min-h-[44px] touch-manipulation"
+                              size="default"
+                              disabled={downloadingIds.has(resource.id)}
                             >
                               <Download className="mr-2 w-4 h-4 flex-shrink-0" />
-                              <span className="truncate">Download {resource.type}</span>
+                              <span className="truncate">
+                                {downloadingIds.has(resource.id) ? 'Downloading...' : `Download ${resource.type}`}
+                              </span>
                             </Button>
                           )}
                           {resource.external_link && (
                             <Button 
                               onClick={() => handleExternalLink(resource)}
-                              className="w-full btn-ghost"
+                              className="w-full btn-ghost min-h-[44px] touch-manipulation"
                               variant="outline"
-                              size="sm"
+                              size="default"
+                              disabled={downloadingIds.has(resource.id + '_link')}
                             >
                               <ExternalLink className="mr-2 w-4 h-4 flex-shrink-0" />
-                              <span className="truncate">Access Link</span>
+                              <span className="truncate">
+                                {downloadingIds.has(resource.id + '_link') ? 'Opening...' : 'Access Link'}
+                              </span>
                             </Button>
                           )}
                         </div>
