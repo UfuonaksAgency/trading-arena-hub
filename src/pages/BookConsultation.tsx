@@ -25,6 +25,12 @@ declare global {
         utm?: object;
         settings?: object;
       }) => void;
+      initPopupWidget: (options: {
+        url: string;
+        prefill?: object;
+        utm?: object;
+        settings?: object;
+      }) => void;
       initBadgeWidget: (options: {
         url: string;
         text: string;
@@ -73,6 +79,8 @@ const BookConsultation = () => {
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
   const [isScheduleClicked, setIsScheduleClicked] = useState(false);
   const [hasBookedAppointment, setHasBookedAppointment] = useState(false);
+  const [isCalendlyLoading, setIsCalendlyLoading] = useState(false);
+  const [isCalendlyLoaded, setIsCalendlyLoaded] = useState(false);
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -102,6 +110,21 @@ const BookConsultation = () => {
     const script = document.createElement('script');
     script.src = 'https://assets.calendly.com/assets/external/widget.js';
     script.async = true;
+    
+    script.onload = () => {
+      setIsCalendlyLoaded(true);
+      console.log('Calendly script loaded successfully');
+    };
+    
+    script.onerror = () => {
+      console.error('Failed to load Calendly script');
+      toast({
+        title: "Calendar Loading Error",
+        description: "There was an issue loading the calendar. Please try refreshing the page.",
+        variant: "destructive",
+      });
+    };
+    
     document.body.appendChild(script);
 
     const link = document.createElement('link');
@@ -115,6 +138,7 @@ const BookConsultation = () => {
       
       if (e.data.event === 'calendly.event_scheduled') {
         setHasBookedAppointment(true);
+        setIsCalendlyLoading(false);
         toast({
           title: "Appointment Booked! 🎉",
           description: "Your consultation has been successfully scheduled. You'll receive a confirmation email shortly.",
@@ -421,6 +445,51 @@ const BookConsultation = () => {
       case 'partial': return <Clock className="h-5 w-5 text-yellow-600" />;
       case 'expired': return <AlertCircle className="h-5 w-5 text-red-600" />;
       default: return <Clock className="h-5 w-5 text-blue-600" />;
+    }
+  };
+
+  const handleScheduleClick = () => {
+    if (!window.Calendly || !isCalendlyLoaded) {
+      toast({
+        title: "Calendar Loading",
+        description: "Please wait for the calendar to load and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCalendlyLoading(true);
+    setIsScheduleClicked(true);
+
+    try {
+      const calendlyUrl = import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min';
+      
+      window.Calendly.initPopupWidget({
+        url: calendlyUrl,
+        prefill: {
+          name: formData.name,
+          email: formData.email
+        },
+        utm: {},
+        settings: {
+          hideEventTypeDetails: false,
+          hideLandingPageDetails: false
+        }
+      });
+
+      // Reset loading state after a short delay
+      setTimeout(() => {
+        setIsCalendlyLoading(false);
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error opening Calendly popup:', error);
+      toast({
+        title: "Calendar Error",
+        description: "Failed to open calendar. Please try refreshing the page.",
+        variant: "destructive",
+      });
+      setIsCalendlyLoading(false);
     }
   };
 
@@ -892,19 +961,32 @@ const BookConsultation = () => {
                     </p>
                   </div>
 
-                  {/* Calendly Embedded Widget */}
-                  <div 
-                    id="calendly-inline-widget" 
-                    className="w-full min-h-[750px] lg:min-h-[800px] border rounded-lg bg-background"
-                    style={{ minHeight: '750px' }}
-                  >
-                    {!hasBookedAppointment && (
-                      <div className="flex items-center justify-center h-32">
-                        <div className="text-center space-y-2">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto"></div>
-                          <p className="text-sm text-muted-foreground">Loading calendar...</p>
+                  {/* Calendly Popup Widget Button */}
+                  <div className="text-center space-y-4">
+                    <Button
+                      onClick={handleScheduleClick}
+                      disabled={isCalendlyLoading || !isCalendlyLoaded}
+                      className="w-full max-w-md h-14 text-lg font-semibold"
+                      size="lg"
+                    >
+                      {isCalendlyLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          Opening calendar...
                         </div>
-                      </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          Schedule My Trading Session
+                        </div>
+                      )}
+                    </Button>
+                    {!isCalendlyLoaded && (
+                      <p className="text-sm text-muted-foreground">
+                        Loading calendar system...
+                      </p>
                     )}
                   </div>
 
