@@ -10,68 +10,199 @@ interface ConsultationRequest {
   consultationId: string;
 }
 
+// Retry helper function
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  initialDelay: number = 1000
+): Promise<T> {
+  let lastError: Error;
+  
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error as Error;
+      if (i < maxRetries - 1) {
+        const delay = initialDelay * Math.pow(2, i);
+        console.log(`Attempt ${i + 1} failed, retrying in ${delay}ms:`, error.message);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  
+  throw lastError!;
+}
+
+// Get BTC price with multiple fallbacks
+async function getBTCPrice(): Promise<number> {
+  const fallbackPrice = 45000; // Fallback price in USD
+  
+  // Try CoinGecko API first
+  try {
+    console.log('Attempting to fetch BTC price from CoinGecko...');
+    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`CoinGecko API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const price = data.bitcoin?.usd;
+    
+    if (typeof price === 'number' && price > 0) {
+      console.log('Successfully fetched BTC price from CoinGecko:', price);
+      return price;
+    }
+    
+    throw new Error('Invalid price data from CoinGecko');
+  } catch (error) {
+    console.warn('CoinGecko API failed:', error.message);
+  }
+
+  // Try CoinDesk API as fallback
+  try {
+    console.log('Attempting to fetch BTC price from CoinDesk...');
+    const response = await fetch('https://api.coindesk.com/v1/bpi/currentprice/USD.json', {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`CoinDesk API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const priceString = data.bpi?.USD?.rate;
+    
+    if (priceString) {
+      const price = parseFloat(priceString.replace(/,/g, ''));
+      if (price > 0) {
+        console.log('Successfully fetched BTC price from CoinDesk:', price);
+        return price;
+      }
+    }
+    
+    throw new Error('Invalid price data from CoinDesk');
+  } catch (error) {
+    console.warn('CoinDesk API failed:', error.message);
+  }
+
+  // Use fallback price
+  console.warn(`Using fallback BTC price: $${fallbackPrice}`);
+  return fallbackPrice;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { consultationId }: ConsultationRequest = await req.json();
+    // Validate request body
+    let consultationId: string;
+    try {
+      const body = await req.json();
+      consultationId = body.consultationId;
+    } catch (error) {
+      console.error('Invalid request body:', error);
+      throw new Error('Invalid request body: Expected JSON with consultationId');
+    }
     
     console.log('Payment creation request for consultation:', consultationId);
     
-    if (!consultationId) {
-      throw new Error('Consultation ID is required');
+    if (!consultationId || typeof consultationId !== 'string') {
+      throw new Error('Consultation ID is required and must be a string');
     }
 
-    // Initialize Supabase with service role for database operations
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
-    // Get CoinRemitter credentials
+    // Validate environment variables
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     const apiKey = Deno.env.get('COINREMITTER_API_KEY');
     const password = Deno.env.get('COINREMITTER_PASSWORD');
     const merchantId = Deno.env.get('COINREMITTER_MERCHANT_ID');
 
-    console.log('API credentials check:', {
+    console.log('Environment variables check:', {
+      hasSupabaseUrl: !!supabaseUrl,
+      hasSupabaseServiceKey: !!supabaseServiceKey,
       hasApiKey: !!apiKey,
       hasPassword: !!password,
       hasMerchantId: !!merchantId
     });
 
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing Supabase configuration');
+    }
+
     if (!apiKey || !password || !merchantId) {
       throw new Error('Missing CoinRemitter API credentials');
     }
 
-    // Create new payment address via CoinRemitter API
-    const coinRemitterResponse = await fetch('https://coinremitter.com/api/v3/BTC/get-new-address', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        api_key: apiKey,
-        password: password,
-        merchant_id: merchantId,
-        label: `con-${consultationId.substring(0, 16)}`,
-        webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/coinremitter-webhook`,
-      }),
+    // Initialize Supabase with service role for database operations
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Get BTC price with retries and fallbacks
+    const btcPriceUSD = await retryWithBackoff(() => getBTCPrice(), 3, 1000);
+    const amountBTC = (300 / btcPriceUSD);
+
+    console.log('BTC price calculation:', {
+      btcPriceUSD,
+      amountBTC,
+      amountUSD: 300
     });
 
-    const coinRemitterData = await coinRemitterResponse.json();
-    
-    if (!coinRemitterData.flag || coinRemitterData.flag !== 1) {
-      console.error('CoinRemitter API Error:', coinRemitterData);
-      throw new Error(`CoinRemitter API Error: ${coinRemitterData.msg || 'Failed to create payment address'}`);
-    }
+    // Create new payment address via CoinRemitter API with retries
+    const coinRemitterData = await retryWithBackoff(async () => {
+      console.log('Calling CoinRemitter API...');
+      
+      const webhookUrl = `${supabaseUrl}/functions/v1/coinremitter-webhook`;
+      const label = `con-${consultationId.substring(0, 16)}`;
+      
+      console.log('CoinRemitter request params:', {
+        label,
+        webhookUrl,
+        merchantId
+      });
 
-    // Get current BTC price for $300 USD
-    const btcPriceResponse = await fetch('https://api.coindesk.com/v1/bpi/currentprice/USD.json');
-    const btcPriceData = await btcPriceResponse.json();
-    const btcPriceUSD = parseFloat(btcPriceData.bpi.USD.rate.replace(/,/g, ''));
-    const amountBTC = (300 / btcPriceUSD);
+      const response = await fetch('https://coinremitter.com/api/v3/BTC/get-new-address', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          api_key: apiKey,
+          password: password,
+          merchant_id: merchantId,
+          label: label,
+          webhook_url: webhookUrl,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`CoinRemitter HTTP error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('CoinRemitter API response:', {
+        flag: data.flag,
+        msg: data.msg,
+        hasData: !!data.data,
+        hasAddress: !!data.data?.address
+      });
+      
+      if (!data.flag || data.flag !== 1) {
+        throw new Error(`CoinRemitter API Error: ${data.msg || 'Failed to create payment address'}`);
+      }
+
+      if (!data.data?.address) {
+        throw new Error('CoinRemitter API did not return a payment address');
+      }
+
+      return data;
+    }, 3, 2000);
 
     // Store payment record in database
     const { data: paymentData, error: paymentError } = await supabase
