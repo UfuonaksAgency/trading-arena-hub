@@ -36,6 +36,15 @@ declare global {
   }
 }
 
+// Listen for Calendly events
+const handleCalendlyMessage = (e: MessageEvent) => {
+  if (e.origin !== 'https://calendly.com') return;
+  
+  if (e.data.event && e.data.event.indexOf('calendly') === 0) {
+    return e.data;
+  }
+};
+
 interface CryptoPayment {
   id: string;
   address: string;
@@ -63,7 +72,7 @@ const BookConsultation = () => {
   const [showCalendly, setShowCalendly] = useState(false);
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
   const [isScheduleClicked, setIsScheduleClicked] = useState(false);
-  const [hasClickedSchedule, setHasClickedSchedule] = useState(false);
+  const [hasBookedAppointment, setHasBookedAppointment] = useState(false);
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -88,7 +97,7 @@ const BookConsultation = () => {
     purpose: '',
   });
 
-  // Load Calendly widget
+  // Load Calendly widget and set up event listeners
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://assets.calendly.com/assets/external/widget.js';
@@ -100,6 +109,21 @@ const BookConsultation = () => {
     link.rel = 'stylesheet';
     document.head.appendChild(link);
 
+    // Set up Calendly event listener
+    const handleCalendlyEvent = (e: MessageEvent) => {
+      if (e.origin !== 'https://calendly.com') return;
+      
+      if (e.data.event === 'calendly.event_scheduled') {
+        setHasBookedAppointment(true);
+        toast({
+          title: "Appointment Booked! 🎉",
+          description: "Your consultation has been successfully scheduled. You'll receive a confirmation email shortly.",
+        });
+      }
+    };
+
+    window.addEventListener('message', handleCalendlyEvent);
+
     return () => {
       if (document.body.contains(script)) {
         document.body.removeChild(script);
@@ -107,8 +131,9 @@ const BookConsultation = () => {
       if (document.head.contains(link)) {
         document.head.removeChild(link);
       }
+      window.removeEventListener('message', handleCalendlyEvent);
     };
-  }, []);
+  }, [toast]);
 
   // Initialize Calendly when payment is confirmed
   useEffect(() => {
@@ -120,12 +145,22 @@ const BookConsultation = () => {
 
   // Initialize Calendly widget when schedule step is reached
   useEffect(() => {
-    if (currentStep === 'schedule' && window.Calendly) {
+    if (currentStep === 'schedule') {
       let retryCount = 0;
-      const maxRetries = 3;
+      const maxRetries = 5;
       
       const initializeCalendly = () => {
         const container = document.querySelector('#calendly-inline-widget');
+        
+        if (!window.Calendly) {
+          // Retry if Calendly hasn't loaded yet
+          if (retryCount < maxRetries) {
+            retryCount++;
+            setTimeout(initializeCalendly, 1000);
+          }
+          return;
+        }
+        
         if (container && !container.querySelector('iframe')) {
           const calendlyUrl = import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min';
           
@@ -156,7 +191,7 @@ const BookConsultation = () => {
         }
       };
 
-      const timer = setTimeout(initializeCalendly, 100);
+      const timer = setTimeout(initializeCalendly, 500);
       return () => clearTimeout(timer);
     }
   }, [currentStep, formData.name, formData.email]);
@@ -857,60 +892,31 @@ const BookConsultation = () => {
                     </p>
                   </div>
 
-                  <Button 
-                    disabled={isScheduleClicked}
-                    onClick={() => {
-                      setIsScheduleClicked(true);
-                      setHasClickedSchedule(true);
-                      
-                      // Show success toast
-                      toast({
-                        title: "Calendly Opening! 🎉",
-                        description: "Check for a new tab or if Calendly didn't open, you can click the button again in 5 seconds.",
-                      });
-                      
-                      // Re-enable after 5 seconds
-                      setTimeout(() => setIsScheduleClicked(false), 5000);
-                      
-                      // Open Calendly in new tab
-                      window.open(
-                        `${import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min'}?name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}`,
-                        '_blank'
-                      );
-                    }}
-                    size="lg"
-                    className="bg-accent hover:bg-accent/90 disabled:opacity-60 disabled:cursor-not-allowed text-accent-foreground px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold min-h-[44px] w-full sm:w-auto"
-                  >
-                    {isScheduleClicked ? (
-                      <>
-                        <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2 animate-spin" />
-                        Opening Calendly...
-                      </>
-                    ) : (
-                      <>
-                        <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                        {hasClickedSchedule ? "Open Calendly Again" : "Schedule My Trading Session"}
-                      </>
-                    )}
-                  </Button>
+                  {/* Calendly Embedded Widget */}
+                  <div 
+                    id="calendly-inline-widget" 
+                    className="w-full min-h-[630px] border rounded-lg overflow-hidden bg-white"
+                  ></div>
 
-                  {/* Thank You Message - Appears after first click */}
-                  {hasClickedSchedule && (
+                  {/* Booking Confirmation - Appears after actual booking */}
+                  {hasBookedAppointment && (
                     <Card className="bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800 mt-6">
-                      <CardContent className="p-4">
-                        <div className="text-center space-y-2">
+                      <CardContent className="p-6">
+                        <div className="text-center space-y-4">
                           <div className="flex justify-center">
-                            <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+                            <CheckCircle className="h-16 w-16 text-green-600 dark:text-green-400" />
                           </div>
-                          <h4 className="text-lg font-bold text-green-900 dark:text-green-100">
-                            🎉 Congratulations!
+                          <h4 className="text-2xl font-bold text-green-900 dark:text-green-100">
+                            🎉 Appointment Successfully Booked!
                           </h4>
-                          <p className="text-green-800 dark:text-green-200 text-sm">
-                            Calendly should have opened in a new tab. Please check your browser tabs to complete your booking.
+                          <p className="text-green-800 dark:text-green-200">
+                            Thank you! Your consultation has been scheduled. You'll receive a confirmation email with all the details shortly.
                           </p>
-                          <p className="text-xs text-green-700 dark:text-green-300">
-                            If the tab didn't open, you can click the button above again or check if pop-ups are blocked.
-                          </p>
+                          <div className="text-sm text-green-700 dark:text-green-300 space-y-1">
+                            <p>• Check your email for the meeting link</p>
+                            <p>• Add the event to your calendar</p>
+                            <p>• Prepare any questions you'd like to discuss</p>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
