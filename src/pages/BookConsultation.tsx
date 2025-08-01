@@ -63,6 +63,20 @@ const BookConsultation = () => {
   const [showCalendly, setShowCalendly] = useState(false);
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
   const [isScheduleClicked, setIsScheduleClicked] = useState(false);
+
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentStep]);
+
+  // Reset schedule button state when step changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsScheduleClicked(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [isScheduleClicked]);
   
   const [formData, setFormData] = useState({
     name: '',
