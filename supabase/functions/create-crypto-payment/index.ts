@@ -55,7 +55,7 @@ serve(async (req) => {
         api_key: apiKey,
         password: password,
         merchant_id: merchantId,
-        label: `consultation-${consultationId}`,
+        label: `con-${consultationId.substring(0, 16)}`,
         webhook_url: `${Deno.env.get('SUPABASE_URL')}/functions/v1/coinremitter-webhook`,
       }),
     });
