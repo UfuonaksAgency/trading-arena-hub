@@ -63,6 +63,7 @@ const BookConsultation = () => {
   const [showCalendly, setShowCalendly] = useState(false);
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
   const [isScheduleClicked, setIsScheduleClicked] = useState(false);
+  const [hasClickedSchedule, setHasClickedSchedule] = useState(false);
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -860,8 +861,17 @@ const BookConsultation = () => {
                     disabled={isScheduleClicked}
                     onClick={() => {
                       setIsScheduleClicked(true);
+                      setHasClickedSchedule(true);
+                      
+                      // Show success toast
+                      toast({
+                        title: "Calendly Opening! 🎉",
+                        description: "Check for a new tab or if Calendly didn't open, you can click the button again in 5 seconds.",
+                      });
+                      
                       // Re-enable after 5 seconds
                       setTimeout(() => setIsScheduleClicked(false), 5000);
+                      
                       // Open Calendly in new tab
                       window.open(
                         `${import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min'}?name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}`,
@@ -879,10 +889,32 @@ const BookConsultation = () => {
                     ) : (
                       <>
                         <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-                        Schedule My Trading Session
+                        {hasClickedSchedule ? "Open Calendly Again" : "Schedule My Trading Session"}
                       </>
                     )}
                   </Button>
+
+                  {/* Thank You Message - Appears after first click */}
+                  {hasClickedSchedule && (
+                    <Card className="bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800 mt-6">
+                      <CardContent className="p-4">
+                        <div className="text-center space-y-2">
+                          <div className="flex justify-center">
+                            <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+                          </div>
+                          <h4 className="text-lg font-bold text-green-900 dark:text-green-100">
+                            🎉 Congratulations!
+                          </h4>
+                          <p className="text-green-800 dark:text-green-200 text-sm">
+                            Calendly should have opened in a new tab. Please check your browser tabs to complete your booking.
+                          </p>
+                          <p className="text-xs text-green-700 dark:text-green-300">
+                            If the tab didn't open, you can click the button above again or check if pop-ups are blocked.
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   <div className="text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-2">
                     <p>• Opens in a new tab for the best experience</p>
