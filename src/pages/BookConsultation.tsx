@@ -23,6 +23,7 @@ declare global {
         parentElement: HTMLElement;
         prefill?: object;
         utm?: object;
+        settings?: object;
       }) => void;
       initBadgeWidget: (options: {
         url: string;
@@ -104,21 +105,42 @@ const BookConsultation = () => {
   // Initialize Calendly widget when schedule step is reached
   useEffect(() => {
     if (currentStep === 'schedule' && window.Calendly) {
-      const timer = setTimeout(() => {
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      const initializeCalendly = () => {
         const container = document.querySelector('#calendly-inline-widget');
         if (container && !container.querySelector('iframe')) {
           const calendlyUrl = import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min';
-          window.Calendly.initInlineWidget({
-            url: calendlyUrl,
-            parentElement: container as HTMLElement,
-            prefill: {
-              name: formData.name,
-              email: formData.email
+          
+          try {
+            window.Calendly.initInlineWidget({
+              url: calendlyUrl,
+              parentElement: container as HTMLElement,
+              prefill: {
+                name: formData.name,
+                email: formData.email
+              },
+              utm: {},
+              settings: {
+                hideEventTypeDetails: false,
+                hideLandingPageDetails: false
+              }
+            });
+          } catch (error) {
+            console.error('Calendly initialization error:', error);
+            if (retryCount < maxRetries) {
+              retryCount++;
+              setTimeout(initializeCalendly, 1000 * retryCount);
             }
-          });
+          }
+        } else if (retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(initializeCalendly, 500);
         }
-      }, 500);
+      };
 
+      const timer = setTimeout(initializeCalendly, 100);
       return () => clearTimeout(timer);
     }
   }, [currentStep, formData.name, formData.email]);
@@ -764,96 +786,93 @@ const BookConsultation = () => {
 
         {/* Step 3: Schedule */}
         {currentStep === 'schedule' && (
-          <Card className="shadow-lg">
-            <CardHeader className="text-center">
-              <CardTitle className="flex items-center justify-center gap-2 text-3xl">
-                <Calendar className="h-8 w-8 text-accent" />
-                Schedule Your Session
-              </CardTitle>
-              <p className="text-muted-foreground text-lg">
-                Payment confirmed! Click the button below to schedule your consultation.
+          <div className="space-y-6">
+            {/* Session Info Header */}
+            <div className="text-center space-y-4">
+              <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-6 py-3 text-green-800 dark:bg-green-900 dark:text-green-200">
+                <CheckCircle className="h-5 w-5" />
+                <span className="font-semibold">Payment Confirmed</span>
+              </div>
+              
+              <h2 className="text-3xl font-bold text-foreground">
+                Schedule Your Trading Strategy Session
+              </h2>
+              
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Your payment has been confirmed! Select a convenient time for your 60-minute consultation.
               </p>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="text-center">
-                <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-6 py-3 text-green-800 dark:bg-green-900 dark:text-green-200">
-                  <CheckCircle className="h-5 w-5" />
-                  <span className="font-semibold">Payment Confirmed</span>
-                </div>
-                
-                <p className="text-lg max-w-2xl mx-auto mt-4">
-                  Your trading strategy session is ready to be scheduled. Select a time that works best for you.
-                </p>
-                
-                <div className="rounded-lg border-2 bg-muted/50 p-6 max-w-md mx-auto mt-6">
-                  <h3 className="mb-4 text-xl font-semibold">Session Details</h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="font-medium">Duration:</span>
-                      <span>60 minutes</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Format:</span>
-                      <span>Video call</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium">Price:</span>
-                      <span className="text-green-600 font-semibold">Paid ✓</span>
-                    </div>
+            </div>
+
+            {/* Session Details Card */}
+            <Card className="max-w-md mx-auto">
+              <CardContent className="p-6">
+                <h3 className="mb-4 text-xl font-semibold text-center">Session Details</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Duration:</span>
+                    <span>60 minutes</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Format:</span>
+                    <span>Video call</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Price:</span>
+                    <span className="text-green-600 font-semibold">Paid ✓</span>
                   </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+
+            {/* Calendly Widget Container - Optimized Layout */}
+            <div className="w-full max-w-5xl mx-auto">
+              {/* Loading State */}
+              {!window.Calendly && (
+                <div className="flex items-center justify-center min-h-[500px] rounded-lg border-2 bg-muted/50">
+                  <div className="text-center space-y-4">
+                    <Loader2 className="h-8 w-8 animate-spin text-accent mx-auto" />
+                    <p className="text-muted-foreground">Loading scheduler...</p>
+                  </div>
+                </div>
+              )}
               
-              {/* Calendly Widget Container */}
+              {/* Calendly Container */}
               <div 
                 id="calendly-inline-widget" 
-                className="min-h-[600px] rounded-lg border-2 bg-background"
-                style={{ minHeight: '630px' }}
-              ></div>
-              
-               {/* Initialize Calendly Widget */}
-               {typeof window !== 'undefined' && window.Calendly && (
-                 <script
-                   dangerouslySetInnerHTML={{
-                     __html: `
-                       if (window.Calendly && !document.querySelector('#calendly-inline-widget iframe')) {
-                         const calendlyUrl = '${import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min'}';
-                         window.Calendly.initInlineWidget({
-                           url: calendlyUrl,
-                           parentElement: document.querySelector('#calendly-inline-widget'),
-                           prefill: {
-                             name: '${formData.name}',
-                             email: '${formData.email}'
-                           }
-                         });
-                       }
-                     `
-                   }}
-                 />
-               )}
-              
-              {/* Fallback for loading issues */}
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-4">
-                  Having trouble with the scheduler? Try the direct link below.
-                </p>
-                 <Button 
-                   asChild
-                   variant="outline"
-                 >
-                   <a 
-                     href={import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min'} 
-                     target="_blank" 
-                     rel="noopener noreferrer"
-                     className="inline-flex items-center gap-2"
-                   >
-                    <Calendar className="h-4 w-4" />
-                    Open Calendly in New Tab
-                  </a>
-                </Button>
+                className={`w-full rounded-lg bg-background transition-all duration-300 ${
+                  window.Calendly ? 'opacity-100' : 'opacity-0'
+                }`}
+                style={{ 
+                  minHeight: '700px',
+                  height: 'auto'
+                }}
+              >
+                {/* Calendly will inject iframe here */}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Fallback Direct Link */}
+            <div className="text-center pt-6 border-t">
+              <p className="text-sm text-muted-foreground mb-4">
+                Having trouble with the scheduler? Open Calendly directly:
+              </p>
+              <Button 
+                asChild
+                variant="outline"
+                size="lg"
+              >
+                <a 
+                  href={import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min'} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2"
+                >
+                  <Calendar className="h-4 w-4" />
+                  Open Calendly in New Tab
+                </a>
+              </Button>
+            </div>
+          </div>
         )}
       </div>
     </div>
