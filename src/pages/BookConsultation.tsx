@@ -435,7 +435,7 @@ const BookConsultation = () => {
         </div>
       </div>
 
-      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         {/* Step 1: Form */}
         {currentStep === 'form' && (
           <Card className="mx-auto shadow-lg">
@@ -786,9 +786,9 @@ const BookConsultation = () => {
 
         {/* Step 3: Schedule */}
         {currentStep === 'schedule' && (
-          <div className="space-y-6">
+          <div className="space-y-8 w-full">
             {/* Session Info Header */}
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-4 max-w-4xl mx-auto">
               <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-6 py-3 text-green-800 dark:bg-green-900 dark:text-green-200">
                 <CheckCircle className="h-5 w-5" />
                 <span className="font-semibold">Payment Confirmed</span>
@@ -824,11 +824,11 @@ const BookConsultation = () => {
               </CardContent>
             </Card>
 
-            {/* Calendly Widget Container - Optimized Layout */}
-            <div className="w-full max-w-6xl mx-auto px-4">
+            {/* Calendly Widget Container - Full Width Layout */}
+            <div className="w-full">
               {/* Loading State */}
               {!window.Calendly && (
-                <div className="flex items-center justify-center min-h-[800px] rounded-xl border-2 bg-muted/50 shadow-lg">
+                <div className="flex items-center justify-center min-h-[900px] rounded-xl border-2 bg-muted/50 shadow-lg mx-auto max-w-7xl">
                   <div className="text-center space-y-4">
                     <Loader2 className="h-8 w-8 animate-spin text-accent mx-auto" />
                     <p className="text-muted-foreground">Loading scheduler...</p>
@@ -836,16 +836,17 @@ const BookConsultation = () => {
                 </div>
               )}
               
-              {/* Calendly Container */}
+              {/* Calendly Container - Full Viewport Width */}
               <div 
                 id="calendly-inline-widget" 
-                className={`w-full rounded-xl bg-background shadow-xl border-2 transition-all duration-300 ${
+                className={`w-full rounded-xl bg-background shadow-xl border-2 transition-all duration-300 mx-auto max-w-7xl ${
                   window.Calendly ? 'opacity-100' : 'opacity-0'
                 }`}
                 style={{ 
-                  minHeight: '900px',
+                  minHeight: '1000px',
                   height: 'auto',
-                  maxWidth: '100%'
+                  maxWidth: '100%',
+                  overflow: 'visible'
                 }}
               >
                 {/* Calendly will inject iframe here */}
@@ -853,7 +854,7 @@ const BookConsultation = () => {
             </div>
 
             {/* Fallback Direct Link */}
-            <div className="text-center pt-6 border-t">
+            <div className="text-center pt-6 border-t max-w-4xl mx-auto">
               <p className="text-sm text-muted-foreground mb-4">
                 Having trouble with the scheduler? Open Calendly directly:
               </p>
