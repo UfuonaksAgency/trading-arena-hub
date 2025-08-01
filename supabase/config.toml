@@ -58,3 +58,6 @@ gcp_jwt_path = "supabase/gcp.json"
 
 [functions.submit-mentorship-application]
 verify_jwt = false
+
+[functions.coinremitter-webhook]
+verify_jwt = false
