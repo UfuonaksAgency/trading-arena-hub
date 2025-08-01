@@ -62,6 +62,7 @@ const BookConsultation = () => {
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [showCalendly, setShowCalendly] = useState(false);
   const [isCreatingPayment, setIsCreatingPayment] = useState(false);
+  const [isScheduleClicked, setIsScheduleClicked] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -435,20 +436,20 @@ const BookConsultation = () => {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Step 1: Form */}
         {currentStep === 'form' && (
-          <Card className="mx-auto shadow-lg">
-            <CardHeader className="text-center space-y-4">
-              <CardTitle className="flex items-center justify-center gap-2 text-3xl">
-                <User className="h-8 w-8 text-accent" />
+          <Card className="mx-auto shadow-lg max-w-2xl">
+            <CardHeader className="text-center space-y-4 px-4 sm:px-6">
+              <CardTitle className="flex items-center justify-center gap-2 text-2xl sm:text-3xl">
+                <User className="h-6 w-6 sm:h-8 sm:w-8 text-accent" />
                 Your Information
               </CardTitle>
-              <p className="text-muted-foreground text-lg">Tell us about yourself and your trading goals</p>
+              <p className="text-muted-foreground text-base sm:text-lg">Tell us about yourself and your trading goals</p>
             </CardHeader>
-            <CardContent className="space-y-8">
+            <CardContent className="space-y-6 px-4 sm:px-6">
               <form onSubmit={handleFormSubmit} className="space-y-6">
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-sm font-medium">Full Name *</Label>
                     <Input
@@ -786,28 +787,28 @@ const BookConsultation = () => {
 
         {/* Step 3: Schedule */}
         {currentStep === 'schedule' && (
-          <div className="space-y-8 w-full max-w-4xl mx-auto">
+          <div className="space-y-6 sm:space-y-8 w-full max-w-2xl mx-auto">
             {/* Session Info Header */}
-            <div className="text-center space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-6 py-3 text-green-800 dark:bg-green-900 dark:text-green-200">
-                <CheckCircle className="h-5 w-5" />
+            <div className="text-center space-y-4 sm:space-y-6 px-4">
+              <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-green-800 dark:bg-green-900 dark:text-green-200">
+                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span className="font-semibold">Payment Confirmed</span>
               </div>
               
-              <h2 className="text-3xl font-bold text-foreground">
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground px-2">
                 Schedule Your Trading Strategy Session
               </h2>
               
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg text-muted-foreground px-2">
                 Your payment has been confirmed! Click the button below to schedule your 60-minute consultation.
               </p>
             </div>
 
             {/* Session Details Card */}
-            <Card className="max-w-md mx-auto">
-              <CardContent className="p-6">
-                <h3 className="mb-4 text-xl font-semibold text-center">Session Details</h3>
-                <div className="space-y-3 text-sm">
+            <Card className="mx-4 sm:mx-auto sm:max-w-md">
+              <CardContent className="p-4 sm:p-6">
+                <h3 className="mb-3 sm:mb-4 text-lg sm:text-xl font-semibold text-center">Session Details</h3>
+                <div className="space-y-2 sm:space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="font-medium">Duration:</span>
                     <span>60 minutes</span>
@@ -825,62 +826,77 @@ const BookConsultation = () => {
             </Card>
 
             {/* Main Scheduling Action */}
-            <Card className="text-center shadow-lg">
-              <CardContent className="p-12">
-                <div className="space-y-6">
-                  <div className="mx-auto w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center">
-                    <Calendar className="h-8 w-8 text-accent" />
+            <Card className="text-center shadow-lg mx-4 sm:mx-0">
+              <CardContent className="p-6 sm:p-8 lg:p-12">
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-accent/10 rounded-full flex items-center justify-center">
+                    <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-accent" />
                   </div>
                   
-                  <div>
-                    <h3 className="text-2xl font-bold text-foreground mb-2">
+                  <div className="space-y-2">
+                    <h3 className="text-xl sm:text-2xl font-bold text-foreground">
                       Ready to Schedule?
                     </h3>
-                    <p className="text-muted-foreground">
+                    <p className="text-sm sm:text-base text-muted-foreground">
                       Click the button below to open Calendly and select your preferred time slot.
                     </p>
                   </div>
 
                   <Button 
-                    asChild
+                    disabled={isScheduleClicked}
+                    onClick={() => {
+                      setIsScheduleClicked(true);
+                      // Re-enable after 5 seconds
+                      setTimeout(() => setIsScheduleClicked(false), 5000);
+                      // Open Calendly in new tab
+                      window.open(
+                        `${import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min'}?name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}`,
+                        '_blank'
+                      );
+                    }}
                     size="lg"
-                    className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-4 text-lg font-semibold"
+                    className="bg-accent hover:bg-accent/90 disabled:opacity-60 disabled:cursor-not-allowed text-accent-foreground px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold min-h-[44px] w-full sm:w-auto"
                   >
-                    <a 
-                      href={`${import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min'}?name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}`}
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-3"
-                    >
-                      <Calendar className="h-5 w-5" />
-                      Schedule My Trading Session
-                    </a>
+                    {isScheduleClicked ? (
+                      <>
+                        <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 mr-2 animate-spin" />
+                        Opening Calendly...
+                      </>
+                    ) : (
+                      <>
+                        <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
+                        Schedule My Trading Session
+                      </>
+                    )}
                   </Button>
 
-                  <div className="text-sm text-muted-foreground space-y-2">
+                  <div className="text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-2">
                     <p>• Opens in a new tab for the best experience</p>
                     <p>• Your information will be pre-filled</p>
                     <p>• Select any available time that works for you</p>
+                    {isScheduleClicked && (
+                      <p className="text-accent font-medium">• Button will be available again in 5 seconds</p>
+                    )}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Alternative Contact Information */}
-            <Card className="bg-muted/50">
-              <CardContent className="p-6 text-center">
-                <h4 className="font-semibold mb-2">Having Issues?</h4>
-                <p className="text-sm text-muted-foreground mb-4">
+            <Card className="bg-muted/50 mx-4 sm:mx-0">
+              <CardContent className="p-4 sm:p-6 text-center">
+                <h4 className="font-semibold mb-2 text-sm sm:text-base">Having Issues?</h4>
+                <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
                   If you have any trouble scheduling, feel free to reach out directly:
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button variant="outline" size="sm" asChild>
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
+                  <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm">
                     <a href="mailto:support@tradewithmrk.com" className="inline-flex items-center gap-2">
                       <Mail className="h-4 w-4" />
                       Email Support
                     </a>
                   </Button>
-                  <Button variant="outline" size="sm" asChild>
+                  <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm">
                     <a href="https://t.me/tradewithmrk" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
                       <MessageSquare className="h-4 w-4" />
                       Telegram
