@@ -188,7 +188,10 @@ const BookConsultation = () => {
       if (error) throw error;
 
       if (data.success) {
-        setCryptoPayment(data.payment);
+        setCryptoPayment({
+          ...data.payment,
+          amount_btc: data.payment.amount_btc
+        });
         setPaymentStatus({
           id: data.payment.id,
           status: 'pending',
