@@ -41,8 +41,8 @@ serve(async (req) => {
         name: consultationData.name,
         email: consultationData.email,
         telegram: consultationData.telegram,
-        preferred_time: consultationData.preferred_time,
-        experience_level: consultationData.experience_level,
+        preferred_time: consultationData.preferredTime, // Map camelCase to snake_case
+        experience_level: consultationData.experienceLevel, // Map camelCase to snake_case
         purpose: consultationData.purpose,
         status: 'pending'
       }])
@@ -69,8 +69,8 @@ serve(async (req) => {
           
           <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3>Your Request Details:</h3>
-            <p><strong>Preferred Time:</strong> ${consultationData.preferred_time}</p>
-            <p><strong>Experience Level:</strong> ${consultationData.experience_level}</p>
+            <p><strong>Preferred Time:</strong> ${consultationData.preferredTime}</p>
+            <p><strong>Experience Level:</strong> ${consultationData.experienceLevel}</p>
             <p><strong>Discussion Topics:</strong> ${consultationData.purpose}</p>
             ${consultationData.telegram ? `<p><strong>Telegram:</strong> ${consultationData.telegram}</p>` : ''}
           </div>
@@ -97,8 +97,8 @@ serve(async (req) => {
             <p><strong>Name:</strong> ${consultationData.name}</p>
             <p><strong>Email:</strong> ${consultationData.email}</p>
             <p><strong>Telegram:</strong> ${consultationData.telegram || 'Not provided'}</p>
-            <p><strong>Preferred Time:</strong> ${consultationData.preferred_time}</p>
-            <p><strong>Experience Level:</strong> ${consultationData.experience_level}</p>
+            <p><strong>Preferred Time:</strong> ${consultationData.preferredTime}</p>
+            <p><strong>Experience Level:</strong> ${consultationData.experienceLevel}</p>
             <p><strong>Discussion Topics:</strong> ${consultationData.purpose}</p>
             <p><strong>Request ID:</strong> ${consultation.id}</p>
           </div>
