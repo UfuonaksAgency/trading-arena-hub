@@ -825,10 +825,10 @@ const BookConsultation = () => {
             </Card>
 
             {/* Calendly Widget Container - Optimized Layout */}
-            <div className="w-full max-w-5xl mx-auto">
+            <div className="w-full max-w-6xl mx-auto px-4">
               {/* Loading State */}
               {!window.Calendly && (
-                <div className="flex items-center justify-center min-h-[500px] rounded-lg border-2 bg-muted/50">
+                <div className="flex items-center justify-center min-h-[800px] rounded-xl border-2 bg-muted/50 shadow-lg">
                   <div className="text-center space-y-4">
                     <Loader2 className="h-8 w-8 animate-spin text-accent mx-auto" />
                     <p className="text-muted-foreground">Loading scheduler...</p>
@@ -839,12 +839,13 @@ const BookConsultation = () => {
               {/* Calendly Container */}
               <div 
                 id="calendly-inline-widget" 
-                className={`w-full rounded-lg bg-background transition-all duration-300 ${
+                className={`w-full rounded-xl bg-background shadow-xl border-2 transition-all duration-300 ${
                   window.Calendly ? 'opacity-100' : 'opacity-0'
                 }`}
                 style={{ 
-                  minHeight: '700px',
-                  height: 'auto'
+                  minHeight: '900px',
+                  height: 'auto',
+                  maxWidth: '100%'
                 }}
               >
                 {/* Calendly will inject iframe here */}
