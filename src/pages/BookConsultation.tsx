@@ -18,6 +18,12 @@ const TEST_AMOUNT_USD = 20; // Amount for testing real payments
 declare global {
   interface Window {
     Calendly: {
+      initInlineWidget: (options: {
+        url: string;
+        parentElement: HTMLElement;
+        prefill?: object;
+        utm?: object;
+      }) => void;
       initBadgeWidget: (options: {
         url: string;
         text: string;
@@ -89,18 +95,32 @@ const BookConsultation = () => {
 
   // Initialize Calendly when payment is confirmed
   useEffect(() => {
-    if (paymentStatus?.status === 'completed' && !showCalendly && window.Calendly) {
-      window.Calendly.initBadgeWidget({
-        url: 'https://calendly.com/tradingmentorpro/trading-strategy-session',
-        text: 'Schedule Your Session Now!',
-        color: '#00a2ff',
-        textColor: '#ffffff',
-        branding: false,
-      });
+    if (paymentStatus?.status === 'completed' && !showCalendly) {
       setShowCalendly(true);
       setCurrentStep('schedule');
     }
   }, [paymentStatus?.status, showCalendly]);
+
+  // Initialize Calendly widget when schedule step is reached
+  useEffect(() => {
+    if (currentStep === 'schedule' && window.Calendly) {
+      const timer = setTimeout(() => {
+        const container = document.querySelector('#calendly-inline-widget');
+        if (container && !container.querySelector('iframe')) {
+          window.Calendly.initInlineWidget({
+            url: 'https://calendly.com/tradingmentorpro/trading-strategy-session',
+            parentElement: container as HTMLElement,
+            prefill: {
+              name: formData.name,
+              email: formData.email
+            }
+          });
+        }
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep, formData.name, formData.email]);
 
   // Payment expiration timer
   useEffect(() => {
@@ -753,44 +773,81 @@ const BookConsultation = () => {
                 Payment confirmed! Click the button below to schedule your consultation.
               </p>
             </CardHeader>
-            <CardContent className="text-center space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-6 py-3 text-green-800 dark:bg-green-900 dark:text-green-200">
-                <CheckCircle className="h-5 w-5" />
-                <span className="font-semibold">Payment Confirmed</span>
-              </div>
-              
-              <p className="text-lg max-w-2xl mx-auto">
-                Your trading strategy session is ready to be scheduled. Our expert will provide personalized guidance based on your experience level and goals.
-              </p>
-              
-              <div className="rounded-lg border-2 bg-muted/50 p-6 max-w-md mx-auto">
-                <h3 className="mb-4 text-xl font-semibold">Session Details</h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Duration:</span>
-                    <span>60 minutes</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Format:</span>
-                    <span>Video call</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Price:</span>
-                    <span className="text-green-600 font-semibold">Paid ✓</span>
+            <CardContent className="space-y-6">
+              <div className="text-center">
+                <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-6 py-3 text-green-800 dark:bg-green-900 dark:text-green-200">
+                  <CheckCircle className="h-5 w-5" />
+                  <span className="font-semibold">Payment Confirmed</span>
+                </div>
+                
+                <p className="text-lg max-w-2xl mx-auto mt-4">
+                  Your trading strategy session is ready to be scheduled. Select a time that works best for you.
+                </p>
+                
+                <div className="rounded-lg border-2 bg-muted/50 p-6 max-w-md mx-auto mt-6">
+                  <h3 className="mb-4 text-xl font-semibold">Session Details</h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="font-medium">Duration:</span>
+                      <span>60 minutes</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Format:</span>
+                      <span>Video call</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Price:</span>
+                      <span className="text-green-600 font-semibold">Paid ✓</span>
+                    </div>
                   </div>
                 </div>
               </div>
               
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  The Calendly scheduling widget should appear automatically. If it doesn't load, try refreshing the page.
+              {/* Calendly Widget Container */}
+              <div 
+                id="calendly-inline-widget" 
+                className="min-h-[600px] rounded-lg border-2 bg-background"
+                style={{ minHeight: '630px' }}
+              ></div>
+              
+              {/* Initialize Calendly Widget */}
+              {typeof window !== 'undefined' && window.Calendly && (
+                <script
+                  dangerouslySetInnerHTML={{
+                    __html: `
+                      if (window.Calendly && !document.querySelector('#calendly-inline-widget iframe')) {
+                        window.Calendly.initInlineWidget({
+                          url: 'https://calendly.com/tradingmentorpro/trading-strategy-session',
+                          parentElement: document.querySelector('#calendly-inline-widget'),
+                          prefill: {
+                            name: '${formData.name}',
+                            email: '${formData.email}'
+                          }
+                        });
+                      }
+                    `
+                  }}
+                />
+              )}
+              
+              {/* Fallback for loading issues */}
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Having trouble with the scheduler? Try the direct link below.
                 </p>
                 <Button 
-                  size="lg"
-                  onClick={() => window.location.reload()}
-                  className="text-lg bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70"
+                  asChild
+                  variant="outline"
                 >
-                  Refresh Page to Schedule
+                  <a 
+                    href="https://calendly.com/tradingmentorpro/trading-strategy-session" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2"
+                  >
+                    <Calendar className="h-4 w-4" />
+                    Open Calendly in New Tab
+                  </a>
                 </Button>
               </div>
             </CardContent>
