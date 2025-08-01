@@ -107,8 +107,9 @@ const BookConsultation = () => {
       const timer = setTimeout(() => {
         const container = document.querySelector('#calendly-inline-widget');
         if (container && !container.querySelector('iframe')) {
+          const calendlyUrl = import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min';
           window.Calendly.initInlineWidget({
-            url: 'https://calendly.com/tradingmentorpro/trading-strategy-session',
+            url: calendlyUrl,
             parentElement: container as HTMLElement,
             prefill: {
               name: formData.name,
@@ -810,41 +811,42 @@ const BookConsultation = () => {
                 style={{ minHeight: '630px' }}
               ></div>
               
-              {/* Initialize Calendly Widget */}
-              {typeof window !== 'undefined' && window.Calendly && (
-                <script
-                  dangerouslySetInnerHTML={{
-                    __html: `
-                      if (window.Calendly && !document.querySelector('#calendly-inline-widget iframe')) {
-                        window.Calendly.initInlineWidget({
-                          url: 'https://calendly.com/tradingmentorpro/trading-strategy-session',
-                          parentElement: document.querySelector('#calendly-inline-widget'),
-                          prefill: {
-                            name: '${formData.name}',
-                            email: '${formData.email}'
-                          }
-                        });
-                      }
-                    `
-                  }}
-                />
-              )}
+               {/* Initialize Calendly Widget */}
+               {typeof window !== 'undefined' && window.Calendly && (
+                 <script
+                   dangerouslySetInnerHTML={{
+                     __html: `
+                       if (window.Calendly && !document.querySelector('#calendly-inline-widget iframe')) {
+                         const calendlyUrl = '${import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min'}';
+                         window.Calendly.initInlineWidget({
+                           url: calendlyUrl,
+                           parentElement: document.querySelector('#calendly-inline-widget'),
+                           prefill: {
+                             name: '${formData.name}',
+                             email: '${formData.email}'
+                           }
+                         });
+                       }
+                     `
+                   }}
+                 />
+               )}
               
               {/* Fallback for loading issues */}
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-4">
                   Having trouble with the scheduler? Try the direct link below.
                 </p>
-                <Button 
-                  asChild
-                  variant="outline"
-                >
-                  <a 
-                    href="https://calendly.com/tradingmentorpro/trading-strategy-session" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2"
-                  >
+                 <Button 
+                   asChild
+                   variant="outline"
+                 >
+                   <a 
+                     href={import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min'} 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     className="inline-flex items-center gap-2"
+                   >
                     <Calendar className="h-4 w-4" />
                     Open Calendly in New Tab
                   </a>
