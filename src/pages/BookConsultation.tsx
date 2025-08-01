@@ -786,9 +786,9 @@ const BookConsultation = () => {
 
         {/* Step 3: Schedule */}
         {currentStep === 'schedule' && (
-          <div className="space-y-8 w-full">
+          <div className="space-y-8 w-full max-w-4xl mx-auto">
             {/* Session Info Header */}
-            <div className="text-center space-y-4 max-w-4xl mx-auto">
+            <div className="text-center space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-6 py-3 text-green-800 dark:bg-green-900 dark:text-green-200">
                 <CheckCircle className="h-5 w-5" />
                 <span className="font-semibold">Payment Confirmed</span>
@@ -799,7 +799,7 @@ const BookConsultation = () => {
               </h2>
               
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Your payment has been confirmed! Select a convenient time for your 60-minute consultation.
+                Your payment has been confirmed! Click the button below to schedule your 60-minute consultation.
               </p>
             </div>
 
@@ -824,56 +824,71 @@ const BookConsultation = () => {
               </CardContent>
             </Card>
 
-            {/* Calendly Widget Container - Full Width Layout */}
-            <div className="w-full">
-              {/* Loading State */}
-              {!window.Calendly && (
-                <div className="flex items-center justify-center min-h-[900px] rounded-xl border-2 bg-muted/50 shadow-lg mx-auto max-w-7xl">
-                  <div className="text-center space-y-4">
-                    <Loader2 className="h-8 w-8 animate-spin text-accent mx-auto" />
-                    <p className="text-muted-foreground">Loading scheduler...</p>
+            {/* Main Scheduling Action */}
+            <Card className="text-center shadow-lg">
+              <CardContent className="p-12">
+                <div className="space-y-6">
+                  <div className="mx-auto w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center">
+                    <Calendar className="h-8 w-8 text-accent" />
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-2xl font-bold text-foreground mb-2">
+                      Ready to Schedule?
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Click the button below to open Calendly and select your preferred time slot.
+                    </p>
+                  </div>
+
+                  <Button 
+                    asChild
+                    size="lg"
+                    className="bg-accent hover:bg-accent/90 text-accent-foreground px-8 py-4 text-lg font-semibold"
+                  >
+                    <a 
+                      href={`${import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min'}?name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-3"
+                    >
+                      <Calendar className="h-5 w-5" />
+                      Schedule My Trading Session
+                    </a>
+                  </Button>
+
+                  <div className="text-sm text-muted-foreground space-y-2">
+                    <p>• Opens in a new tab for the best experience</p>
+                    <p>• Your information will be pre-filled</p>
+                    <p>• Select any available time that works for you</p>
                   </div>
                 </div>
-              )}
-              
-              {/* Calendly Container - Full Viewport Width */}
-              <div 
-                id="calendly-inline-widget" 
-                className={`w-full rounded-xl bg-background shadow-xl border-2 transition-all duration-300 mx-auto max-w-7xl ${
-                  window.Calendly ? 'opacity-100' : 'opacity-0'
-                }`}
-                style={{ 
-                  minHeight: '1000px',
-                  height: 'auto',
-                  maxWidth: '100%',
-                  overflow: 'visible'
-                }}
-              >
-                {/* Calendly will inject iframe here */}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            {/* Fallback Direct Link */}
-            <div className="text-center pt-6 border-t max-w-4xl mx-auto">
-              <p className="text-sm text-muted-foreground mb-4">
-                Having trouble with the scheduler? Open Calendly directly:
-              </p>
-              <Button 
-                asChild
-                variant="outline"
-                size="lg"
-              >
-                <a 
-                  href={import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min'} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2"
-                >
-                  <Calendar className="h-4 w-4" />
-                  Open Calendly in New Tab
-                </a>
-              </Button>
-            </div>
+            {/* Alternative Contact Information */}
+            <Card className="bg-muted/50">
+              <CardContent className="p-6 text-center">
+                <h4 className="font-semibold mb-2">Having Issues?</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  If you have any trouble scheduling, feel free to reach out directly:
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button variant="outline" size="sm" asChild>
+                    <a href="mailto:support@tradewithmrk.com" className="inline-flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Email Support
+                    </a>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <a href="https://t.me/tradewithmrk" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4" />
+                      Telegram
+                    </a>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>
