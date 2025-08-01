@@ -12,7 +12,7 @@ import { Copy, Clock, CheckCircle, AlertCircle, Bitcoin, QrCode, Calendar, User,
 
 // Test mode configuration
 const TEST_MODE = true; // Set to false for production
-const TEST_AMOUNT_USD = 20; // Amount for testing real payments
+const TEST_AMOUNT_USD = 300; // Amount for testing real payments
 
 // Calendly interface for TypeScript
 declare global {
@@ -257,7 +257,7 @@ const BookConsultation = () => {
         });
         toast({
           title: "Test Payment Confirmed! 🎉",
-          description: "Test payment auto-confirmed. You can now schedule your consultation.",
+          description: `Test payment of $${TEST_AMOUNT_USD} auto-confirmed. You can now schedule your consultation.`,
         });
       }, 5000);
       
@@ -559,6 +559,29 @@ const BookConsultation = () => {
         {/* Step 1: Form */}
         {currentStep === 'form' && (
           <div className="space-y-8">
+            {/* Fee Information - Prominent Display */}
+            <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/5 to-accent/5 mb-8">
+              <CardHeader className="text-center pb-3">
+                <CardTitle className="flex items-center justify-center gap-2 text-2xl">
+                  <Award className="h-6 w-6 text-primary" />
+                  Professional Trading Consultation
+                </CardTitle>
+                <div className="text-3xl font-bold text-primary mt-2">$300 USD</div>
+                <p className="text-muted-foreground mt-2">One-time fee for your 30-minute expert session</p>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-sm text-muted-foreground mb-4">
+                  This investment covers a personalized consultation with our expert trader, including market analysis, 
+                  strategy development, and actionable insights tailored to your trading goals.
+                </p>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p>• Payment via Bitcoin for security and privacy</p>
+                  <p>• Schedule immediately after payment confirmation</p>
+                  <p>• Professional guidance worth much more than the fee</p>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* What You'll Get Section - Moved to Top */}
             <div className="grid md:grid-cols-2 gap-6">
               <Card className="border-2 border-accent/20 bg-accent/5">
