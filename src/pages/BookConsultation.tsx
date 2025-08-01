@@ -895,8 +895,18 @@ const BookConsultation = () => {
                   {/* Calendly Embedded Widget */}
                   <div 
                     id="calendly-inline-widget" 
-                    className="w-full min-h-[630px] border rounded-lg overflow-hidden bg-white"
-                  ></div>
+                    className="w-full min-h-[750px] lg:min-h-[800px] border rounded-lg bg-background"
+                    style={{ minHeight: '750px' }}
+                  >
+                    {!hasBookedAppointment && (
+                      <div className="flex items-center justify-center h-32">
+                        <div className="text-center space-y-2">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto"></div>
+                          <p className="text-sm text-muted-foreground">Loading calendar...</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Booking Confirmation - Appears after actual booking */}
                   {hasBookedAppointment && (
