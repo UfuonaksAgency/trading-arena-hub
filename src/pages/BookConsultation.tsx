@@ -5,9 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Copy, Clock, CheckCircle, AlertCircle, Bitcoin, QrCode, Calendar, User, Mail, MessageSquare, Target, Award, Loader2 } from 'lucide-react';
+
+// Test mode configuration
+const TEST_MODE = true; // Set to false for production
+const TEST_AMOUNT_USD = 20; // Amount for testing real payments
 
 // Calendly interface for TypeScript
 declare global {
@@ -123,34 +128,52 @@ const BookConsultation = () => {
   useEffect(() => {
     if (!cryptoPayment?.id || paymentStatus?.status === 'completed') return;
 
-    const checkStatus = async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke('verify-crypto-payment', {
-          body: { paymentId: cryptoPayment.id }
+    if (TEST_MODE) {
+      // Auto-confirm payment in test mode after 5 seconds
+      const timeout = setTimeout(() => {
+        setPaymentStatus({
+          id: cryptoPayment.id,
+          status: 'completed',
+          confirmations: 1,
+          amount_received: cryptoPayment.amount_btc
         });
+        toast({
+          title: "Test Payment Confirmed! 🎉",
+          description: "Test payment auto-confirmed. You can now schedule your consultation.",
+        });
+      }, 5000);
+      
+      return () => clearTimeout(timeout);
+    } else {
+      const checkStatus = async () => {
+        try {
+          const { data, error } = await supabase.functions.invoke('verify-crypto-payment', {
+            body: { paymentId: cryptoPayment.id }
+          });
 
-        if (error) {
-          console.error('Payment verification error:', error);
-          return;
-        }
-
-        if (data?.success && data?.payment) {
-          setPaymentStatus(data.payment);
-          
-          if (data.payment.status === 'completed') {
-            toast({
-              title: "Payment Confirmed! 🎉",
-              description: "Your payment has been verified. You can now schedule your consultation.",
-            });
+          if (error) {
+            console.error('Payment verification error:', error);
+            return;
           }
-        }
-      } catch (error) {
-        console.error('Error checking payment status:', error);
-      }
-    };
 
-    const interval = setInterval(checkStatus, 10000); // Check every 10 seconds
-    return () => clearInterval(interval);
+          if (data?.success && data?.payment) {
+            setPaymentStatus(data.payment);
+            
+            if (data.payment.status === 'completed') {
+              toast({
+                title: "Payment Confirmed! 🎉",
+                description: "Your payment has been verified. You can now schedule your consultation.",
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error checking payment status:', error);
+        }
+      };
+
+      const interval = setInterval(checkStatus, 10000); // Check every 10 seconds
+      return () => clearInterval(interval);
+    }
   }, [cryptoPayment?.id, paymentStatus?.status, toast]);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -194,8 +217,36 @@ const BookConsultation = () => {
     try {
       console.log('Creating payment for consultation:', consultationId);
       
+      if (TEST_MODE) {
+        // Mock payment data for testing
+        const mockPayment = {
+          id: 'test-payment-' + Date.now(),
+          address: 'bc1qtest-mock-address-for-testing-only',
+          amount_btc: 0.00017, // Mock BTC amount
+          amount_usd: TEST_AMOUNT_USD,
+          qr_code: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNHB4IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+VEVTVCBRUIBDT0RFPC90ZXh0Pgo8L3N2Zz4K',
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        };
+        
+        setCryptoPayment(mockPayment);
+        setPaymentStatus({
+          id: mockPayment.id,
+          status: 'pending',
+          confirmations: 0,
+        });
+        
+        toast({
+          title: "Test Payment Created! 💰",
+          description: "Mock payment address generated for testing.",
+        });
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke('create-crypto-payment', {
-        body: { consultationId }
+        body: { 
+          consultationId,
+          amountUSD: TEST_AMOUNT_USD 
+        }
       });
 
       console.log('Payment response:', { data, error });
@@ -281,6 +332,17 @@ const BookConsultation = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
+      {TEST_MODE && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg mx-4 my-4 p-4 text-center">
+          <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300 mb-2">
+            TEST MODE ACTIVE
+          </Badge>
+          <p className="text-sm text-amber-700">
+            Payment will be auto-confirmed after 5 seconds. Amount set to ${TEST_AMOUNT_USD} for testing.
+          </p>
+        </div>
+      )}
+      
       {/* Header Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5">
         <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%)] animate-pulse"></div>
@@ -501,9 +563,10 @@ const BookConsultation = () => {
                   <CardTitle className="flex items-center justify-center gap-2 text-3xl">
                     <Bitcoin className="h-8 w-8 text-orange-500" />
                     Bitcoin Payment Required
+                    {TEST_MODE && <Badge className="ml-2 bg-amber-100 text-amber-800">TEST</Badge>}
                   </CardTitle>
                   <div className="text-2xl font-bold text-accent">
-                    $300 USD = {formatBTC(cryptoPayment.amount_btc)} BTC
+                    ${cryptoPayment.amount_usd} USD = {formatBTC(cryptoPayment.amount_btc)} BTC
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">

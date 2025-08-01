@@ -8,6 +8,7 @@ const corsHeaders = {
 
 interface ConsultationRequest {
   consultationId: string;
+  amountUSD?: number;
 }
 
 // Retry helper function
@@ -104,15 +105,17 @@ serve(async (req) => {
   try {
     // Validate request body
     let consultationId: string;
+    let amountUSD: number = 300; // Default amount
     try {
       const body = await req.json();
       consultationId = body.consultationId;
+      amountUSD = body.amountUSD || 300;
     } catch (error) {
       console.error('Invalid request body:', error);
       throw new Error('Invalid request body: Expected JSON with consultationId');
     }
     
-    console.log('Payment creation request for consultation:', consultationId);
+    console.log('Payment creation request for consultation:', consultationId, 'Amount:', amountUSD);
     
     if (!consultationId || typeof consultationId !== 'string') {
       throw new Error('Consultation ID is required and must be a string');
@@ -146,12 +149,12 @@ serve(async (req) => {
 
     // Get BTC price with retries and fallbacks
     const btcPriceUSD = await retryWithBackoff(() => getBTCPrice(), 3, 1000);
-    const amountBTC = (300 / btcPriceUSD);
+    const amountBTC = (amountUSD / btcPriceUSD);
 
     console.log('BTC price calculation:', {
       btcPriceUSD,
       amountBTC,
-      amountUSD: 300
+      amountUSD
     });
 
     // Create new payment address via CoinRemitter API with retries
@@ -211,7 +214,7 @@ serve(async (req) => {
         consultation_id: consultationId,
         payment_address: coinRemitterData.data.address,
         coin_type: 'BTC',
-        amount_usd: 300.00,
+        amount_usd: amountUSD,
         amount_crypto: amountBTC,
         coinremitter_invoice_id: coinRemitterData.data.invoice_id,
         payment_data: {
@@ -239,7 +242,7 @@ serve(async (req) => {
         id: paymentData.id,
         address: coinRemitterData.data.address,
         amount_btc: amountBTC,
-        amount_usd: 300,
+        amount_usd: amountUSD,
         expires_at: paymentData.expires_at,
         qr_code: coinRemitterData.data.qr_code,
       }
