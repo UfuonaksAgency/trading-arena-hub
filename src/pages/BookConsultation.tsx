@@ -558,15 +558,67 @@ const BookConsultation = () => {
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Step 1: Form */}
         {currentStep === 'form' && (
-          <Card className="mx-auto shadow-lg max-w-2xl">
-            <CardHeader className="text-center space-y-4 px-4 sm:px-6">
-              <CardTitle className="flex items-center justify-center gap-2 text-2xl sm:text-3xl">
-                <User className="h-6 w-6 sm:h-8 sm:w-8 text-accent" />
-                Your Information
-              </CardTitle>
-              <p className="text-muted-foreground text-base sm:text-lg">Tell us about yourself and your trading goals</p>
-            </CardHeader>
-            <CardContent className="space-y-6 px-4 sm:px-6">
+          <div className="space-y-8">
+            {/* What You'll Get Section - Moved to Top */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="border-2 border-accent/20 bg-accent/5">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Target className="h-5 w-5 text-accent" />
+                    Personalized Strategy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Get a customized trading strategy tailored specifically to your experience level, goals, and risk tolerance.</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-accent/20 bg-accent/5">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <MessageSquare className="h-5 w-5 text-accent" />
+                    Expert Market Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Receive professional analysis of current market conditions and opportunities you might be missing.</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-accent/20 bg-accent/5">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Calendar className="h-5 w-5 text-accent" />
+                    30-Minute Focused Session
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Intensive one-on-one consultation designed to maximize value and provide actionable insights quickly.</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-2 border-accent/20 bg-accent/5">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <CheckCircle className="h-5 w-5 text-accent" />
+                    Clear Action Plan
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Walk away with a concrete plan and next steps to immediately improve your trading performance.</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="mx-auto shadow-lg max-w-2xl">
+              <CardHeader className="text-center space-y-4 px-4 sm:px-6">
+                <CardTitle className="flex items-center justify-center gap-2 text-2xl sm:text-3xl">
+                  <User className="h-6 w-6 sm:h-8 sm:w-8 text-accent" />
+                  Your Information
+                </CardTitle>
+                <p className="text-muted-foreground text-base sm:text-lg">Tell us about yourself and your trading goals</p>
+              </CardHeader>
+              <CardContent className="space-y-6 px-4 sm:px-6">
               <form onSubmit={handleFormSubmit} className="space-y-6">
                 <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
                   <div className="space-y-2">
@@ -668,45 +720,9 @@ const BookConsultation = () => {
                 </Button>
               </form>
 
-              {/* What You'll Get Section */}
-              <div className="rounded-lg border-2 border-accent/20 bg-accent/5 p-6">
-                <h3 className="mb-6 flex items-center gap-2 text-xl font-semibold">
-                  <Award className="h-6 w-6 text-accent" />
-                  What You'll Get in Your Session
-                </h3>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="flex items-start gap-3">
-                    <Target className="mt-1 h-5 w-5 text-accent flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold">Personalized Strategy</p>
-                      <p className="text-sm text-muted-foreground">Tailored to your experience and goals</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <MessageSquare className="mt-1 h-5 w-5 text-accent flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold">Expert Analysis</p>
-                      <p className="text-sm text-muted-foreground">Review of your current trading approach</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <Calendar className="mt-1 h-5 w-5 text-accent flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold">60-Minute Session</p>
-                      <p className="text-sm text-muted-foreground">Dedicated one-on-one consultation</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CheckCircle className="mt-1 h-5 w-5 text-accent flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold">Action Plan</p>
-                      <p className="text-sm text-muted-foreground">Clear next steps for improvement</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </CardContent>
           </Card>
+          </div>
         )}
 
         {/* Step 2: Payment */}
@@ -919,7 +935,7 @@ const BookConsultation = () => {
               </h2>
               
               <p className="text-base sm:text-lg text-muted-foreground px-2">
-                Your payment has been confirmed! Click the button below to schedule your 60-minute consultation.
+                Your payment has been confirmed! Click the button below to schedule your 30-minute consultation.
               </p>
             </div>
 
@@ -930,7 +946,7 @@ const BookConsultation = () => {
                 <div className="space-y-2 sm:space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="font-medium">Duration:</span>
-                    <span>60 minutes</span>
+                    <span>30 minutes</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Format:</span>
@@ -1014,14 +1030,11 @@ const BookConsultation = () => {
                     </Card>
                   )}
 
-                  <div className="text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-2">
-                    <p>• Opens in a new tab for the best experience</p>
-                    <p>• Your information will be pre-filled</p>
-                    <p>• Select any available time that works for you</p>
-                    {isScheduleClicked && (
+                  {isScheduleClicked && (
+                    <div className="text-xs sm:text-sm text-muted-foreground">
                       <p className="text-accent font-medium">• Button will be available again in 5 seconds</p>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

@@ -220,7 +220,7 @@ const HomePage = () => {
               <Link to="/book-consultation">
                 <Button className="btn-ghost text-lg px-10 py-4">
                   <Calendar className="mr-3 h-6 w-6" />
-                  Book Team Session
+                  Book 30-Min Session
                 </Button>
               </Link>
             </div>
