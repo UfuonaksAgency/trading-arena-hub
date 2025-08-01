@@ -18,6 +18,8 @@ serve(async (req) => {
   try {
     const { consultationId }: ConsultationRequest = await req.json();
     
+    console.log('Payment creation request for consultation:', consultationId);
+    
     if (!consultationId) {
       throw new Error('Consultation ID is required');
     }
@@ -32,6 +34,12 @@ serve(async (req) => {
     const apiKey = Deno.env.get('COINREMITTER_API_KEY');
     const password = Deno.env.get('COINREMITTER_PASSWORD');
     const merchantId = Deno.env.get('COINREMITTER_MERCHANT_ID');
+
+    console.log('API credentials check:', {
+      hasApiKey: !!apiKey,
+      hasPassword: !!password,
+      hasMerchantId: !!merchantId
+    });
 
     if (!apiKey || !password || !merchantId) {
       throw new Error('Missing CoinRemitter API credentials');
