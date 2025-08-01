@@ -30,8 +30,8 @@
     --secondary-foreground: 0 0% 100%; /* White text */
 
     /* Accent System */
-    --accent: 0 0% 20%; /* Medium gray */
-    --accent-foreground: 0 0% 100%; /* White text */
+    --accent: 142 76% 36%; /* Green accent */
+    --accent-foreground: 355 25% 95%; /* Light foreground */
 
     /* Muted System */
     --muted: 0 0% 10%; /* Very dark */
