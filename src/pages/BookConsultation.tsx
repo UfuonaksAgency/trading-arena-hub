@@ -10,8 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Copy, Clock, CheckCircle, AlertCircle, Bitcoin, QrCode, Calendar, User, Mail, MessageSquare, Target, Award, Loader2 } from 'lucide-react';
 
-// Test mode configuration
-const TEST_MODE = true; // Set to false for production
+// Production mode configuration
+const TEST_MODE = false; // Set to false for production
 const TEST_AMOUNT_USD = 300; // Amount for testing real payments
 
 // Calendly interface for TypeScript
@@ -246,23 +246,7 @@ const BookConsultation = () => {
   useEffect(() => {
     if (!cryptoPayment?.id || paymentStatus?.status === 'completed') return;
 
-    if (TEST_MODE) {
-      // Auto-confirm payment in test mode after 5 seconds
-      const timeout = setTimeout(() => {
-        setPaymentStatus({
-          id: cryptoPayment.id,
-          status: 'completed',
-          confirmations: 1,
-          amount_received: cryptoPayment.amount_btc
-        });
-        toast({
-          title: "Test Payment Confirmed! 🎉",
-          description: `Test payment of $${TEST_AMOUNT_USD} auto-confirmed. You can now schedule your consultation.`,
-        });
-      }, 5000);
-      
-      return () => clearTimeout(timeout);
-    } else {
+    {
       const checkStatus = async () => {
         try {
           const { data, error } = await supabase.functions.invoke('verify-crypto-payment', {
@@ -335,35 +319,11 @@ const BookConsultation = () => {
     try {
       console.log('Creating payment for consultation:', consultationId);
       
-      if (TEST_MODE) {
-        // Mock payment data for testing
-        const mockPayment = {
-          id: 'test-payment-' + Date.now(),
-          address: 'bc1qtest-mock-address-for-testing-only',
-          amount_btc: 0.00017, // Mock BTC amount
-          amount_usd: TEST_AMOUNT_USD,
-          qr_code: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNHB4IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+VEVTVCBRUIBDT0RFPC90ZXh0Pgo8L3N2Zz4K',
-          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-        };
-        
-        setCryptoPayment(mockPayment);
-        setPaymentStatus({
-          id: mockPayment.id,
-          status: 'pending',
-          confirmations: 0,
-        });
-        
-        toast({
-          title: "Test Payment Created! 💰",
-          description: "Mock payment address generated for testing.",
-        });
-        return;
-      }
 
       const { data, error } = await supabase.functions.invoke('create-crypto-payment', {
         body: { 
           consultationId,
-          amountUSD: TEST_AMOUNT_USD 
+          amountUSD: 300 // Production consultation fee
         }
       });
 
@@ -495,16 +455,6 @@ const BookConsultation = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
-      {TEST_MODE && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg mx-4 my-4 p-4 text-center">
-          <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300 mb-2">
-            TEST MODE ACTIVE
-          </Badge>
-          <p className="text-sm text-amber-700">
-            Payment will be auto-confirmed after 5 seconds. Amount set to ${TEST_AMOUNT_USD} for testing.
-          </p>
-        </div>
-      )}
       
       {/* Header Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5">
