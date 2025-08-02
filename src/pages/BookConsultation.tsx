@@ -15,7 +15,7 @@ const TEST_MODE = false; // Set to false for production
 const TEST_AMOUNT_USD = 300; // Amount for testing real payments
 
 // Temporary testing configuration - CHANGE BACK TO 300 AFTER TESTING
-const TEMP_TEST_AMOUNT = 20; // Set to 20 for testing, change back to 300 for production
+const TEMP_TEST_AMOUNT = 50; // Set to 50 for testing, change back to 300 for production
 const USE_TEMP_AMOUNT = true; // Set to false to use production $300 amount
 
 // Calendly interface for TypeScript
