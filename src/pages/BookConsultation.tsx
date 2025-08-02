@@ -14,6 +14,10 @@ import { Copy, Clock, CheckCircle, AlertCircle, Bitcoin, QrCode, Calendar, User,
 const TEST_MODE = false; // Set to false for production
 const TEST_AMOUNT_USD = 300; // Amount for testing real payments
 
+// Temporary testing configuration - CHANGE BACK TO 300 AFTER TESTING
+const TEMP_TEST_AMOUNT = 20; // Set to 20 for testing, change back to 300 for production
+const USE_TEMP_AMOUNT = true; // Set to false to use production $300 amount
+
 // Calendly interface for TypeScript
 declare global {
   interface Window {
@@ -323,7 +327,7 @@ const BookConsultation = () => {
       const { data, error } = await supabase.functions.invoke('create-crypto-payment', {
         body: { 
           consultationId,
-          amountUSD: 300 // Production consultation fee
+          amountUSD: USE_TEMP_AMOUNT ? TEMP_TEST_AMOUNT : TEST_AMOUNT_USD
         }
       });
 
@@ -455,6 +459,16 @@ const BookConsultation = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
+      {USE_TEMP_AMOUNT && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg mx-4 my-4 p-4 text-center">
+          <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300 mb-2">
+            TEMPORARY TEST AMOUNT
+          </Badge>
+          <p className="text-sm text-amber-700">
+            Using ${TEMP_TEST_AMOUNT} for testing. Change USE_TEMP_AMOUNT to false to use production $300 fee.
+          </p>
+        </div>
+      )}
       
       {/* Header Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5">
