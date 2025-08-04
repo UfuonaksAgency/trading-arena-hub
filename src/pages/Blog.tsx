@@ -56,7 +56,6 @@ const Blog = () => {
       const tags = [...new Set(posts.flatMap(post => post.tags || []))];
       setAllTags(tags);
     } catch (error) {
-      console.error('Error fetching blog posts:', error);
       setPosts([]);
       setFeaturedPosts([]);
       setAllTags([]);

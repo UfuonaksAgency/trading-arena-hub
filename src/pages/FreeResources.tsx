@@ -43,7 +43,7 @@ const FreeResources = () => {
       if (error) throw error;
       setResources((data || []) as FreeResource[]);
     } catch (error) {
-      console.error('Error fetching resources:', error);
+      // Error fetching resources
     } finally {
       setLoading(false);
     }
@@ -88,11 +88,10 @@ const FreeResources = () => {
           session_id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36)
         }
       }).catch(error => {
-        console.error('Error tracking download:', error);
+        // Silent error for tracking
       });
 
     } catch (error) {
-      console.error('Error handling download:', error);
       toast({
         title: "Download Failed",
         description: "Please try again or check your connection.",
@@ -150,11 +149,10 @@ const FreeResources = () => {
           session_id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36)
         }
       }).catch(error => {
-        console.error('Error tracking access:', error);
+        // Silent error for tracking
       });
 
     } catch (error) {
-      console.error('Error handling external link:', error);
       toast({
         title: "Link Failed",
         description: "Please try again or check your connection.",

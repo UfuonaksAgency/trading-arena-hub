@@ -77,7 +77,6 @@ const BlogPost = () => {
         setRelatedPosts((relatedData || []) as BlogPost[]);
       }
     } catch (error) {
-      console.error('Error fetching blog post:', error);
       setNotFound(true);
     } finally {
       setLoading(false);
@@ -102,7 +101,7 @@ const BlogPost = () => {
           url: window.location.href,
         });
       } catch (error) {
-        console.log('Error sharing:', error);
+        // Error sharing - fallback to clipboard
       }
     } else {
       // Fallback: copy to clipboard

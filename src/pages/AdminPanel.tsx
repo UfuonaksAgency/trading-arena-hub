@@ -143,7 +143,6 @@ const AdminPanel = () => {
       fetchDownloadStats();
       // fetchBlogPosts(); // Will add after blog_posts table exists
     } catch (error) {
-      console.error('Error checking admin access:', error);
       window.location.href = '/';
     }
   };
@@ -158,7 +157,7 @@ const AdminPanel = () => {
       if (error) throw error;
       setResources((data || []) as FreeResource[]);
     } catch (error) {
-      console.error('Error fetching resources:', error);
+      // Error fetching resources
     } finally {
       setLoading(false);
     }
@@ -174,7 +173,7 @@ const AdminPanel = () => {
       if (error) throw error;
       setConsultations((data || []) as Consultation[]);
     } catch (error) {
-      console.error('Error fetching consultations:', error);
+      // Error fetching consultations
     }
   };
 
@@ -220,7 +219,7 @@ const AdminPanel = () => {
 
       setDownloadStats(statsArray);
     } catch (error) {
-      console.error('Error fetching download stats:', error);
+      // Error fetching download stats
     }
   };
 
@@ -269,7 +268,7 @@ const AdminPanel = () => {
       setEditingResource(null);
       setIsCreating(false);
     } catch (error) {
-      console.error('Error saving resource:', error);
+      // Error saving resource
     }
   };
 
@@ -285,7 +284,7 @@ const AdminPanel = () => {
       if (error) throw error;
       fetchResources();
     } catch (error) {
-      console.error('Error deleting resource:', error);
+      // Error deleting resource
     }
   };
 
@@ -301,7 +300,7 @@ const AdminPanel = () => {
       fetchConsultations();
       setEditingConsultation(null);
     } catch (error) {
-      console.error('Error updating consultation:', error);
+      // Error updating consultation
     }
   };
 

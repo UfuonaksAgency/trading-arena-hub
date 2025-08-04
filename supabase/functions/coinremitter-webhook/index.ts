@@ -14,7 +14,6 @@ serve(async (req) => {
 
   try {
     const webhookData = await req.json();
-    console.log('CoinRemitter webhook received:', webhookData);
 
     // Initialize Supabase with service role
     const supabase = createClient(
@@ -37,7 +36,6 @@ serve(async (req) => {
       .single();
 
     if (paymentError || !payment) {
-      console.error('Payment not found for address:', webhookData.address);
       return new Response('Payment not found', { status: 404 });
     }
 
@@ -73,7 +71,6 @@ serve(async (req) => {
       .eq('id', payment.id);
 
     if (updateError) {
-      console.error('Failed to update payment:', updateError);
       throw updateError;
     }
 
@@ -105,20 +102,11 @@ serve(async (req) => {
           `,
         });
 
-        console.log('Payment confirmation email sent to:', payment.consultations[0].email);
       } catch (emailError) {
-        console.error('Failed to send email notification:', emailError);
         // Don't fail the webhook for email errors
       }
     }
 
-    console.log('Webhook processed successfully:', {
-      paymentId: payment.id,
-      address: webhookData.address,
-      amount: webhookData.amount,
-      status: newStatus,
-      confirmations: webhookData.confirmations
-    });
 
     return new Response('Webhook processed successfully', { 
       status: 200,
@@ -126,7 +114,6 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error processing webhook:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

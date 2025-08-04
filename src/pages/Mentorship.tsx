@@ -56,7 +56,6 @@ const Mentorship = () => {
         alert("There was an error submitting your application. Please try again.");
       }
     } catch (error) {
-      console.error("Error submitting application:", error);
       alert("There was an error submitting your application. Please try again.");
     } finally {
       setIsSubmitting(false);

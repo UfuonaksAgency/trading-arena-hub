@@ -98,7 +98,6 @@ serve(async (req) => {
     const coinRemitterData = await coinRemitterResponse.json();
     
     if (!coinRemitterData.flag || coinRemitterData.flag !== 1) {
-      console.log('CoinRemitter check result:', coinRemitterData);
       // No transactions found is normal for pending payments
       return new Response(JSON.stringify({
         success: true,
@@ -155,13 +154,6 @@ serve(async (req) => {
         .eq('id', paymentId);
     }
 
-    console.log('Payment verification result:', {
-      paymentId,
-      status: newStatus,
-      totalReceived,
-      required: payment.amount_crypto,
-      confirmations: maxConfirmations
-    });
 
     return new Response(JSON.stringify({
       success: true,
@@ -178,7 +170,6 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Error in verify-crypto-payment:', error);
     return new Response(JSON.stringify({ 
       success: false,
       error: error.message 

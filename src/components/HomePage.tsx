@@ -86,7 +86,7 @@ const HomePage = () => {
         }
       });
     } catch (error) {
-      console.error('Error tracking download:', error);
+      // Silent error for download tracking
     }
   };
 
@@ -105,7 +105,7 @@ const HomePage = () => {
         }
       });
     } catch (error) {
-      console.error('Error tracking access:', error);
+      // Silent error for access tracking
     }
   };
 
@@ -121,7 +121,7 @@ const HomePage = () => {
       if (error) throw error;
       setFeaturedResources(data || []);
     } catch (error) {
-      console.error('Error fetching featured resources:', error);
+      // Error fetching featured resources
     }
   };
 
@@ -138,7 +138,6 @@ const HomePage = () => {
       if (error) throw error;
       setFeaturedBlogPosts(data || []);
     } catch (error) {
-      console.error('Error fetching blog posts:', error);
       setFeaturedBlogPosts([]);
     }
   };

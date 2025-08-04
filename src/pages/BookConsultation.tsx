@@ -10,13 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Copy, Clock, CheckCircle, AlertCircle, Bitcoin, QrCode, Calendar, User, Mail, MessageSquare, Target, Award, Loader2 } from 'lucide-react';
 
-// Production mode configuration
-const TEST_MODE = false; // Set to false for production
-const TEST_AMOUNT_USD = 300; // Amount for testing real payments
-
-// Temporary testing configuration - CHANGE BACK TO 300 AFTER TESTING
-const TEMP_TEST_AMOUNT = 50; // Set to 50 for testing, change back to 300 for production
-const USE_TEMP_AMOUNT = true; // Set to false to use production $300 amount
+// Production configuration
+const CONSULTATION_FEE_USD = 300;
 
 // Calendly interface for TypeScript
 declare global {
@@ -117,11 +112,9 @@ const BookConsultation = () => {
     
     script.onload = () => {
       setIsCalendlyLoaded(true);
-      console.log('Calendly script loaded successfully');
     };
     
     script.onerror = () => {
-      console.error('Failed to load Calendly script');
       toast({
         title: "Calendar Loading Error",
         description: "There was an issue loading the calendar. Please try refreshing the page.",
@@ -190,7 +183,7 @@ const BookConsultation = () => {
         }
         
         if (container && !container.querySelector('iframe')) {
-          const calendlyUrl = import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min';
+          const calendlyUrl = 'https://calendly.com/tradewithmrk/30min';
           
           try {
             window.Calendly.initInlineWidget({
@@ -207,7 +200,7 @@ const BookConsultation = () => {
               }
             });
           } catch (error) {
-            console.error('Calendly initialization error:', error);
+            // Calendly initialization error - retry
             if (retryCount < maxRetries) {
               retryCount++;
               setTimeout(initializeCalendly, 1000 * retryCount);
@@ -258,7 +251,6 @@ const BookConsultation = () => {
           });
 
           if (error) {
-            console.error('Payment verification error:', error);
             return;
           }
 
@@ -273,7 +265,7 @@ const BookConsultation = () => {
             }
           }
         } catch (error) {
-          console.error('Error checking payment status:', error);
+          // Silent error handling for payment status checks
         }
       };
 
@@ -292,7 +284,6 @@ const BookConsultation = () => {
       });
 
       if (error) {
-        console.error('Form submission error:', error);
         throw new Error(error.message || 'Failed to submit form');
       }
 
@@ -307,7 +298,6 @@ const BookConsultation = () => {
         throw new Error('Invalid response from server');
       }
     } catch (error: any) {
-      console.error('Error submitting form:', error);
       toast({
         title: "Submission Failed",
         description: error.message || "There was an error submitting your form. Please try again.",
@@ -321,20 +311,14 @@ const BookConsultation = () => {
   const createCryptoPayment = async (consultationId: string) => {
     setIsCreatingPayment(true);
     try {
-      console.log('Creating payment for consultation:', consultationId);
-      
-
       const { data, error } = await supabase.functions.invoke('create-crypto-payment', {
         body: { 
           consultationId,
-          amountUSD: USE_TEMP_AMOUNT ? TEMP_TEST_AMOUNT : TEST_AMOUNT_USD
+          amountUSD: CONSULTATION_FEE_USD
         }
       });
 
-      console.log('Payment response:', { data, error });
-
       if (error) {
-        console.error('Payment creation error:', error);
         throw new Error(error.message || 'Failed to create payment');
       }
 
@@ -351,11 +335,9 @@ const BookConsultation = () => {
           description: "Your Bitcoin payment address has been generated.",
         });
       } else {
-        console.error('Invalid payment response:', data);
         throw new Error('Invalid response from payment service');
       }
     } catch (error: any) {
-      console.error('Error creating crypto payment:', error);
       toast({
         title: "Payment Creation Failed",
         description: error.message || "Failed to create payment. Please try again.",
@@ -374,7 +356,6 @@ const BookConsultation = () => {
         description: "Address copied to clipboard",
       });
     } catch (error) {
-      console.error('Failed to copy:', error);
       toast({
         title: "Copy Failed",
         description: "Please copy the address manually",
@@ -426,7 +407,7 @@ const BookConsultation = () => {
     setIsScheduleClicked(true);
 
     try {
-      const calendlyUrl = import.meta.env.VITE_CALENDLY_URL || 'https://calendly.com/tradewithmrk/30min';
+      const calendlyUrl = 'https://calendly.com/tradewithmrk/30min';
       
       window.Calendly.initPopupWidget({
         url: calendlyUrl,
@@ -447,7 +428,6 @@ const BookConsultation = () => {
       }, 1000);
 
     } catch (error) {
-      console.error('Error opening Calendly popup:', error);
       toast({
         title: "Calendar Error",
         description: "Failed to open calendar. Please try refreshing the page.",
@@ -459,16 +439,6 @@ const BookConsultation = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
-      {USE_TEMP_AMOUNT && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg mx-4 my-4 p-4 text-center">
-          <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300 mb-2">
-            TEMPORARY TEST AMOUNT
-          </Badge>
-          <p className="text-sm text-amber-700">
-            Using ${TEMP_TEST_AMOUNT} for testing. Change USE_TEMP_AMOUNT to false to use production $300 fee.
-          </p>
-        </div>
-      )}
       
       {/* Header Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5">
@@ -729,7 +699,6 @@ const BookConsultation = () => {
                   <CardTitle className="flex items-center justify-center gap-2 text-3xl">
                     <Bitcoin className="h-8 w-8 text-orange-500" />
                     Bitcoin Payment Required
-                    {TEST_MODE && <Badge className="ml-2 bg-amber-100 text-amber-800">TEST</Badge>}
                   </CardTitle>
                   <div className="text-2xl font-bold text-accent">
                     ${cryptoPayment.amount_usd} USD = {formatBTC(cryptoPayment.amount_btc)} BTC
