@@ -439,8 +439,11 @@ const BookConsultation = () => {
   };
 
   return (
+    <>
+    
+    <Header />
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
-       <Header />
+       
       
       {/* Header Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-primary/5 via-accent/10 to-primary/5">
@@ -490,6 +493,7 @@ const BookConsultation = () => {
           </div>
         </div>
       </div>
+      </>
 
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Step 1: Form */}
