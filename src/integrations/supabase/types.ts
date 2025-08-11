@@ -158,12 +158,72 @@ export type Database = {
         }
         Relationships: []
       }
+      crypto_payments: {
+        Row: {
+          amount_crypto: number | null
+          amount_usd: number
+          coin_type: string
+          coinremitter_invoice_id: string | null
+          confirmations: number | null
+          consultation_id: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          payment_address: string
+          payment_data: Json | null
+          status: string
+          transaction_hash: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_crypto?: number | null
+          amount_usd?: number
+          coin_type?: string
+          coinremitter_invoice_id?: string | null
+          confirmations?: number | null
+          consultation_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          payment_address: string
+          payment_data?: Json | null
+          status?: string
+          transaction_hash?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_crypto?: number | null
+          amount_usd?: number
+          coin_type?: string
+          coinremitter_invoice_id?: string | null
+          confirmations?: number | null
+          consultation_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          payment_address?: string
+          payment_data?: Json | null
+          status?: string
+          transaction_hash?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crypto_payments_consultation_id_fkey"
+            columns: ["consultation_id"]
+            isOneToOne: false
+            referencedRelation: "consultations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       free_resources: {
         Row: {
           created_at: string
           description: string
           display_order: number
           download_url: string | null
+          external_link: string | null
           features: string[]
           icon_name: string
           id: string
@@ -179,6 +239,7 @@ export type Database = {
           description: string
           display_order?: number
           download_url?: string | null
+          external_link?: string | null
           features: string[]
           icon_name?: string
           id?: string
@@ -194,6 +255,7 @@ export type Database = {
           description?: string
           display_order?: number
           download_url?: string | null
+          external_link?: string | null
           features?: string[]
           icon_name?: string
           id?: string
