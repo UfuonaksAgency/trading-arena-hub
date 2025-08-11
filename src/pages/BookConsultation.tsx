@@ -11,6 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Copy, Clock, CheckCircle, AlertCircle, Bitcoin, QrCode, Calendar, User, Mail, MessageSquare, Target, Award, Loader2 } from 'lucide-react';
 
+import { ScrollReveal } from '@/hooks/useScrollReveal';
+
 // Production configuration
 const CONSULTATION_FEE_USD = 300;
 
@@ -449,46 +451,51 @@ const BookConsultation = () => {
         <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%)] animate-pulse"></div>
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-              Book Your Trading
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"> Strategy Session</span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
-              Get personalized trading guidance from our expert. Complete the form, make payment, and schedule your one-on-one consultation.
-            </p>
-            
-            {/* Progress Steps */}
-            <div className="mt-12 flex justify-center">
-              <div className="flex items-center space-x-4">
-                {['form', 'payment', 'schedule'].map((step, index) => (
-                  <React.Fragment key={step}>
-                    <div className={`flex items-center space-x-2 ${
-                      currentStep === step ? 'text-accent' : 
-                      ['form', 'payment', 'schedule'].indexOf(currentStep) > index ? 'text-green-600' : 'text-muted-foreground'
-                    }`}>
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-full border-2 font-semibold ${
-                        currentStep === step ? 'border-accent bg-accent text-accent-foreground' :
-                        ['form', 'payment', 'schedule'].indexOf(currentStep) > index ? 'border-green-600 bg-green-600 text-white' : 'border-muted-foreground bg-background'
+            <ScrollReveal>
+              <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+                Book Your Trading
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"> Strategy Session</span>
+              </h1>
+            </ScrollReveal>
+            <ScrollReveal delay={100}>
+              <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
+                Get personalized trading guidance from our expert. Complete the form, make payment, and schedule your one-on-one consultation.
+              </p>
+            </ScrollReveal>
+            <ScrollReveal delay={200}>
+              {/* Progress Steps */}
+              <div className="mt-12 flex justify-center">
+                <div className="flex items-center space-x-4">
+                  {['form', 'payment', 'schedule'].map((step, index) => (
+                    <React.Fragment key={step}>
+                      <div className={`flex items-center space-x-2 ${
+                        currentStep === step ? 'text-accent' : 
+                        ['form', 'payment', 'schedule'].indexOf(currentStep) > index ? 'text-green-600' : 'text-muted-foreground'
                       }`}>
-                        {['form', 'payment', 'schedule'].indexOf(currentStep) > index ? (
-                          <CheckCircle className="h-5 w-5" />
-                        ) : (
-                          <span className="text-sm">{index + 1}</span>
-                        )}
+                        <div className={`flex h-10 w-10 items-center justify-center rounded-full border-2 font-semibold ${
+                          currentStep === step ? 'border-accent bg-accent text-accent-foreground' :
+                          ['form', 'payment', 'schedule'].indexOf(currentStep) > index ? 'border-green-600 bg-green-600 text-white' : 'border-muted-foreground bg-background'
+                        }`}>
+                          {['form', 'payment', 'schedule'].indexOf(currentStep) > index ? (
+                            <CheckCircle className="h-5 w-5" />
+                          ) : (
+                            <span className="text-sm">{index + 1}</span>
+                          )}
+                        </div>
+                        <span className="hidden font-medium sm:block">
+                          {step === 'form' ? 'Submit Form' : step === 'payment' ? 'Make Payment' : 'Schedule Call'}
+                        </span>
                       </div>
-                      <span className="hidden font-medium sm:block">
-                        {step === 'form' ? 'Submit Form' : step === 'payment' ? 'Make Payment' : 'Schedule Call'}
-                      </span>
-                    </div>
-                    {index < 2 && (
-                      <div className={`h-0.5 w-12 rounded ${
-                        ['form', 'payment', 'schedule'].indexOf(currentStep) > index ? 'bg-green-600' : 'bg-muted-foreground/30'
-                      }`} />
-                    )}
-                  </React.Fragment>
-                ))}
+                      {index < 2 && (
+                        <div className={`h-0.5 w-12 rounded ${
+                          ['form', 'payment', 'schedule'].indexOf(currentStep) > index ? 'bg-green-600' : 'bg-muted-foreground/30'
+                        }`} />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
           </div>
         </div>
       </div>
@@ -690,13 +697,15 @@ const BookConsultation = () => {
         {currentStep === 'payment' && (
           <div className="space-y-6">
             {isCreatingPayment ? (
-              <Card className="border-2 shadow-lg">
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <Loader2 className="h-12 w-12 animate-spin text-accent" />
-                  <h3 className="mt-4 text-xl font-semibold">Creating Payment Address...</h3>
-                  <p className="text-muted-foreground">Please wait while we set up your Bitcoin payment</p>
-                </CardContent>
-              </Card>
+              <ScrollReveal>
+                <Card className="border-2 shadow-lg">
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <Loader2 className="h-12 w-12 animate-spin text-accent" />
+                    <h3 className="mt-4 text-xl font-semibold">Creating Payment Address...</h3>
+                    <p className="text-muted-foreground">Please wait while we set up your Bitcoin payment</p>
+                  </CardContent>
+                </Card>
+              </ScrollReveal>
             ) : cryptoPayment ? (
               <Card className="border-2 shadow-lg">
                 <CardHeader className="text-center">
@@ -833,10 +842,6 @@ const BookConsultation = () => {
                         <span className="font-semibold">3.</span>
                         Once confirmed, you'll be able to schedule your consultation
                       </li>
-                      <li className="flex items-start gap-2">
-                        <span className="font-semibold">4.</span>
-                        <strong>Important:</strong> Use a personal wallet, not an exchange
-                      </li>
                     </ol>
                   </div>
 
@@ -862,20 +867,22 @@ const BookConsultation = () => {
                 </CardContent>
               </Card>
             ) : (
-              <Card className="border-2 border-red-200 shadow-lg">
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <AlertCircle className="h-12 w-12 text-red-500" />
-                  <h3 className="mt-4 text-xl font-semibold">Payment Creation Failed</h3>
-                  <p className="text-muted-foreground text-center">There was an issue creating your payment. Please try again.</p>
-                  <Button 
-                    onClick={() => setCurrentStep('form')}
-                    variant="outline"
-                    className="mt-4"
-                  >
-                    Return to Form
-                  </Button>
-                </CardContent>
-              </Card>
+              <ScrollReveal>
+                <Card className="border-2 border-red-200 shadow-lg">
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <AlertCircle className="h-12 w-12 text-red-500" />
+                    <h3 className="mt-4 text-xl font-semibold">Payment Creation Failed</h3>
+                    <p className="text-muted-foreground text-center">There was an issue creating your payment. Please try again.</p>
+                    <Button 
+                      onClick={() => setCurrentStep('form')}
+                      variant="outline"
+                      className="mt-4"
+                    >
+                      Return to Form
+                    </Button>
+                  </CardContent>
+                </Card>
+              </ScrollReveal>
             )}
           </div>
         )}
@@ -884,20 +891,22 @@ const BookConsultation = () => {
         {currentStep === 'schedule' && (
           <div className="space-y-6 sm:space-y-8 w-full max-w-2xl mx-auto">
             {/* Session Info Header */}
-            <div className="text-center space-y-4 sm:space-y-6 px-4">
-              <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-green-800 dark:bg-green-900 dark:text-green-200">
-                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span className="font-semibold">Payment Confirmed</span>
+            <ScrollReveal>
+              <div className="text-center space-y-4 sm:space-y-6 px-4">
+                <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-green-800 dark:bg-green-900 dark:text-green-200">
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="font-semibold">Payment Confirmed</span>
+                </div>
+                
+                <h2 className="text-2xl sm:text-3xl font-bold text-foreground px-2">
+                  Schedule Your Trading Strategy Session
+                </h2>
+                
+                <p className="text-base sm:text-lg text-muted-foreground px-2">
+                  Your payment has been confirmed! Click the button below to schedule your 30-minute consultation.
+                </p>
               </div>
-              
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground px-2">
-                Schedule Your Trading Strategy Session
-              </h2>
-              
-              <p className="text-base sm:text-lg text-muted-foreground px-2">
-                Your payment has been confirmed! Click the button below to schedule your 30-minute consultation.
-              </p>
-            </div>
+            </ScrollReveal>
 
             {/* Session Details Card */}
             <Card className="mx-4 sm:mx-auto sm:max-w-md">
@@ -921,109 +930,113 @@ const BookConsultation = () => {
             </Card>
 
             {/* Main Scheduling Action */}
-            <Card className="text-center shadow-lg mx-4 sm:mx-0">
-              <CardContent className="p-6 sm:p-8 lg:p-12">
-                <div className="space-y-4 sm:space-y-6">
-                  <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-accent/10 rounded-full flex items-center justify-center">
-                    <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-accent" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <h3 className="text-xl sm:text-2xl font-bold text-foreground">
-                      Ready to Schedule?
-                    </h3>
-                    <p className="text-sm sm:text-base text-muted-foreground">
-                      Click the button below to open Calendly and select your preferred time slot.
-                    </p>
-                  </div>
-
-                  {/* Calendly Popup Widget Button - Hidden after successful booking */}
-                  {!hasBookedAppointment && (
-                    <div className="text-center space-y-4">
-                      <Button
-                        onClick={handleScheduleClick}
-                        disabled={isCalendlyLoading || !isCalendlyLoaded}
-                        className="w-full max-w-md h-14 text-lg font-semibold"
-                        size="lg"
-                      >
-                        {isCalendlyLoading ? (
-                          <div className="flex items-center gap-2">
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                            Opening calendar...
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            Schedule My Trading Session
-                          </div>
-                        )}
-                      </Button>
-                      {!isCalendlyLoaded && (
-                        <p className="text-sm text-muted-foreground">
-                          Loading calendar system...
-                        </p>
-                      )}
+            <ScrollReveal delay={100}>
+              <Card className="text-center shadow-lg mx-4 sm:mx-0">
+                <CardContent className="p-6 sm:p-8 lg:p-12">
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="mx-auto w-12 h-12 sm:w-16 sm:h-16 bg-accent/10 rounded-full flex items-center justify-center">
+                      <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-accent" />
                     </div>
-                  )}
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-xl sm:text-2xl font-bold text-foreground">
+                        Ready to Schedule?
+                      </h3>
+                      <p className="text-sm sm:text-base text-muted-foreground">
+                        Click the button below to open Calendly and select your preferred time slot.
+                      </p>
+                    </div>
 
-                  {/* Booking Confirmation - Appears after actual booking */}
-                  {hasBookedAppointment && (
-                    <Card className="bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800 mt-6">
-                      <CardContent className="p-6">
-                        <div className="text-center space-y-4">
-                          <div className="flex justify-center">
-                            <CheckCircle className="h-16 w-16 text-green-600 dark:text-green-400" />
-                          </div>
-                          <h4 className="text-2xl font-bold text-green-900 dark:text-green-100">
-                            🎉 Appointment Successfully Booked!
-                          </h4>
-                          <p className="text-green-800 dark:text-green-200">
-                            Thank you! Your consultation has been scheduled. You'll receive a confirmation email with all the details shortly.
+                    {/* Calendly Popup Widget Button - Hidden after successful booking */}
+                    {!hasBookedAppointment && (
+                      <div className="text-center space-y-4">
+                        <Button
+                          onClick={handleScheduleClick}
+                          disabled={isCalendlyLoading || !isCalendlyLoaded}
+                          className="w-full max-w-md h-14 text-lg font-semibold"
+                          size="lg"
+                        >
+                          {isCalendlyLoading ? (
+                            <div className="flex items-center gap-2">
+                              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                              Opening calendar...
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              Schedule My Trading Session
+                            </div>
+                          )}
+                        </Button>
+                        {!isCalendlyLoaded && (
+                          <p className="text-sm text-muted-foreground">
+                            Loading calendar system...
                           </p>
-                          <div className="text-sm text-green-700 dark:text-green-300 space-y-1">
-                            <p>• Check your email for the meeting link</p>
-                            <p>• Add the event to your calendar</p>
-                            <p>• Prepare any questions you'd like to discuss</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
+                        )}
+                      </div>
+                    )}
 
-                  {isScheduleClicked && (
-                    <div className="text-xs sm:text-sm text-muted-foreground">
-                      <p className="text-accent font-medium">• Button will be available again in 5 seconds</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                    {/* Booking Confirmation - Appears after actual booking */}
+                    {hasBookedAppointment && (
+                      <Card className="bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800 mt-6">
+                        <CardContent className="p-6">
+                          <div className="text-center space-y-4">
+                            <div className="flex justify-center">
+                              <CheckCircle className="h-16 w-16 text-green-600 dark:text-green-400" />
+                            </div>
+                            <h4 className="text-2xl font-bold text-green-900 dark:text-green-100">
+                              🎉 Appointment Successfully Booked!
+                            </h4>
+                            <p className="text-green-800 dark:text-green-200">
+                              Thank you! Your consultation has been scheduled. You'll receive a confirmation email with all the details shortly.
+                            </p>
+                            <div className="text-sm text-green-700 dark:text-green-300 space-y-1">
+                              <p>• Check your email for the meeting link</p>
+                              <p>• Add the event to your calendar</p>
+                              <p>• Prepare any questions you'd like to discuss</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {isScheduleClicked && (
+                      <div className="text-xs sm:text-sm text-muted-foreground">
+                        <p className="text-accent font-medium">• Button will be available again in 5 seconds</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </ScrollReveal>
 
             {/* Alternative Contact Information */}
-            <Card className="bg-muted/50 mx-4 sm:mx-0">
-              <CardContent className="p-4 sm:p-6 text-center">
-                <h4 className="font-semibold mb-2 text-sm sm:text-base">Having Issues?</h4>
-                <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
-                  If you have any trouble scheduling, feel free to reach out directly:
-                </p>
-                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
-                  <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm">
-                    <a href="mailto:support@tradewithmrk.com" className="inline-flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
-                      Email Support
-                    </a>
-                  </Button>
-                  <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm">
-                    <a href="https://t.me/tradewithmrk" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
-                      <MessageSquare className="h-4 w-4" />
-                      Telegram
-                    </a>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <ScrollReveal delay={200}>
+              <Card className="bg-muted/50 mx-4 sm:mx-0">
+                <CardContent className="p-4 sm:p-6 text-center">
+                  <h4 className="font-semibold mb-2 text-sm sm:text-base">Having Issues?</h4>
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
+                    If you have any trouble scheduling, feel free to reach out directly:
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
+                    <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm">
+                      <a href="mailto:support@tradewithmrk.com" className="inline-flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        Email Support
+                      </a>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm">
+                      <a href="https://t.me/tradewithmrk" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4" />
+                        Telegram
+                      </a>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </ScrollReveal>
           </div>
         )}
       </div>
