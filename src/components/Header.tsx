@@ -27,7 +27,7 @@ const Header = () => {
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-300">
               <img 
-                src="/lovable-uploads/0f2f7599-0935-494e-8345-e59affb0a80e.png" 
+                src="/lovable-uploads/2d5e8ac8-6558-4764-890f-3949ed3d80ec.png" 
                 alt="Mr. K Trading Arena Logo" 
                 className="w-8 h-8 object-contain"
               />
