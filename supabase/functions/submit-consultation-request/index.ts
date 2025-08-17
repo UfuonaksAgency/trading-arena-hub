@@ -58,7 +58,7 @@ serve(async (req) => {
 
     // Send confirmation email to user
     const confirmationEmail = await resend.emails.send({
-      from: 'noreply@yourdomain.com',
+      from: 'Mr. K Trading <noreply@tradewithmrk.com>',
       to: consultationData.email,
       subject: 'Consultation Request Received - Mr. K Trading',
       html: `
@@ -85,8 +85,8 @@ serve(async (req) => {
 
     // Send notification email to admin
     const adminEmail = await resend.emails.send({
-      from: 'noreply@yourdomain.com',
-      to: 'admin@yourdomain.com', // Replace with actual admin email
+      from: 'Mr. K Trading <noreply@tradewithmrk.com>',
+      to: 'contact@tradewithmrk.com', // Replace with actual admin email
       subject: 'New Consultation Request',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
