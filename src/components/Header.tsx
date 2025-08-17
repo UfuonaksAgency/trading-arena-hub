@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, TrendingUp } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Header = () => {
@@ -25,8 +25,12 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 bg-white/5 border border-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-300 group-hover:border-primary">
-              <TrendingUp className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-all duration-300">
+              <img 
+                src="/lovable-uploads/0f2f7599-0935-494e-8345-e59affb0a80e.png" 
+                alt="Mr. K Trading Arena Logo" 
+                className="w-8 h-8 object-contain"
+              />
             </div>
             <span className="text-xl font-bold section-header text-lg mb-0">
               Mr. K Trading Arena
