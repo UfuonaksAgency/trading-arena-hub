@@ -47,7 +47,9 @@ declare global {
 
 // Listen for Calendly events
 const handleCalendlyMessage = (e: MessageEvent) => {
-  if (e.origin !== 'https://calendly.com') return;
+  // allow both Calendly origins
+  if (!['https://calendly.com', 'https://assets.calendly.com'].includes(e.origin)) return;
+
   
   if (e.data.event && e.data.event.indexOf('calendly') === 0) {
     return e.data;
@@ -149,7 +151,8 @@ const BookConsultation = () => {
 
     // Set up Calendly event listener
     const handleCalendlyEvent = (e: MessageEvent) => {
-      if (e.origin !== 'https://calendly.com') return;
+      // allow both Calendly origins
+      if (!['https://calendly.com', 'https://assets.calendly.com'].includes(e.origin)) return;
       
       if (e.data.event === 'calendly.event_scheduled') {
         setHasBookedAppointment(true);
