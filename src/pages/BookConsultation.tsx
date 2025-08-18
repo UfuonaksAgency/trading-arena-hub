@@ -126,7 +126,7 @@ const BookConsultation = () => {
     const script = document.createElement('script');
     script.src = 'https://assets.calendly.com/assets/external/widget.js';
     script.async = true;
-    script.crossOrigin = 'anonymous';
+    // script.crossOrigin = 'anonymous';
     
     script.onload = () => {
       console.log('Calendly script loaded successfully');
