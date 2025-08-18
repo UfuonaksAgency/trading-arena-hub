@@ -110,18 +110,32 @@ const BookConsultation = () => {
 
   // Load Calendly widget and set up event listeners
   useEffect(() => {
+    // Check if Calendly is already loaded
+    if (window.Calendly) {
+      setIsCalendlyLoaded(true);
+      return;
+    }
+
+    // Don't load script if it already exists
+    if (document.querySelector('script[src*="calendly.com"]')) {
+      return;
+    }
+
     const script = document.createElement('script');
     script.src = 'https://assets.calendly.com/assets/external/widget.js';
     script.async = true;
+    script.crossOrigin = 'anonymous';
     
     script.onload = () => {
+      console.log('Calendly script loaded successfully');
       setIsCalendlyLoaded(true);
     };
     
-    script.onerror = () => {
+    script.onerror = (error) => {
+      console.error('Calendly script failed to load:', error);
       toast({
         title: "Calendar Loading Error",
-        description: "There was an issue loading the calendar. Please try refreshing the page.",
+        description: "There was an issue loading the calendar. Please check your connection and try refreshing the page.",
         variant: "destructive",
       });
     };
@@ -468,7 +482,7 @@ const BookConsultation = () => {
               <div className="mt-12 flex justify-center">
                 <div className="flex items-center space-x-4">
                   {['form', 'payment', 'schedule'].map((step, index) => (
-                    <React.Fragment key={step}>
+                    <div key={step} className="flex items-center space-x-4">
                       <div className={`flex items-center space-x-2 ${
                         currentStep === step ? 'text-accent' : 
                         ['form', 'payment', 'schedule'].indexOf(currentStep) > index ? 'text-green-600' : 'text-muted-foreground'
@@ -492,7 +506,7 @@ const BookConsultation = () => {
                           ['form', 'payment', 'schedule'].indexOf(currentStep) > index ? 'bg-green-600' : 'bg-muted-foreground/30'
                         }`} />
                       )}
-                    </React.Fragment>
+                    </div>
                   ))}
                 </div>
               </div>
