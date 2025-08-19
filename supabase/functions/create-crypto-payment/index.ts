@@ -185,11 +185,37 @@ serve(async (req) => {
           btc_price_usd: btcPriceUSD,
         }
       })
-      .select()
+      .select(`
+        *,
+        consultations (
+          name,
+          email
+        )
+      `)
       .single();
 
     if (paymentError) {
       throw new Error('Failed to create payment record');
+    }
+
+    // Send payment initiated email if consultation data is available
+    if (paymentData.consultations?.[0]?.email && paymentData.consultations?.[0]?.name) {
+      try {
+        await supabase.functions.invoke('send-payment-initiated-email', {
+          body: {
+            email: paymentData.consultations[0].email,
+            name: paymentData.consultations[0].name,
+            paymentAddress: coinRemitterData.data.address,
+            amountBTC: amountBTC,
+            amountUSD: amountUSD,
+            expiresAt: paymentData.expires_at,
+            qrCode: coinRemitterData.data.qr_code || null
+          }
+        });
+      } catch (emailError) {
+        // Don't fail payment creation for email errors
+        console.error('Failed to send payment initiated email:', emailError);
+      }
     }
 
     return new Response(JSON.stringify({

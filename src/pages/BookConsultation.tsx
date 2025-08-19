@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Copy, Clock, CheckCircle, AlertCircle, Bitcoin, QrCode, Calendar, User, Mail, MessageSquare, Target, Award, Loader2 } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 import { ScrollReveal } from '@/hooks/useScrollReveal';
 
@@ -459,9 +460,19 @@ const BookConsultation = () => {
   };
 
   return ( 
-    <>
-    <Header />
-    <div className="min-h-screen pt-16 bg-gradient-to-br from-background via-background to-muted/30">
+    <div>
+      <Helmet>
+        <title>Book Trading Consultation - $300 Bitcoin Payment | Mr. K Trading Arena</title>
+        <meta name="description" content="Book a 30-minute personalized trading consultation with professional crypto trader Mr. K for $300 USD. Expert market analysis, strategy development, and actionable trading insights." />
+        <meta name="keywords" content="trading consultation, crypto trading advice, bitcoin payment, trading strategy, market analysis, professional trader" />
+        <link rel="canonical" href="https://tradewithmrk.com/book-consultation" />
+        <meta property="og:title" content="Book Trading Consultation - Professional Crypto Trading Guidance" />
+        <meta property="og:description" content="Get personalized trading advice from expert trader Mr. K. 30-minute consultation for $300 USD with Bitcoin payment." />
+        <meta property="og:url" content="https://tradewithmrk.com/book-consultation" />
+        <meta property="og:type" content="website" />
+      </Helmet>
+      <Header />
+      <div className="min-h-screen pt-16 bg-gradient-to-br from-background via-background to-muted/30">
        
       
       {/* Header Section */}
@@ -1039,18 +1050,18 @@ const BookConsultation = () => {
                     If you have any trouble scheduling, feel free to reach out directly:
                   </p>
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
-                    <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm">
-                      <a href="mailto:support@tradewithmrk.com" className="inline-flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        Email Support
-                      </a>
-                    </Button>
-                    <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm">
-                      <a href="https://t.me/tradewithmrk" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
-                        <MessageSquare className="h-4 w-4" />
-                        Telegram
-                      </a>
-                    </Button>
+                     <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm">
+                       <a href="mailto:support@tradewithmrk.com" className="inline-flex items-center gap-2">
+                         <Mail className="h-4 w-4" />
+                         Email Support
+                       </a>
+                     </Button>
+                     <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm">
+                       <a href="https://t.me/Mrk_trading" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+                         <MessageSquare className="h-4 w-4" />
+                         Telegram
+                       </a>
+                     </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -1058,9 +1069,9 @@ const BookConsultation = () => {
           </div>
         )}
       </div>
-    </div>
+      </div>
       <Footer />
-      </>
+    </div>
   );
 };
 

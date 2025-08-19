@@ -5,17 +5,17 @@ const Footer = () => {
   const socialLinks = [
     {
       name: 'Telegram',
-      href: '#', // Replace with actual Telegram link
+      href: 'https://t.me/Mrk_trading',
       icon: Send,
     },
     {
       name: 'X (Twitter)',
-      href: '#', // Replace with actual Twitter link
+      href: 'https://x.com/kelvinc003',
       icon: Twitter,
     },
     {
       name: 'Instagram',
-      href: '#', // Replace with actual Instagram link
+      href: 'https://www.instagram.com/mrktradingarena?igsh=bjI4ZGRsZmI2cWdo&utm_source=qr',
       icon: Instagram,
     },
   ];

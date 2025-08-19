@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ScrollReveal } from '@/hooks/useScrollReveal';
 import BlogCard from '@/components/BlogCard';
+import TradingPlatforms from '@/components/TradingPlatforms';
 
 interface FreeResource {
   id: string;
@@ -51,15 +52,15 @@ const HomePage = () => {
     },
     {
       name: 'BingX',
-      description: 'Professional crypto trading exchange',
+      description: 'Professional crypto trading exchange with partner benefits',
       icon: TrendingUp,
-      url: 'https://bingx.com',
+      url: 'https://bingx.pro/partner/KELVINARENA',
     },
     {
       name: 'WEEX',
-      description: 'Advanced derivatives trading platform',
+      description: 'Advanced derivatives trading platform with VIP access',
       icon: BarChart3,
-      url: '#',
+      url: 'https://support.weex.com/en/register?vipCode=mp9nh',
     },
   ];
 
@@ -280,6 +281,9 @@ const HomePage = () => {
           </div>
         </section>
       </ScrollReveal>
+
+      {/* Trading Platforms Section */}
+      <TradingPlatforms />
 
       {/* Free Resources Preview Section */}
       <ScrollReveal delay={500} duration={800}>
