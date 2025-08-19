@@ -60,7 +60,7 @@ const Tools = () => {
       description: 'Cutting-edge derivatives trading platform with institutional-grade tools and deep liquidity for professional traders.',
       icon: BarChart3,
       logo: weexLogo,
-      url: 'https://weex.com',
+      url: 'https://support.weex.com/en/register?vipCode=mp9nh',
       features: ['Perpetual Contracts', 'Options Trading', 'Deep Liquidity', 'API Access', 'Risk Management Tools']
     },
   ];
