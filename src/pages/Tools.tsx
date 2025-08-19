@@ -52,7 +52,7 @@ const Tools = () => {
       description: 'Professional cryptocurrency exchange offering spot and derivatives trading with advanced order types and competitive fees.',
       icon: TrendingUp,
       logo: bingxLogo,
-      url: 'https://bingx.com',
+      url: 'https://bingx.pro/partner/KELVINARENA',
       features: ['Spot Trading', 'Futures & Options', 'Copy Trading', 'Low Fees', 'Advanced Order Types']
     },
     {
