@@ -83,7 +83,7 @@ serve(async (req) => {
     }
 
     // Check payment status via CoinRemitter API
-    const coinRemitterResponse = await fetch('https://coinremitter.com/api/v3/BTC/get-transaction-by-address', {
+    const coinRemitterResponse = await fetch('https://coinremitter.com/api/v3/TCN/get-transaction-by-address', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

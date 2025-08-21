@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Copy, Clock, CheckCircle, AlertCircle, Bitcoin, QrCode, Calendar, User, Mail, MessageSquare, Target, Award, Loader2 } from 'lucide-react';
+import { Copy, Clock, CheckCircle, AlertCircle, Coins, QrCode, Calendar, User, Mail, MessageSquare, Target, Award, Loader2 } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 
 import { ScrollReveal } from '@/hooks/useScrollReveal';
@@ -60,7 +60,7 @@ const handleCalendlyMessage = (e: MessageEvent) => {
 interface CryptoPayment {
   id: string;
   address: string;
-  amount_btc: number;
+  amount_tcn: number;
   amount_usd: number;
   expires_at: string;
   qr_code?: string;
@@ -354,7 +354,7 @@ const BookConsultation = () => {
         
         toast({
           title: "Payment Created! 💰",
-          description: "Your Bitcoin payment address has been generated.",
+          description: "Your Test Coin payment address has been generated.",
         });
       } else {
         throw new Error('Invalid response from payment service');
@@ -386,8 +386,8 @@ const BookConsultation = () => {
     }
   };
 
-  const formatBTC = (amount: number) => {
-    return amount.toFixed(8);
+  const formatTCN = (amount: number) => {
+    return amount.toFixed(2);
   };
 
   const formatTime = (seconds: number) => {
@@ -462,12 +462,12 @@ const BookConsultation = () => {
   return ( 
     <div>
       <Helmet>
-        <title>Book Trading Consultation - $300 Bitcoin Payment | Mr. K Trading Arena</title>
+        <title>Book Trading Consultation - $300 TCN Payment | Mr. K Trading Arena</title>
         <meta name="description" content="Book a 30-minute personalized trading consultation with professional crypto trader Mr. K for $300 USD. Expert market analysis, strategy development, and actionable trading insights." />
-        <meta name="keywords" content="trading consultation, crypto trading advice, bitcoin payment, trading strategy, market analysis, professional trader" />
+        <meta name="keywords" content="trading consultation, crypto trading advice, test payment, trading strategy, market analysis, professional trader" />
         <link rel="canonical" href="https://tradewithmrk.com/book-consultation" />
         <meta property="og:title" content="Book Trading Consultation - Professional Crypto Trading Guidance" />
-        <meta property="og:description" content="Get personalized trading advice from expert trader Mr. K. 30-minute consultation for $300 USD with Bitcoin payment." />
+        <meta property="og:description" content="Get personalized trading advice from expert trader Mr. K. 30-minute consultation for $300 USD with test payment." />
         <meta property="og:url" content="https://tradewithmrk.com/book-consultation" />
         <meta property="og:type" content="website" />
       </Helmet>
@@ -549,7 +549,7 @@ const BookConsultation = () => {
                   strategy development, and actionable insights tailored to your trading goals.
                 </p>
                 <div className="text-xs text-muted-foreground space-y-1">
-                  <p>• Payment via Bitcoin for security and privacy</p>
+                  <p>• Payment via Test Coin (TCN) for testing purposes</p>
                   <p>• Schedule immediately after payment confirmation</p>
                   <p>• Professional guidance worth much more than the fee</p>
                 </div>
@@ -731,7 +731,7 @@ const BookConsultation = () => {
                   <CardContent className="flex flex-col items-center justify-center py-12">
                     <Loader2 className="h-12 w-12 animate-spin text-accent" />
                     <h3 className="mt-4 text-xl font-semibold">Creating Payment Address...</h3>
-                    <p className="text-muted-foreground">Please wait while we set up your Bitcoin payment</p>
+                    <p className="text-muted-foreground">Please wait while we set up your TCN payment</p>
                   </CardContent>
                 </Card>
               </ScrollReveal>
@@ -739,11 +739,11 @@ const BookConsultation = () => {
               <Card className="border-2 shadow-lg">
                 <CardHeader className="text-center">
                   <CardTitle className="flex items-center justify-center gap-2 text-3xl">
-                    <Bitcoin className="h-8 w-8 text-orange-500" />
-                    Bitcoin Payment Required
+                    <Coins className="h-8 w-8 text-orange-500" />
+                    TCN Payment Required
                   </CardTitle>
                   <div className="text-2xl font-bold text-accent">
-                    ${cryptoPayment.amount_usd} USD = {formatBTC(cryptoPayment.amount_btc)} BTC
+                    ${cryptoPayment.amount_usd} USD = {formatTCN(cryptoPayment.amount_tcn)} TCN
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -781,7 +781,7 @@ const BookConsultation = () => {
                       
                       {paymentStatus?.amount_received && (
                         <div className="mt-2 text-sm text-muted-foreground">
-                          Received: {formatBTC(paymentStatus.amount_received)} BTC
+                          Received: {formatTCN(paymentStatus.amount_received)} TCN
                         </div>
                       )}
                     </div>
@@ -799,7 +799,7 @@ const BookConsultation = () => {
                         <div className="rounded-lg border-2 p-4 bg-white">
                           <img 
                             src={cryptoPayment.qr_code} 
-                            alt="Bitcoin Payment QR Code"
+                            alt="Test Coin Payment QR Code"
                             className="h-48 w-48 object-contain"
                           />
                         </div>
@@ -813,7 +813,7 @@ const BookConsultation = () => {
                     {/* Payment Information */}
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label className="text-sm font-semibold">Bitcoin Address</Label>
+                        <Label className="text-sm font-semibold">Test Coin Address</Label>
                         <div className="flex gap-2">
                           <code className="flex-1 rounded-lg bg-muted p-3 text-xs break-all font-mono">
                             {cryptoPayment.address}
@@ -830,15 +830,15 @@ const BookConsultation = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-sm font-semibold">Amount (BTC)</Label>
+                        <Label className="text-sm font-semibold">Amount (TCN)</Label>
                         <div className="flex gap-2">
                           <code className="flex-1 rounded-lg bg-muted p-3 text-sm font-bold font-mono">
-                            {formatBTC(cryptoPayment.amount_btc)}
+                            {formatTCN(cryptoPayment.amount_tcn)}
                           </code>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => copyToClipboard(formatBTC(cryptoPayment.amount_btc))}
+                            onClick={() => copyToClipboard(formatTCN(cryptoPayment.amount_tcn))}
                             className="shrink-0"
                           >
                             <Copy className="h-4 w-4" />
@@ -861,7 +861,7 @@ const BookConsultation = () => {
                     <ol className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
                       <li className="flex items-start gap-2">
                         <span className="font-semibold">1.</span>
-                        Send exactly <strong>{formatBTC(cryptoPayment.amount_btc)} BTC</strong> to the address above
+                        Send exactly <strong>{formatTCN(cryptoPayment.amount_tcn)} TCN</strong> to the address above
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="font-semibold">2.</span>

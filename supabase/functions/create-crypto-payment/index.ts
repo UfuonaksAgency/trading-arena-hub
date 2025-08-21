@@ -34,61 +34,10 @@ async function retryWithBackoff<T>(
   throw lastError!;
 }
 
-// Get BTC price with multiple fallbacks
-async function getBTCPrice(): Promise<number> {
-  const fallbackPrice = 45000; // Fallback price in USD
-  
-  // Try CoinGecko API first
-  try {
-    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' },
-    });
-    
-    if (!response.ok) {
-      throw new Error(`CoinGecko API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    const price = data.bitcoin?.usd;
-    
-    if (typeof price === 'number' && price > 0) {
-      return price;
-    }
-    
-    throw new Error('Invalid price data from CoinGecko');
-  } catch (error) {
-    // CoinGecko API failed, try fallback
-  }
-
-  // Try CoinDesk API as fallback
-  try {
-    const response = await fetch('https://api.coindesk.com/v1/bpi/currentprice/USD.json', {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' },
-    });
-    
-    if (!response.ok) {
-      throw new Error(`CoinDesk API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    const priceString = data.bpi?.USD?.rate;
-    
-    if (priceString) {
-      const price = parseFloat(priceString.replace(/,/g, ''));
-      if (price > 0) {
-        return price;
-      }
-    }
-    
-    throw new Error('Invalid price data from CoinDesk');
-  } catch (error) {
-    // CoinDesk API failed, use fallback
-  }
-
-  // Use fallback price
-  return fallbackPrice;
+// Get TCN price (Test Coin) - using fixed test price
+async function getTCNPrice(): Promise<number> {
+  // For test environment, use a fixed conversion rate
+  return 1; // 1 USD = 1 TCN (simplified for testing)
 }
 
 serve(async (req) => {
@@ -130,16 +79,16 @@ serve(async (req) => {
     // Initialize Supabase with service role for database operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get BTC price with retries and fallbacks
-    const btcPriceUSD = await retryWithBackoff(() => getBTCPrice(), 3, 1000);
-    const amountBTC = (amountUSD / btcPriceUSD);
+    // Get TCN price with retries and fallbacks
+    const tcnPriceUSD = await retryWithBackoff(() => getTCNPrice(), 3, 1000);
+    const amountTCN = (amountUSD / tcnPriceUSD);
 
     // Create new payment address via CoinRemitter API with retries
     const coinRemitterData = await retryWithBackoff(async () => {
       const webhookUrl = `${supabaseUrl}/functions/v1/coinremitter-webhook`;
       const label = `con-${consultationId.substring(0, 16)}`;
 
-      const response = await fetch('https://coinremitter.com/api/v3/BTC/get-new-address', {
+      const response = await fetch('https://coinremitter.com/api/v3/TCN/get-new-address', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,13 +125,13 @@ serve(async (req) => {
       .insert({
         consultation_id: consultationId,
         payment_address: coinRemitterData.data.address,
-        coin_type: 'BTC',
+        coin_type: 'TCN',
         amount_usd: amountUSD,
-        amount_crypto: amountBTC,
+        amount_crypto: amountTCN,
         coinremitter_invoice_id: coinRemitterData.data.invoice_id,
         payment_data: {
           coinremitter_response: coinRemitterData.data,
-          btc_price_usd: btcPriceUSD,
+          tcn_price_usd: tcnPriceUSD,
         }
       })
       .select(`
@@ -206,7 +155,7 @@ serve(async (req) => {
             email: paymentData.consultations[0].email,
             name: paymentData.consultations[0].name,
             paymentAddress: coinRemitterData.data.address,
-            amountBTC: amountBTC,
+            amountTCN: amountTCN,
             amountUSD: amountUSD,
             expiresAt: paymentData.expires_at,
             qrCode: coinRemitterData.data.qr_code || null
@@ -223,7 +172,7 @@ serve(async (req) => {
       payment: {
         id: paymentData.id,
         address: coinRemitterData.data.address,
-        amount_btc: amountBTC,
+        amount_tcn: amountTCN,
         amount_usd: amountUSD,
         expires_at: paymentData.expires_at,
         qr_code: coinRemitterData.data.qr_code,
