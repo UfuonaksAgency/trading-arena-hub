@@ -68,12 +68,26 @@ serve(async (req) => {
     const password = Deno.env.get('COINREMITTER_PASSWORD');
     const merchantId = Deno.env.get('COINREMITTER_MERCHANT_ID');
 
+    console.log('Environment variables check:');
+    console.log('- SUPABASE_URL:', supabaseUrl ? 'Present' : 'Missing');
+    console.log('- SUPABASE_SERVICE_ROLE_KEY:', supabaseServiceKey ? 'Present' : 'Missing');
+    console.log('- COINREMITTER_API_KEY:', apiKey ? 'Present' : 'Missing');
+    console.log('- COINREMITTER_PASSWORD:', password ? 'Present' : 'Missing');
+    console.log('- COINREMITTER_MERCHANT_ID:', merchantId ? 'Present' : 'Missing');
+
     if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Missing Supabase configuration');
+      const missingSupabase = [];
+      if (!supabaseUrl) missingSupabase.push('SUPABASE_URL');
+      if (!supabaseServiceKey) missingSupabase.push('SUPABASE_SERVICE_ROLE_KEY');
+      throw new Error(`Missing Supabase configuration: ${missingSupabase.join(', ')}`);
     }
 
     if (!apiKey || !password || !merchantId) {
-      throw new Error('Missing CoinRemitter API credentials');
+      const missingCreds = [];
+      if (!apiKey) missingCreds.push('COINREMITTER_API_KEY');
+      if (!password) missingCreds.push('COINREMITTER_PASSWORD');
+      if (!merchantId) missingCreds.push('COINREMITTER_MERCHANT_ID');
+      throw new Error(`Missing CoinRemitter credentials: ${missingCreds.join(', ')}`);
     }
 
     // Initialize Supabase with service role for database operations
