@@ -75,7 +75,7 @@ serve(async (req) => {
                 Thank you for your interest in a personalized trading consultation. Your information has been received and processed.
               </p>
               <p style="color: #1e40af; font-weight: bold; margin: 0;">
-                Complete your Bitcoin payment to secure your 30-minute session.
+                Complete your Test Coin payment to secure your 30-minute session.
               </p>
             </div>
 
@@ -107,7 +107,7 @@ serve(async (req) => {
 
             <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 25px 0; text-align: center;">
               <h3 style="color: #92400e; margin: 0 0 10px 0;">💰 Consultation Fee: $300 USD</h3>
-              <p style="color: #92400e; margin: 0; font-size: 14px;">Payment via Bitcoin for security and privacy</p>
+              <p style="color: #92400e; margin: 0; font-size: 14px;">Payment via Test Coin for security and privacy</p>
             </div>
 
             <div style="background: #d1fae5; border-radius: 8px; padding: 20px; margin: 25px 0;">

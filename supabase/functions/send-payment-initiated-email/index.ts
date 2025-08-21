@@ -11,7 +11,7 @@ interface PaymentInitiatedRequest {
   email: string;
   name: string;
   paymentAddress: string;
-  amountBTC: number;
+  amountTCN: number;
   amountUSD: number;
   expiresAt: string;
   qrCode?: string;
@@ -26,19 +26,19 @@ serve(async (req) => {
     const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
     const requestData: PaymentInitiatedRequest = await req.json();
 
-    const formatBTC = (amount: number) => amount.toFixed(8);
+    const formatTCN = (amount: number) => amount.toFixed(8);
     const expirationTime = new Date(requestData.expiresAt).toLocaleString();
 
     await resend.emails.send({
       from: 'Mr. K Trading Arena <noreply@tradewithmrk.com>',
       to: [requestData.email],
-      subject: 'Payment Details - Complete Your Bitcoin Payment',
+      subject: 'Payment Details - Complete Your Test Coin Payment',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9fafb; padding: 20px;">
           <div style="background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
               <h1 style="color: #0369ff; margin: 0; font-size: 28px;">Payment Details Ready! 💰</h1>
-              <p style="color: #6b7280; margin: 10px 0 0 0; font-size: 16px;">Complete your Bitcoin payment to secure your consultation</p>
+              <p style="color: #6b7280; margin: 10px 0 0 0; font-size: 16px;">Complete your Test Coin payment to secure your consultation</p>
             </div>
 
             <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
@@ -57,14 +57,14 @@ serve(async (req) => {
               </div>
 
               <div style="margin-bottom: 15px;">
-                <strong style="color: #374151;">Amount (BTC):</strong>
+                <strong style="color: #374151;">Amount (TCN):</strong>
                 <div style="background: white; padding: 12px; border-radius: 6px; font-family: monospace; margin-top: 5px; word-break: break-all;">
-                  ${formatBTC(requestData.amountBTC)} BTC
+                  ${formatTCN(requestData.amountTCN)} TCN
                 </div>
               </div>
 
               <div style="margin-bottom: 15px;">
-                <strong style="color: #374151;">Bitcoin Address:</strong>
+                <strong style="color: #374151;">Test Coin Address:</strong>
                 <div style="background: white; padding: 12px; border-radius: 6px; font-family: monospace; font-size: 12px; word-break: break-all; margin-top: 5px;">
                   ${requestData.paymentAddress}
                 </div>
@@ -74,7 +74,7 @@ serve(async (req) => {
             <div style="background: #dbeafe; border: 2px solid #3b82f6; border-radius: 8px; padding: 20px; margin: 25px 0;">
               <h4 style="color: #1e40af; margin: 0 0 15px 0;">📋 Payment Instructions:</h4>
               <ol style="color: #1e40af; margin: 0; padding-left: 20px;">
-                <li style="margin-bottom: 8px;">Send exactly <strong>${formatBTC(requestData.amountBTC)} BTC</strong> to the address above</li>
+                <li style="margin-bottom: 8px;">Send exactly <strong>${formatTCN(requestData.amountTCN)} TCN</strong> to the address above</li>
                 <li style="margin-bottom: 8px;">Payment will be confirmed automatically within 10-15 minutes</li>
                 <li style="margin-bottom: 8px;">Once confirmed, you'll receive another email and can schedule your consultation</li>
                 <li style="margin-bottom: 8px;">Do not send from an exchange - use a personal wallet</li>

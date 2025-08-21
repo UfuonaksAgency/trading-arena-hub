@@ -124,7 +124,7 @@ serve(async (req) => {
                 <div style="background: #d1fae5; border: 2px solid #059669; border-radius: 8px; padding: 25px; margin: 25px 0; text-align: center;">
                   <h2 style="color: #065f46; margin: 0 0 15px 0;">Hello ${payment.consultations[0].name}!</h2>
                   <p style="color: #065f46; font-size: 16px; margin: 0 0 15px 0;">
-                    Your Bitcoin payment has been successfully confirmed and verified on the blockchain.
+                    Your Test Coin payment has been successfully confirmed and verified on the blockchain.
                   </p>
                   <p style="color: #065f46; font-size: 16px; font-weight: bold; margin: 0;">
                     You can now schedule your 30-minute trading strategy session!
@@ -136,7 +136,7 @@ serve(async (req) => {
                   <div style="display: grid; gap: 12px;">
                     <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
                       <strong style="color: #374151;">Amount:</strong>
-                      <span>${payment.amount_crypto} BTC ($300 USD)</span>
+                      <span>${payment.amount_crypto} TCN ($300 USD)</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">
                       <strong style="color: #374151;">Transaction ID:</strong>
