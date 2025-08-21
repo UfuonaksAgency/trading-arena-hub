@@ -16,7 +16,7 @@ import { Helmet } from 'react-helmet-async';
 import { ScrollReveal } from '@/hooks/useScrollReveal';
 
 // Production configuration
-const CONSULTATION_FEE_USD = 10;
+const CONSULTATION_FEE_USD = 2;
 
 // Calendly interface for TypeScript
 declare global {
