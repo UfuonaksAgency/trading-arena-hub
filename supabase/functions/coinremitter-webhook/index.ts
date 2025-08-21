@@ -12,8 +12,38 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Handle validation requests (GET or POST without body)
+  if (req.method === 'GET') {
+    console.log('Webhook validation request received');
+    return new Response('Webhook endpoint is active', { 
+      status: 200,
+      headers: corsHeaders 
+    });
+  }
+
   try {
-    const webhookData = await req.json();
+    let webhookData;
+    
+    // Try to parse JSON, handle validation requests without body
+    try {
+      const body = await req.text();
+      if (!body || body.trim() === '') {
+        console.log('Empty webhook request - likely validation');
+        return new Response('Webhook endpoint is active', { 
+          status: 200,
+          headers: corsHeaders 
+        });
+      }
+      webhookData = JSON.parse(body);
+    } catch (parseError) {
+      console.log('JSON parse error - likely validation request:', parseError);
+      return new Response('Webhook endpoint is active', { 
+        status: 200,
+        headers: corsHeaders 
+      });
+    }
+
+    console.log('Webhook data received:', webhookData);
 
     // Initialize Supabase with service role
     const supabase = createClient(
