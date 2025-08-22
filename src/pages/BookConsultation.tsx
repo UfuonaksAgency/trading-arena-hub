@@ -448,21 +448,25 @@ const BookConsultation = () => {
         });
       } else {
         console.error('❌ Payment creation failed:', data);
+        
+        // Handle specific error types with better categorization
+        const errorType = data?.error_type || data?.type || 'unknown';
         const errorMessage = data?.error || "Unknown error occurred";
-        const errorType = data?.type || "unknown";
         const errorDetails = data?.details || "";
         
         let userFriendlyMessage = "There was an issue creating your payment. Please try again.";
         
-        if (errorType === 'credentials_error') {
-          userFriendlyMessage = "Payment system is temporarily unavailable. Please contact support.";
+        if (errorType === 'api_configuration_error') {
+          userFriendlyMessage = "Payment system temporarily unavailable. Please contact support.";
         } else if (errorType === 'nowpayments_error') {
           userFriendlyMessage = "Payment provider error. Please try again in a few minutes.";
         } else if (errorType === 'database_error') {
-          userFriendlyMessage = "Database error. Please try again or contact support.";
+          userFriendlyMessage = "Database error. Please try again.";
+        } else if (errorType === 'credentials_error') {
+          userFriendlyMessage = "Payment system is temporarily unavailable. Please contact support.";
         }
         
-        throw new Error(`${errorMessage}${errorDetails ? ` (${errorDetails})` : ''}`);
+        throw new Error(userFriendlyMessage);
       }
     } catch (error: any) {
       console.error('💥 Payment creation error:', error);
@@ -492,8 +496,11 @@ const BookConsultation = () => {
     }
   };
 
-  const formatTCN = (amount: number) => {
-    return amount.toFixed(2);
+  const formatTCN = (amount: number | undefined | null) => {
+    if (amount === undefined || amount === null || isNaN(amount)) {
+      return '0.00';
+    }
+    return Number(amount).toFixed(8); // Use 8 decimals for crypto precision
   };
 
   const formatTime = (seconds: number) => {

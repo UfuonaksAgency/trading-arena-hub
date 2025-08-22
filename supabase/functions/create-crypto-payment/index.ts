@@ -35,6 +35,11 @@ async function createNOWPayment(
 ): Promise<NOWPaymentsResponse> {
   console.log('🌐 NOWPAYMENTS API CALL START');
   
+  // Validate API key format
+  if (!apiKey || apiKey.length < 10) {
+    throw new Error('Invalid NOWPayments API key format');
+  }
+  
   const paymentData = {
     price_amount: amountUSD,
     price_currency: "USD",
@@ -47,6 +52,8 @@ async function createNOWPayment(
   };
 
   console.log("Creating NOWPayments payment request...");
+  console.log("API Key length:", apiKey.length);
+  console.log("API Key first 10 chars:", apiKey.substring(0, 10) + "...");
   
   const response = await fetch('https://api.nowpayments.io/v1/payment', {
     method: 'POST',
@@ -62,13 +69,34 @@ async function createNOWPayment(
   if (!response.ok) {
     const errorText = await response.text();
     console.error("NOWPayments API error:", errorText);
-    throw new Error(`NOWPayments API error: ${errorText}`);
+    
+    // Parse error and provide specific error messages
+    try {
+      const errorData = JSON.parse(errorText);
+      if (errorData.code === 'INVALID_API_KEY') {
+        throw new Error('invalid_api_key');
+      } else if (errorData.code === 'FORBIDDEN') {
+        throw new Error('api_forbidden');
+      } else {
+        throw new Error(`nowpayments_error: ${errorData.message || errorText}`);
+      }
+    } catch (parseError) {
+      throw new Error(`nowpayments_error: ${errorText}`);
+    }
   }
 
   const paymentResponse: NOWPaymentsResponse = await response.json();
+  
+  // Validate response structure
+  if (!paymentResponse.payment_id || !paymentResponse.pay_address) {
+    console.error("Invalid NOWPayments response:", paymentResponse);
+    throw new Error('Invalid payment response from NOWPayments');
+  }
+  
   console.log("NOWPayments payment created successfully");
   console.log(`Payment ID: ${paymentResponse.payment_id}`);
   console.log(`Payment Address: ${paymentResponse.pay_address}`);
+  console.log(`Amount: ${paymentResponse.pay_amount} ${paymentResponse.pay_currency}`);
   
   return paymentResponse;
 }
@@ -208,10 +236,10 @@ const handler = async (req: Request): Promise<Response> => {
       payment: {
         id: paymentRecord.id,
         nowpayments_payment_id: paymentResponse.payment_id,
-        address: paymentResponse.pay_address,
+        payment_address: paymentResponse.pay_address, // Fixed: match frontend expectation
         coin_type: paymentResponse.pay_currency.toUpperCase(),
         amount_usd: paymentResponse.price_amount,
-        amount_crypto: paymentResponse.pay_amount,
+        amount_crypto: paymentResponse.pay_amount || 0, // Ensure not undefined
         status: paymentResponse.payment_status,
         expires_at: paymentRecord.expires_at,
         payment_url: paymentResponse.payment_url,
@@ -230,12 +258,33 @@ const handler = async (req: Request): Promise<Response> => {
     console.error('Error details:', error);
     console.error('Stack trace:', error.stack);
 
+    // Categorize errors for better frontend handling
+    let errorType = 'payment_creation_failed';
+    let statusCode = 500;
+    
+    if (error.message === 'invalid_api_key') {
+      errorType = 'api_configuration_error';
+      statusCode = 503; // Service Unavailable
+    } else if (error.message === 'api_forbidden') {
+      errorType = 'api_access_denied';
+      statusCode = 503;
+    } else if (error.message.startsWith('nowpayments_error')) {
+      errorType = 'nowpayments_error';
+      statusCode = 502; // Bad Gateway
+    } else if (error.message.includes('Database insert failed')) {
+      errorType = 'database_error';
+      statusCode = 500;
+    }
+
     return new Response(JSON.stringify({
       success: false,
       error: error.message || 'Payment creation failed',
-      details: 'Check function logs for more information'
+      error_type: errorType,
+      details: errorType === 'api_configuration_error' 
+        ? 'API configuration issue. Please check NOWPayments API key.'
+        : 'Check function logs for more information'
     }), {
-      status: 500,
+      status: statusCode,
       headers: {
         'Content-Type': 'application/json',
         ...corsHeaders,
