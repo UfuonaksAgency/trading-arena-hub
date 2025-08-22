@@ -100,66 +100,10 @@ const BookConsultation = () => {
     purpose: '',
   });
 
-  // Page refresh prevention and local storage backup
+  // Clear any old localStorage data on mount
   useEffect(() => {
-    // Save form data to localStorage whenever it changes
-    if (currentStep === 'payment' && cryptoPayment) {
-      localStorage.setItem('bookConsultation', JSON.stringify({
-        formData,
-        cryptoPayment,
-        paymentStatus,
-        consultationId,
-        currentStep,
-        timestamp: Date.now()
-      }));
-    }
-
-    // Clean up localStorage when consultation is completed
-    if (currentStep === 'schedule' && paymentStatus?.status === 'completed') {
-      localStorage.removeItem('bookConsultation');
-    }
-  }, [formData, cryptoPayment, paymentStatus, consultationId, currentStep]);
-
-  // Restore data from localStorage on component mount
-  useEffect(() => {
-    const saved = localStorage.getItem('bookConsultation');
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        // Only restore if data is less than 24 hours old
-        if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
-          setFormData(data.formData || formData);
-          setCryptoPayment(data.cryptoPayment);
-          setPaymentStatus(data.paymentStatus);
-          setConsultationId(data.consultationId);
-          if (data.currentStep === 'payment' && data.cryptoPayment) {
-            setCurrentStep('payment');
-          }
-        } else {
-          localStorage.removeItem('bookConsultation');
-        }
-      } catch (error) {
-        localStorage.removeItem('bookConsultation');
-      }
-    }
+    localStorage.removeItem('bookConsultation');
   }, []);
-
-  // Prevent page refresh/close during payment
-  useEffect(() => {
-    if (currentStep === 'payment' && cryptoPayment && paymentStatus?.status !== 'completed') {
-      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-        e.preventDefault();
-        e.returnValue = 'Your payment is in progress. Are you sure you want to leave? Your payment details will be lost.';
-        return e.returnValue;
-      };
-
-      window.addEventListener('beforeunload', handleBeforeUnload);
-
-      return () => {
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-      };
-    }
-  }, [currentStep, cryptoPayment, paymentStatus?.status]);
 
   // Scroll to top when step changes
   useEffect(() => {
@@ -889,19 +833,10 @@ const BookConsultation = () => {
                 <ScrollReveal delay={100} distance="30px" duration={600}>
                   <Card className="border-2 shadow-lg">
                     <CardContent className="space-y-6 pt-6">
-                      {/* Critical Warning Alert */}
-                      <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4">
-                        <div className="flex items-start gap-3">
-                          <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
-                          <div className="space-y-2">
-                            <h3 className="font-semibold text-destructive">⚠️ Critical: Do Not Refresh This Page</h3>
-                            <ul className="text-sm text-destructive/80 space-y-1 list-disc list-inside">
-                              <li>Your payment details will be permanently lost if you refresh</li>
-                              <li>Keep this tab open until payment is confirmed</li>
-                              <li>Use a different tab if you need to check your wallet</li>
-                            </ul>
-                          </div>
-                        </div>
+                      {/* Payment Information Header */}
+                      <div className="text-center space-y-2 mb-6">
+                        <h3 className="text-xl font-semibold">Complete Your Payment</h3>
+                        <p className="text-muted-foreground">Send the exact amount to proceed with booking</p>
                       </div>
 
                       {/* Timer and Status */}
