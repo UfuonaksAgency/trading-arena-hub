@@ -416,19 +416,25 @@ const BookConsultation = () => {
 
   const createCryptoPayment = async (consultationId: string) => {
     setIsCreatingPayment(true);
+    console.log('🚀 Creating crypto payment for consultation:', consultationId);
+    
     try {
       const { data, error } = await supabase.functions.invoke('create-crypto-payment', {
         body: { 
           consultationId,
-          amountUSD: CONSULTATION_FEE_USD
+          amountUSD: CONSULTATION_FEE_USD 
         }
       });
 
+      console.log('💡 Payment creation response:', { data, error });
+
       if (error) {
-        throw new Error(error.message || 'Failed to create payment');
+        console.error('❌ Supabase function error:', error);
+        throw new Error(`Function error: ${error.message}`);
       }
 
       if (data?.success && data?.payment) {
+        console.log('✅ Payment created successfully:', data.payment);
         setCryptoPayment(data.payment);
         setPaymentStatus({
           id: data.payment.id,
@@ -441,12 +447,28 @@ const BookConsultation = () => {
           description: "Your Test Coin payment address has been generated. Check your email for payment details.",
         });
       } else {
-        throw new Error('Invalid response from payment service');
+        console.error('❌ Payment creation failed:', data);
+        const errorMessage = data?.error || "Unknown error occurred";
+        const errorType = data?.type || "unknown";
+        const errorDetails = data?.details || "";
+        
+        let userFriendlyMessage = "There was an issue creating your payment. Please try again.";
+        
+        if (errorType === 'credentials_error') {
+          userFriendlyMessage = "Payment system is temporarily unavailable. Please contact support.";
+        } else if (errorType === 'coinremitter_error') {
+          userFriendlyMessage = "Payment provider error. Please try again in a few minutes.";
+        } else if (errorType === 'database_error') {
+          userFriendlyMessage = "Database error. Please try again or contact support.";
+        }
+        
+        throw new Error(`${errorMessage}${errorDetails ? ` (${errorDetails})` : ''}`);
       }
     } catch (error: any) {
+      console.error('💥 Payment creation error:', error);
       toast({
         title: "Payment Creation Failed",
-        description: error.message || "Failed to create payment. Please try again.",
+        description: error.message || "There was an issue creating your payment. Please try again.",
         variant: "destructive",
       });
     } finally {
