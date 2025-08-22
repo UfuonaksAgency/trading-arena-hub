@@ -59,8 +59,8 @@ const handleCalendlyMessage = (e: MessageEvent) => {
 
 interface CryptoPayment {
   id: string;
-  address: string;
-  amount_tcn: number;
+  payment_address: string;
+  amount_crypto: number;
   amount_usd: number;
   expires_at: string;
   qr_code?: string;
@@ -351,8 +351,8 @@ const BookConsultation = () => {
                   body: {
                     userEmail: formData.email,
                     userName: formData.name,
-                    paymentAddress: cryptoPayment.address,
-                    amountTCN: cryptoPayment.amount_tcn,
+                    paymentAddress: cryptoPayment.payment_address,
+                    amountCrypto: cryptoPayment.amount_crypto,
                     amountUSD: cryptoPayment.amount_usd,
                     transactionHash: data.payment.transaction_hash,
                     consultationId: consultationId || cryptoPayment.id
@@ -456,7 +456,7 @@ const BookConsultation = () => {
         
         if (errorType === 'credentials_error') {
           userFriendlyMessage = "Payment system is temporarily unavailable. Please contact support.";
-        } else if (errorType === 'coinremitter_error') {
+        } else if (errorType === 'nowpayments_error') {
           userFriendlyMessage = "Payment provider error. Please try again in a few minutes.";
         } else if (errorType === 'database_error') {
           userFriendlyMessage = "Database error. Please try again or contact support.";
@@ -872,8 +872,8 @@ const BookConsultation = () => {
                         <Coins className="h-8 w-8 text-orange-500" />
                         TCN Payment Required
                       </CardTitle>
-                      <div className="text-2xl font-bold text-accent">
-                        ${cryptoPayment.amount_usd} USD = {formatTCN(cryptoPayment.amount_tcn)} TCN
+                       <div className="text-2xl font-bold text-accent">
+                        ${cryptoPayment.amount_usd} USD = {formatTCN(cryptoPayment.amount_crypto)} TCN
                       </div>
                     </CardHeader>
                   </Card>
@@ -973,12 +973,12 @@ const BookConsultation = () => {
                               <Label className="text-sm font-semibold">Test Coin Address</Label>
                               <div className="flex gap-2">
                                 <code className="flex-1 rounded-lg bg-muted p-3 text-xs break-all font-mono">
-                                  {cryptoPayment.address}
+                                  {cryptoPayment.payment_address}
                                 </code>
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => copyToClipboard(cryptoPayment.address)}
+                                  onClick={() => copyToClipboard(cryptoPayment.payment_address)}
                                   className="shrink-0 hover:scale-105 transition-transform duration-200"
                                 >
                                   <Copy className="h-4 w-4" />
@@ -990,12 +990,12 @@ const BookConsultation = () => {
                               <Label className="text-sm font-semibold">Amount (TCN)</Label>
                               <div className="flex gap-2">
                                 <code className="flex-1 rounded-lg bg-muted p-3 text-sm font-bold font-mono">
-                                  {formatTCN(cryptoPayment.amount_tcn)}
+                                  {formatTCN(cryptoPayment.amount_crypto)}
                                 </code>
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  onClick={() => copyToClipboard(formatTCN(cryptoPayment.amount_tcn))}
+                                  onClick={() => copyToClipboard(formatTCN(cryptoPayment.amount_crypto))}
                                   className="shrink-0 hover:scale-105 transition-transform duration-200"
                                 >
                                   <Copy className="h-4 w-4" />
@@ -1020,7 +1020,7 @@ const BookConsultation = () => {
                           <ol className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
                             <li className="flex items-start gap-2">
                               <span className="font-semibold">1.</span>
-                              Send exactly <strong>{formatTCN(cryptoPayment.amount_tcn)} TCN</strong> to the address above
+                              Send exactly <strong>{formatTCN(cryptoPayment.amount_crypto)} TCN</strong> to the address above
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="font-semibold">2.</span>

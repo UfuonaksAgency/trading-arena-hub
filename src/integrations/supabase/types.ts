@@ -163,7 +163,6 @@ export type Database = {
           amount_crypto: number | null
           amount_usd: number
           coin_type: string
-          coinremitter_invoice_id: string | null
           confirmations: number | null
           consultation_id: string | null
           created_at: string
@@ -180,7 +179,6 @@ export type Database = {
           amount_crypto?: number | null
           amount_usd?: number
           coin_type?: string
-          coinremitter_invoice_id?: string | null
           confirmations?: number | null
           consultation_id?: string | null
           created_at?: string
@@ -197,7 +195,6 @@ export type Database = {
           amount_crypto?: number | null
           amount_usd?: number
           coin_type?: string
-          coinremitter_invoice_id?: string | null
           confirmations?: number | null
           consultation_id?: string | null
           created_at?: string
