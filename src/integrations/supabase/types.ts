@@ -169,6 +169,7 @@ export type Database = {
           created_at: string
           expires_at: string
           id: string
+          nowpayments_payment_id: string | null
           payment_address: string
           payment_data: Json | null
           status: string
@@ -185,6 +186,7 @@ export type Database = {
           created_at?: string
           expires_at?: string
           id?: string
+          nowpayments_payment_id?: string | null
           payment_address: string
           payment_data?: Json | null
           status?: string
@@ -201,6 +203,7 @@ export type Database = {
           created_at?: string
           expires_at?: string
           id?: string
+          nowpayments_payment_id?: string | null
           payment_address?: string
           payment_data?: Json | null
           status?: string

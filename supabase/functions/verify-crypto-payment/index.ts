@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.52.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,6 +22,8 @@ serve(async (req) => {
       throw new Error('Payment ID is required');
     }
 
+    console.log(`🔍 Verifying payment: ${paymentId}`);
+
     // Initialize Supabase with service role for database operations
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -39,6 +41,8 @@ serve(async (req) => {
       throw new Error('Payment not found');
     }
 
+    console.log(`Payment found with status: ${payment.status}`);
+
     // If already completed, return current status
     if (payment.status === 'completed') {
       return new Response(JSON.stringify({
@@ -46,8 +50,7 @@ serve(async (req) => {
         payment: {
           id: payment.id,
           status: payment.status,
-          confirmations: payment.confirmations,
-          transaction_hash: payment.transaction_hash,
+          nowpayments_payment_id: payment.nowpayments_payment_id,
         }
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -58,6 +61,7 @@ serve(async (req) => {
     const now = new Date();
     const expiresAt = new Date(payment.expires_at);
     if (now > expiresAt && payment.status === 'pending') {
+      console.log('Payment expired, updating status');
       await supabase
         .from('crypto_payments')
         .update({ status: 'expired' })
@@ -74,102 +78,99 @@ serve(async (req) => {
       });
     }
 
-    // Get CoinRemitter credentials
-    const apiKey = Deno.env.get('COINREMITTER_API_KEY');
-    const password = Deno.env.get('COINREMITTER_PASSWORD');
+    // If we have a NOWPayments payment ID, check status via API
+    if (payment.nowpayments_payment_id) {
+      const nowpaymentsApiKey = Deno.env.get('NOWPAYMENTS_API_KEY');
+      
+      if (!nowpaymentsApiKey) {
+        console.error('Missing NOWPAYMENTS_API_KEY');
+        throw new Error('Missing NOWPayments API credentials');
+      }
 
-    if (!apiKey || !password) {
-      throw new Error('Missing CoinRemitter API credentials');
-    }
+      console.log(`Checking NOWPayments API for payment: ${payment.nowpayments_payment_id}`);
 
-    // Check payment status via CoinRemitter API
-    const coinRemitterResponse = await fetch('https://coinremitter.com/api/v3/TCN/get-transaction-by-address', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        api_key: apiKey,
-        password: password,
-        address: payment.payment_address,
-      }),
-    });
-
-    const coinRemitterData = await coinRemitterResponse.json();
-    
-    if (!coinRemitterData.flag || coinRemitterData.flag !== 1) {
-      // No transactions found is normal for pending payments
-      return new Response(JSON.stringify({
-        success: true,
-        payment: {
-          id: payment.id,
-          status: payment.status,
-          confirmations: payment.confirmations,
-        }
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      // Check payment status via NOWPayments API
+      const nowPaymentsResponse = await fetch(`https://api.nowpayments.io/v1/payment/${payment.nowpayments_payment_id}`, {
+        method: 'GET',
+        headers: {
+          'x-api-key': nowpaymentsApiKey,
+        },
       });
-    }
 
-    // Check if payment is sufficient
-    const transactions = coinRemitterData.data || [];
-    let totalReceived = 0;
-    let latestTxHash = payment.transaction_hash;
-    let maxConfirmations = payment.confirmations || 0;
-
-    for (const tx of transactions) {
-      if (tx.type === 'receive') {
-        totalReceived += parseFloat(tx.amount);
-        if (tx.confirmations > maxConfirmations) {
-          maxConfirmations = tx.confirmations;
-          latestTxHash = tx.txid;
+      if (nowPaymentsResponse.ok) {
+        const nowPaymentsData = await nowPaymentsResponse.json();
+        console.log(`NOWPayments API response:`, nowPaymentsData);
+        
+        // Map NOWPayments status to our internal status
+        let newStatus = payment.status;
+        
+        switch (nowPaymentsData.payment_status) {
+          case 'finished':
+          case 'confirmed':
+            newStatus = 'completed';
+            break;
+          case 'partially_paid':
+            newStatus = 'partial';
+            break;
+          case 'failed':
+          case 'expired':
+            newStatus = 'expired';
+            break;
+          case 'waiting':
+          case 'sending':
+          default:
+            newStatus = 'pending';
+            break;
         }
+
+        // Update payment record if status changed
+        if (newStatus !== payment.status) {
+          console.log(`Updating payment status from ${payment.status} to ${newStatus}`);
+          await supabase
+            .from('crypto_payments')
+            .update({
+              status: newStatus,
+              payment_data: {
+                ...payment.payment_data,
+                last_api_check: new Date().toISOString(),
+                nowpayments_status: nowPaymentsData,
+              }
+            })
+            .eq('id', paymentId);
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          payment: {
+            id: payment.id,
+            status: newStatus,
+            nowpayments_payment_id: payment.nowpayments_payment_id,
+            nowpayments_status: nowPaymentsData.payment_status,
+            outcome_amount: nowPaymentsData.outcome_amount,
+            outcome_currency: nowPaymentsData.outcome_currency,
+          }
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } else {
+        console.error('NOWPayments API error:', nowPaymentsResponse.status);
       }
     }
 
-    let newStatus = payment.status;
-    
-    // Check if payment is complete (received >= required amount with at least 1 confirmation)
-    if (totalReceived >= payment.amount_crypto && maxConfirmations >= 1) {
-      newStatus = 'completed';
-    } else if (totalReceived > 0) {
-      newStatus = 'partial';
-    }
-
-    // Update payment record if status changed
-    if (newStatus !== payment.status || maxConfirmations !== payment.confirmations || latestTxHash !== payment.transaction_hash) {
-      await supabase
-        .from('crypto_payments')
-        .update({
-          status: newStatus,
-          confirmations: maxConfirmations,
-          transaction_hash: latestTxHash,
-          payment_data: {
-            ...payment.payment_data,
-            total_received: totalReceived,
-            last_checked: new Date().toISOString(),
-            transactions: transactions,
-          }
-        })
-        .eq('id', paymentId);
-    }
-
-
+    // Return current status if no API check was possible
     return new Response(JSON.stringify({
       success: true,
       payment: {
         id: payment.id,
-        status: newStatus,
-        confirmations: maxConfirmations,
-        transaction_hash: latestTxHash,
-        total_received: totalReceived,
-        amount_required: payment.amount_crypto,
+        status: payment.status,
+        nowpayments_payment_id: payment.nowpayments_payment_id,
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
+    console.error('Payment verification error:', error);
     return new Response(JSON.stringify({ 
       success: false,
       error: error.message 
