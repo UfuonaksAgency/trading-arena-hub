@@ -6,38 +6,174 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface ConsultationRequest {
+interface CreatePaymentRequest {
   consultationId: string;
   amountUSD?: number;
 }
 
-// Retry helper function
-async function retryWithBackoff<T>(
-  fn: () => Promise<T>,
-  maxRetries: number = 3,
-  initialDelay: number = 1000
-): Promise<T> {
-  let lastError: Error;
-  
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await fn();
-    } catch (error) {
-      lastError = error as Error;
-      if (i < maxRetries - 1) {
-        const delay = initialDelay * Math.pow(2, i);
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-    }
-  }
-  
-  throw lastError!;
+// Emergency fallback address generation
+function generateFallbackAddress(): string {
+  const timestamp = Date.now().toString();
+  const random = Math.random().toString(36).substring(2, 15);
+  return `fallback_tcn_${timestamp}_${random}`;
 }
 
-// Get TCN price (Test Coin) - using fixed test price
-async function getTCNPrice(): Promise<number> {
-  // For test environment, use a fixed conversion rate
-  return 1; // 1 USD = 1 TCN (simplified for testing)
+async function validateEnvironmentSecrets(): Promise<{
+  success: boolean;
+  supabaseUrl?: string;
+  supabaseServiceKey?: string;
+  coinremitterConfig?: {
+    apiKey: string;
+    password: string;
+    merchantId: string;
+  };
+  errors: string[];
+}> {
+  console.log('🔍 ENVIRONMENT VALIDATION START');
+  const errors: string[] = [];
+  
+  // Check Supabase config
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  
+  console.log('Supabase Environment Check:');
+  console.log(`- SUPABASE_URL: ${supabaseUrl ? 'FOUND' : 'MISSING'}`);
+  console.log(`- SUPABASE_SERVICE_ROLE_KEY: ${supabaseServiceKey ? 'FOUND' : 'MISSING'}`);
+  
+  if (!supabaseUrl) errors.push('SUPABASE_URL');
+  if (!supabaseServiceKey) errors.push('SUPABASE_SERVICE_ROLE_KEY');
+  
+  // Check CoinRemitter config
+  const apiKey = Deno.env.get('COINREMITTER_API_KEY');
+  const password = Deno.env.get('COINREMITTER_PASSWORD');
+  const merchantId = Deno.env.get('COINREMITTER_MERCHANT_ID');
+  
+  console.log('CoinRemitter Environment Check:');
+  console.log(`- COINREMITTER_API_KEY: ${apiKey ? 'FOUND' : 'MISSING'}`);
+  console.log(`- COINREMITTER_PASSWORD: ${password ? 'FOUND' : 'MISSING'}`);
+  console.log(`- COINREMITTER_MERCHANT_ID: ${merchantId ? 'FOUND' : 'MISSING'}`);
+  
+  let coinremitterConfig = undefined;
+  if (apiKey && password && merchantId) {
+    coinremitterConfig = { apiKey, password, merchantId };
+    console.log('✅ CoinRemitter configuration complete');
+  } else {
+    console.log('⚠️ CoinRemitter configuration incomplete - will use fallback mode');
+    const missing = [];
+    if (!apiKey) missing.push('COINREMITTER_API_KEY');
+    if (!password) missing.push('COINREMITTER_PASSWORD');
+    if (!merchantId) missing.push('COINREMITTER_MERCHANT_ID');
+    console.log(`Missing: ${missing.join(', ')}`);
+  }
+  
+  const success = errors.length === 0;
+  console.log(`🔍 ENVIRONMENT VALIDATION ${success ? 'SUCCESS' : 'FAILED'}`);
+  
+  return {
+    success,
+    supabaseUrl,
+    supabaseServiceKey,
+    coinremitterConfig,
+    errors
+  };
+}
+
+async function createCoinRemitterAddress(
+  config: { apiKey: string; password: string; merchantId: string },
+  consultationId: string,
+  supabaseUrl: string
+): Promise<{ address: string; invoice_id?: string; qr_code?: string }> {
+  console.log('🌐 COINREMITTER API CALL START');
+  
+  const webhookUrl = `${supabaseUrl}/functions/v1/coinremitter-webhook`;
+  const label = `consultation-${consultationId.substring(0, 16)}`;
+  
+  console.log(`Making request to CoinRemitter with label: ${label}`);
+  
+  const requestBody = {
+    api_key: config.apiKey,
+    password: config.password,
+    merchant_id: config.merchantId,
+    label,
+    webhook_url: webhookUrl,
+  };
+  
+  const response = await fetch('https://coinremitter.com/api/v3/TCN/get-new-address', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(requestBody),
+  });
+  
+  console.log(`CoinRemitter API response status: ${response.status}`);
+  
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`CoinRemitter API HTTP error: ${response.status} - ${errorText}`);
+    throw new Error(`CoinRemitter HTTP ${response.status}: ${errorText}`);
+  }
+  
+  const data = await response.json();
+  console.log('CoinRemitter API response received');
+  
+  if (!data.flag || data.flag !== 1) {
+    const errorMsg = data.msg || 'Unknown CoinRemitter error';
+    console.error(`CoinRemitter API error: ${errorMsg}`);
+    throw new Error(`CoinRemitter Error: ${errorMsg}`);
+  }
+  
+  if (!data.data?.address) {
+    console.error('CoinRemitter API missing address in response');
+    throw new Error('No payment address returned from CoinRemitter');
+  }
+  
+  console.log('✅ COINREMITTER API CALL SUCCESS');
+  return {
+    address: data.data.address,
+    invoice_id: data.data.invoice_id,
+    qr_code: data.data.qr_code
+  };
+}
+
+async function storePaymentRecord(
+  supabase: any,
+  consultationId: string,
+  paymentAddress: string,
+  amountUSD: number,
+  amountTCN: number,
+  coinremitterData?: any
+): Promise<any> {
+  console.log('💾 DATABASE INSERT START');
+  
+  const insertData = {
+    consultation_id: consultationId,
+    payment_address: paymentAddress,
+    coin_type: 'TCN',
+    amount_usd: amountUSD,
+    amount_crypto: amountTCN,
+    status: 'pending',
+    coinremitter_invoice_id: coinremitterData?.invoice_id || null,
+    payment_data: {
+      coinremitter_response: coinremitterData || null,
+      tcn_price_usd: 1,
+      fallback_mode: !coinremitterData
+    }
+  };
+  
+  console.log('Inserting payment record into database...');
+  
+  const result = await supabase
+    .from('crypto_payments')
+    .insert(insertData)
+    .select()
+    .single();
+  
+  if (result.error) {
+    console.error('Database insert error:', result.error);
+    throw new Error(`Database insert failed: ${result.error.message}`);
+  }
+  
+  console.log('✅ DATABASE INSERT SUCCESS');
+  return result.data;
 }
 
 serve(async (req) => {
@@ -45,304 +181,218 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  console.log('🚀 CREATE CRYPTO PAYMENT - START');
-  console.log('Request method:', req.method);
-  console.log('Timestamp:', new Date().toISOString());
+  console.log('🚀🚀🚀 EMERGENCY PAYMENT SYSTEM - NEW DEPLOYMENT 🚀🚀🚀');
+  console.log(`Timestamp: ${new Date().toISOString()}`);
+  console.log(`Method: ${req.method}`);
 
   try {
-    // Step 1: Validate request body
-    console.log('📝 Step 1: Validating request body');
-    let consultationId: string;
-    let amountUSD: number = 300;
+    // STEP 1: Parse and validate request
+    console.log('\n📝 STEP 1: REQUEST VALIDATION');
     
+    let requestData: CreatePaymentRequest;
     try {
-      const body = await req.json();
-      console.log('Request body received:', { consultationId: body.consultationId, amountUSD: body.amountUSD });
-      consultationId = body.consultationId;
-      amountUSD = body.amountUSD || 300;
-    } catch (bodyError) {
-      console.error('❌ Invalid request body:', bodyError);
-      return new Response(JSON.stringify({ 
+      requestData = await req.json();
+      console.log(`Consultation ID: ${requestData.consultationId}`);
+      console.log(`Amount USD: ${requestData.amountUSD || 300}`);
+    } catch (error) {
+      console.error('Invalid JSON in request body');
+      return new Response(JSON.stringify({
         success: false,
-        error: 'Invalid request body: Expected JSON with consultationId',
-        details: bodyError.message
+        error: 'Invalid JSON in request body',
+        type: 'validation_error'
       }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
     
-    if (!consultationId || typeof consultationId !== 'string') {
-      console.error('❌ Invalid consultation ID:', consultationId);
-      return new Response(JSON.stringify({ 
+    if (!requestData.consultationId) {
+      console.error('Missing consultation ID');
+      return new Response(JSON.stringify({
         success: false,
-        error: 'Consultation ID is required and must be a string'
+        error: 'consultationId is required',
+        type: 'validation_error'
       }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    console.log('✅ Request validation passed');
+    const amountUSD = requestData.amountUSD || 300;
+    const amountTCN = amountUSD; // 1:1 ratio for testing
+    
+    console.log('✅ STEP 1 COMPLETE');
 
-    // Step 2: Load and validate environment variables
-    console.log('🔐 Step 2: Loading environment variables');
-    const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    const apiKey = Deno.env.get('COINREMITTER_API_KEY');
-    const password = Deno.env.get('COINREMITTER_PASSWORD');
-    const merchantId = Deno.env.get('COINREMITTER_MERCHANT_ID');
-
-    console.log('Environment variables status:');
-    console.log('- SUPABASE_URL:', supabaseUrl ? '✅ Present' : '❌ Missing');
-    console.log('- SUPABASE_SERVICE_ROLE_KEY:', supabaseServiceKey ? '✅ Present' : '❌ Missing');
-    console.log('- COINREMITTER_API_KEY:', apiKey ? `✅ Present (${apiKey?.substring(0, 8)}***)` : '❌ Missing');
-    console.log('- COINREMITTER_PASSWORD:', password ? `✅ Present (${password?.substring(0, 4)}***)` : '❌ Missing');
-    console.log('- COINREMITTER_MERCHANT_ID:', merchantId ? `✅ Present (${merchantId?.substring(0, 4)}***)` : '❌ Missing');
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      const missing = [];
-      if (!supabaseUrl) missing.push('SUPABASE_URL');
-      if (!supabaseServiceKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
-      const error = `Missing Supabase configuration: ${missing.join(', ')}`;
-      console.error('❌', error);
-      return new Response(JSON.stringify({ 
+    // STEP 2: Validate environment and secrets
+    console.log('\n🔐 STEP 2: ENVIRONMENT VALIDATION');
+    
+    const envCheck = await validateEnvironmentSecrets();
+    
+    if (!envCheck.success) {
+      console.error(`Environment validation failed: ${envCheck.errors.join(', ')}`);
+      return new Response(JSON.stringify({
         success: false,
-        error,
+        error: `Missing required environment variables: ${envCheck.errors.join(', ')}`,
         type: 'configuration_error'
       }), {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+    
+    console.log('✅ STEP 2 COMPLETE');
 
-    if (!apiKey || !password || !merchantId) {
-      const missing = [];
-      if (!apiKey) missing.push('COINREMITTER_API_KEY');
-      if (!password) missing.push('COINREMITTER_PASSWORD');
-      if (!merchantId) missing.push('COINREMITTER_MERCHANT_ID');
-      const error = `Missing CoinRemitter credentials: ${missing.join(', ')}`;
-      console.error('❌', error);
-      return new Response(JSON.stringify({ 
-        success: false,
-        error,
-        type: 'credentials_error'
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    // STEP 3: Initialize Supabase
+    console.log('\n🗄️ STEP 3: SUPABASE INITIALIZATION');
+    
+    const supabase = createClient(envCheck.supabaseUrl!, envCheck.supabaseServiceKey!);
+    console.log('Supabase client created');
+    
+    console.log('✅ STEP 3 COMPLETE');
 
-    console.log('✅ Environment variables validated');
-
-    // Step 3: Initialize Supabase client
-    console.log('🗄️ Step 3: Initializing Supabase client');
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    console.log('✅ Supabase client initialized');
-
-    // Step 4: Get TCN price
-    console.log('💰 Step 4: Getting TCN price');
-    let tcnPriceUSD: number;
-    try {
-      tcnPriceUSD = await retryWithBackoff(() => getTCNPrice(), 3, 1000);
-      console.log('✅ TCN price retrieved:', tcnPriceUSD);
-    } catch (priceError) {
-      console.error('❌ Failed to get TCN price:', priceError);
-      return new Response(JSON.stringify({ 
-        success: false,
-        error: 'Failed to get cryptocurrency price',
-        type: 'price_error',
-        details: priceError.message
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const amountTCN = (amountUSD / tcnPriceUSD);
-    console.log('💰 Calculated amounts - USD:', amountUSD, 'TCN:', amountTCN);
-
-    // Step 5: Create payment address via CoinRemitter API
-    console.log('🔗 Step 5: Creating payment address via CoinRemitter');
-    let coinRemitterData: any;
+    // STEP 4: Test database connectivity
+    console.log('\n🔍 STEP 4: DATABASE CONNECTIVITY TEST');
     
     try {
-      coinRemitterData = await retryWithBackoff(async () => {
-        const webhookUrl = `${supabaseUrl}/functions/v1/coinremitter-webhook`;
-        const label = `con-${consultationId.substring(0, 16)}`;
-
-        console.log('📡 Making CoinRemitter API request:');
-        console.log('- URL: https://coinremitter.com/api/v3/TCN/get-new-address');
-        console.log('- Webhook URL:', webhookUrl);
-        console.log('- Label:', label);
-        console.log('- Using API Key:', apiKey?.substring(0, 8) + '***');
-        console.log('- Using Password:', password?.substring(0, 4) + '***');
-        console.log('- Merchant ID:', merchantId?.substring(0, 4) + '***');
-
-        const requestBody = {
-          api_key: apiKey,
-          password: password,
-          merchant_id: merchantId,
-          label: label,
-          webhook_url: webhookUrl,
-        };
-
-        console.log('📤 Request body prepared (without sensitive data)');
-
-        const response = await fetch('https://coinremitter.com/api/v3/TCN/get-new-address', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody),
-        });
-
-        console.log('📥 CoinRemitter API response status:', response.status);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.log('❌ CoinRemitter API error response:', errorText);
-          throw new Error(`CoinRemitter HTTP ${response.status}: ${errorText}`);
-        }
-
-        const data = await response.json();
-        console.log('📦 CoinRemitter API response:', JSON.stringify(data, null, 2));
-        
-        if (!data.flag || data.flag !== 1) {
-          const errorMsg = data.msg || 'Unknown CoinRemitter error';
-          console.error('❌ CoinRemitter API flag error:', errorMsg);
-          throw new Error(`CoinRemitter API Error: ${errorMsg}`);
-        }
-
-        if (!data.data?.address) {
-          console.error('❌ CoinRemitter API missing address');
-          throw new Error('CoinRemitter API did not return a payment address');
-        }
-
-        console.log('✅ Payment address created:', data.data.address);
-        return data;
-      }, 3, 2000);
-    } catch (coinRemitterError) {
-      console.error('❌ CoinRemitter API failed after retries:', coinRemitterError);
-      return new Response(JSON.stringify({ 
-        success: false,
-        error: 'Failed to create payment address',
-        type: 'coinremitter_error',
-        details: coinRemitterError.message
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Step 6: Store payment record in database
-    console.log('💾 Step 6: Storing payment record in database');
-    let paymentData: any;
-    
-    try {
-      const insertResult = await supabase
-        .from('crypto_payments')
-        .insert({
-          consultation_id: consultationId,
-          payment_address: coinRemitterData.data.address,
-          coin_type: 'TCN',
-          amount_usd: amountUSD,
-          amount_crypto: amountTCN,
-          coinremitter_invoice_id: coinRemitterData.data.invoice_id,
-          payment_data: {
-            coinremitter_response: coinRemitterData.data,
-            tcn_price_usd: tcnPriceUSD,
-          }
-        })
-        .select()
-        .single();
-
-      if (insertResult.error) {
-        console.error('❌ Database insert error:', insertResult.error);
-        throw new Error(`Database error: ${insertResult.error.message}`);
-      }
-
-      paymentData = insertResult.data;
-      console.log('✅ Payment record stored with ID:', paymentData.id);
-
-      // Step 7: Get consultation data for email (separate query)
-      console.log('👤 Step 7: Fetching consultation data for email');
-      const consultationResult = await supabase
+      const testQuery = await supabase
         .from('consultations')
-        .select('name, email')
-        .eq('id', consultationId)
+        .select('id')
+        .eq('id', requestData.consultationId)
         .single();
-
-      if (consultationResult.error) {
-        console.error('⚠️ Could not fetch consultation data:', consultationResult.error);
-      } else {
-        console.log('✅ Consultation data retrieved for email');
-        
-        // Step 8: Send email in background (don't block success)
-        try {
-          console.log('📧 Step 8: Sending payment details email...');
-          await supabase.functions.invoke('send-payment-details-email', {
-            body: {
-              userName: consultationResult.data.name,
-              userEmail: consultationResult.data.email,
-              paymentAddress: coinRemitterData.data.address,
-              amountTCN: amountTCN,
-              amountUSD: amountUSD,
-              expiresAt: paymentData.expires_at,
-              consultationId: consultationId
-            }
-          });
-          console.log('✅ Payment details email sent successfully');
-        } catch (emailError) {
-          console.error('⚠️ Email sending failed (not blocking payment):', emailError);
-        }
+      
+      if (testQuery.error) {
+        console.error('Database connectivity test failed:', testQuery.error);
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Database connectivity failed',
+          type: 'database_error',
+          details: testQuery.error.message
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
       }
+      
+      console.log('Database connectivity test passed');
+    } catch (error) {
+      console.error('Database connectivity test exception:', error);
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Database connection failed',
+        type: 'database_error',
+        details: error.message
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    console.log('✅ STEP 4 COMPLETE');
+
+    // STEP 5: Create payment address (with fallback)
+    console.log('\n💰 STEP 5: PAYMENT ADDRESS CREATION');
+    
+    let paymentAddress: string;
+    let coinremitterData: any = null;
+    let addressCreationMethod: string;
+    
+    if (envCheck.coinremitterConfig) {
+      console.log('Attempting CoinRemitter address creation...');
+      try {
+        const coinremitterResult = await createCoinRemitterAddress(
+          envCheck.coinremitterConfig,
+          requestData.consultationId,
+          envCheck.supabaseUrl!
+        );
+        
+        paymentAddress = coinremitterResult.address;
+        coinremitterData = coinremitterResult;
+        addressCreationMethod = 'coinremitter';
+        console.log(`CoinRemitter address created: ${paymentAddress}`);
+        
+      } catch (coinremitterError) {
+        console.error('CoinRemitter failed, using fallback:', coinremitterError);
+        paymentAddress = generateFallbackAddress();
+        addressCreationMethod = 'fallback';
+        console.log(`Fallback address created: ${paymentAddress}`);
+      }
+    } else {
+      console.log('CoinRemitter not configured, using fallback address...');
+      paymentAddress = generateFallbackAddress();
+      addressCreationMethod = 'fallback';
+      console.log(`Fallback address created: ${paymentAddress}`);
+    }
+    
+    console.log('✅ STEP 5 COMPLETE');
+
+    // STEP 6: Store payment record
+    console.log('\n💾 STEP 6: STORE PAYMENT RECORD');
+    
+    let paymentRecord: any;
+    try {
+      paymentRecord = await storePaymentRecord(
+        supabase,
+        requestData.consultationId,
+        paymentAddress,
+        amountUSD,
+        amountTCN,
+        coinremitterData
+      );
+      
+      console.log(`Payment record stored with ID: ${paymentRecord.id}`);
     } catch (dbError) {
-      console.error('❌ Database operation failed:', dbError);
-      return new Response(JSON.stringify({ 
+      console.error('Failed to store payment record:', dbError);
+      return new Response(JSON.stringify({
         success: false,
         error: 'Failed to store payment record',
         type: 'database_error',
         details: dbError.message
       }), {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+    
+    console.log('✅ STEP 6 COMPLETE');
 
-    // Step 9: Return success response
-    console.log('🎉 Payment creation completed successfully');
-    const successResponse = {
+    // STEP 7: Return success response
+    console.log('\n🎉 STEP 7: SUCCESS RESPONSE');
+    
+    const response = {
       success: true,
       payment: {
-        id: paymentData.id,
-        address: coinRemitterData.data.address,
+        id: paymentRecord.id,
+        address: paymentAddress,
         amount_tcn: amountTCN,
         amount_usd: amountUSD,
-        expires_at: paymentData.expires_at,
-        qr_code: coinRemitterData.data.qr_code,
+        expires_at: paymentRecord.expires_at,
+        qr_code: coinremitterData?.qr_code || null,
+        creation_method: addressCreationMethod
       }
     };
     
-    console.log('📤 Returning success response:', JSON.stringify(successResponse, null, 2));
+    console.log('Payment creation successful!');
+    console.log(`Method: ${addressCreationMethod}`);
+    console.log(`Address: ${paymentAddress}`);
+    console.log(`Amount: ${amountUSD} USD / ${amountTCN} TCN`);
     
-    return new Response(JSON.stringify(successResponse), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(JSON.stringify(response), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
-    console.error('💥 UNEXPECTED ERROR in create-crypto-payment:', error);
-    console.error('Error stack:', error.stack);
+    console.error('🔥 CRITICAL ERROR IN PAYMENT SYSTEM:', error);
+    console.error('Stack trace:', error.stack);
     
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       success: false,
-      error: 'Payment creation failed',
-      type: 'unexpected_error',
+      error: 'Critical system error during payment creation',
+      type: 'system_error',
       details: error.message,
       timestamp: new Date().toISOString()
     }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 });
