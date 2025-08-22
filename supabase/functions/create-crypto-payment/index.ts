@@ -102,6 +102,12 @@ serve(async (req) => {
       const webhookUrl = `${supabaseUrl}/functions/v1/coinremitter-webhook`;
       const label = `con-${consultationId.substring(0, 16)}`;
 
+      console.log('CoinRemitter API request details:');
+      console.log('- URL: https://coinremitter.com/api/v3/TCN/get-new-address');
+      console.log('- Webhook URL:', webhookUrl);
+      console.log('- Label:', label);
+      console.log('- Merchant ID (first 4 chars):', merchantId?.substring(0, 4) + '***');
+
       const response = await fetch('https://coinremitter.com/api/v3/TCN/get-new-address', {
         method: 'POST',
         headers: {
@@ -116,11 +122,16 @@ serve(async (req) => {
         }),
       });
 
+      console.log('CoinRemitter API response status:', response.status);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.log('CoinRemitter API error response:', errorText);
         throw new Error(`CoinRemitter HTTP error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('CoinRemitter API response data:', JSON.stringify(data, null, 2));
       
       if (!data.flag || data.flag !== 1) {
         throw new Error(`CoinRemitter API Error: ${data.msg || 'Failed to create payment address'}`);
@@ -161,23 +172,24 @@ serve(async (req) => {
       throw new Error('Failed to create payment record');
     }
 
-    // Send payment initiated email if consultation data is available
+    // Send payment details email if consultation data is available
     if (paymentData.consultations?.[0]?.email && paymentData.consultations?.[0]?.name) {
       try {
-        await supabase.functions.invoke('send-payment-initiated-email', {
+        await supabase.functions.invoke('send-payment-details-email', {
           body: {
-            email: paymentData.consultations[0].email,
             name: paymentData.consultations[0].name,
+            email: paymentData.consultations[0].email,
             paymentAddress: coinRemitterData.data.address,
             amountTCN: amountTCN,
             amountUSD: amountUSD,
             expiresAt: paymentData.expires_at,
-            qrCode: coinRemitterData.data.qr_code || null
+            qrCodeUrl: coinRemitterData.data.qr_code || null,
+            consultationId: consultationId
           }
         });
       } catch (emailError) {
         // Don't fail payment creation for email errors
-        console.error('Failed to send payment initiated email:', emailError);
+        console.error('Failed to send payment details email:', emailError);
       }
     }
 
