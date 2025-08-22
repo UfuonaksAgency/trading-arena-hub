@@ -436,29 +436,6 @@ const BookConsultation = () => {
           confirmations: 0,
         });
         
-        // Send payment details emails immediately
-        try {
-          await supabase.functions.invoke('send-payment-details-email', {
-            body: {
-              userEmail: formData.email,
-              userName: formData.name,
-              paymentAddress: data.payment.address,
-              amountTCN: data.payment.amount_tcn,
-              amountUSD: data.payment.amount_usd,
-              expiresAt: data.payment.expires_at,
-              consultationId: consultationId || data.payment.id
-            }
-          });
-        } catch (emailError) {
-          console.error('Failed to send payment details emails:', emailError);
-          // Don't block the UI for email failures, but inform user
-          toast({
-            title: "Payment Created (Email Warning)",
-            description: "Payment created successfully, but email notification failed. Payment details are shown below.",
-            variant: "destructive",
-          });
-        }
-        
         toast({
           title: "Payment Created! 💰",
           description: "Your Test Coin payment address has been generated. Check your email for payment details.",

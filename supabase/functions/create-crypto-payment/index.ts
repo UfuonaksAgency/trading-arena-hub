@@ -68,12 +68,14 @@ serve(async (req) => {
     const password = Deno.env.get('COINREMITTER_PASSWORD');
     const merchantId = Deno.env.get('COINREMITTER_MERCHANT_ID');
 
-    console.log('Environment variables check:');
+    console.log('=== ENVIRONMENT CHECK ===');
+    console.log('Timestamp:', new Date().toISOString());
     console.log('- SUPABASE_URL:', supabaseUrl ? 'Present' : 'Missing');
     console.log('- SUPABASE_SERVICE_ROLE_KEY:', supabaseServiceKey ? 'Present' : 'Missing');
-    console.log('- COINREMITTER_API_KEY:', apiKey ? 'Present' : 'Missing');
-    console.log('- COINREMITTER_PASSWORD:', password ? 'Present' : 'Missing');
-    console.log('- COINREMITTER_MERCHANT_ID:', merchantId ? 'Present' : 'Missing');
+    console.log('- COINREMITTER_API_KEY:', apiKey ? `Present (${apiKey?.substring(0, 8)}***)` : 'Missing');
+    console.log('- COINREMITTER_PASSWORD:', password ? `Present (${password?.substring(0, 4)}***)` : 'Missing');
+    console.log('- COINREMITTER_MERCHANT_ID:', merchantId ? `Present (${merchantId?.substring(0, 4)}***)` : 'Missing');
+    console.log('=== END ENVIRONMENT CHECK ===');
 
     if (!supabaseUrl || !supabaseServiceKey) {
       const missingSupabase = [];
