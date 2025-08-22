@@ -641,191 +641,213 @@ const BookConsultation = () => {
         {currentStep === 'form' && (
           <div className="space-y-8">
             {/* Fee Information - Prominent Display */}
-            <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/5 to-accent/5 mb-8">
-              <CardHeader className="text-center pb-3">
-                <CardTitle className="flex items-center justify-center gap-2 text-2xl">
-                  <Award className="h-6 w-6 text-primary" />
-                  Professional Trading Consultation
-                </CardTitle>
-                <div className="text-3xl font-bold text-primary mt-2">$300 USD</div>
-                <p className="text-muted-foreground mt-2">One-time fee for your 30-minute expert session</p>
-              </CardHeader>
-              <CardContent className="text-center">
-                <p className="text-sm text-muted-foreground mb-4">
-                  This investment covers a personalized consultation with our expert trader, including market analysis, 
-                  strategy development, and actionable insights tailored to your trading goals.
-                </p>
-                <div className="text-xs text-muted-foreground space-y-1">
-                  <p>• Payment via Test Coin (TCN) for testing purposes</p>
-                  <p>• Schedule immediately after payment confirmation</p>
-                  <p>• Professional guidance worth much more than the fee</p>
-                </div>
-              </CardContent>
-            </Card>
+            <ScrollReveal delay={0} distance="30px" duration={600}>
+              <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/5 to-accent/5 mb-8">
+                <CardHeader className="text-center pb-3">
+                  <CardTitle className="flex items-center justify-center gap-2 text-2xl">
+                    <Award className="h-6 w-6 text-primary" />
+                    Professional Trading Consultation
+                  </CardTitle>
+                  <div className="text-3xl font-bold text-primary mt-2">$300 USD</div>
+                  <p className="text-muted-foreground mt-2">One-time fee for your 30-minute expert session</p>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    This investment covers a personalized consultation with our expert trader, including market analysis, 
+                    strategy development, and actionable insights tailored to your trading goals.
+                  </p>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>• Payment via Test Coin (TCN) for testing purposes</p>
+                    <p>• Schedule immediately after payment confirmation</p>
+                    <p>• Professional guidance worth much more than the fee</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </ScrollReveal>
 
             {/* What You'll Get Section - Moved to Top */}
             <div className="grid md:grid-cols-2 gap-6">
-              <Card className="border-2 border-accent/20 bg-accent/5">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Target className="h-5 w-5 text-accent" />
-                    Personalized Strategy
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Get a customized trading strategy tailored specifically to your experience level, goals, and risk tolerance.</p>
-                </CardContent>
-              </Card>
+              <ScrollReveal delay={100} distance="30px" duration={600}>
+                <Card className="border-2 border-accent/20 bg-accent/5">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Target className="h-5 w-5 text-accent" />
+                      Personalized Strategy
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">Get a customized trading strategy tailored specifically to your experience level, goals, and risk tolerance.</p>
+                  </CardContent>
+                </Card>
+              </ScrollReveal>
 
-              <Card className="border-2 border-accent/20 bg-accent/5">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <MessageSquare className="h-5 w-5 text-accent" />
-                    Expert Market Analysis
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Receive professional analysis of current market conditions and opportunities you might be missing.</p>
-                </CardContent>
-              </Card>
+              <ScrollReveal delay={150} distance="30px" duration={600}>
+                <Card className="border-2 border-accent/20 bg-accent/5">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <MessageSquare className="h-5 w-5 text-accent" />
+                      Expert Market Analysis
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">Receive professional analysis of current market conditions and opportunities you might be missing.</p>
+                  </CardContent>
+                </Card>
+              </ScrollReveal>
 
-              <Card className="border-2 border-accent/20 bg-accent/5">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Calendar className="h-5 w-5 text-accent" />
-                    30-Minute Focused Session
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Intensive one-on-one consultation designed to maximize value and provide actionable insights quickly.</p>
-                </CardContent>
-              </Card>
+              <ScrollReveal delay={200} distance="30px" duration={600}>
+                <Card className="border-2 border-accent/20 bg-accent/5">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Calendar className="h-5 w-5 text-accent" />
+                      30-Minute Focused Session
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">Intensive one-on-one consultation designed to maximize value and provide actionable insights quickly.</p>
+                  </CardContent>
+                </Card>
+              </ScrollReveal>
 
-              <Card className="border-2 border-accent/20 bg-accent/5">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <CheckCircle className="h-5 w-5 text-accent" />
-                    Clear Action Plan
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Walk away with a concrete plan and next steps to immediately improve your trading performance.</p>
-                </CardContent>
-              </Card>
+              <ScrollReveal delay={250} distance="30px" duration={600}>
+                <Card className="border-2 border-accent/20 bg-accent/5">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <CheckCircle className="h-5 w-5 text-accent" />
+                      Clear Action Plan
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">Walk away with a concrete plan and next steps to immediately improve your trading performance.</p>
+                  </CardContent>
+                </Card>
+              </ScrollReveal>
             </div>
 
-            <Card className="mx-auto shadow-lg max-w-2xl">
-              <CardHeader className="text-center space-y-4 px-4 sm:px-6">
-                <CardTitle className="flex items-center justify-center gap-2 text-2xl sm:text-3xl">
-                  <User className="h-6 w-6 sm:h-8 sm:w-8 text-accent" />
-                  Your Information
-                </CardTitle>
-                <p className="text-muted-foreground text-base sm:text-lg">Tell us about yourself and your trading goals</p>
-              </CardHeader>
-              <CardContent className="space-y-6 px-4 sm:px-6">
-              <form onSubmit={handleFormSubmit} className="space-y-6">
-                <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm font-medium">Full Name *</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      placeholder="Enter your full name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                      className="h-12 text-base"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium">Email Address *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="your@email.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      required
-                      className="h-12 text-base"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="telegram" className="text-sm font-medium">Telegram Username</Label>
-                    <Input
-                      id="telegram"
-                      type="text"
-                      placeholder="@yourusername"
-                      value={formData.telegram}
-                      onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
-                      className="h-12 text-base"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="preferredTime" className="text-sm font-medium">Preferred Time Zone *</Label>
-                    <Select value={formData.preferredTime} onValueChange={(value) => setFormData({ ...formData, preferredTime: value })}>
-                      <SelectTrigger className="h-12 text-base">
-                        <SelectValue placeholder="Select your time zone" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="EST">Eastern Time (EST)</SelectItem>
-                        <SelectItem value="PST">Pacific Time (PST)</SelectItem>
-                        <SelectItem value="GMT">Greenwich Mean Time (GMT)</SelectItem>
-                        <SelectItem value="CET">Central European Time (CET)</SelectItem>
-                        <SelectItem value="JST">Japan Standard Time (JST)</SelectItem>
-                        <SelectItem value="AEST">Australian Eastern Time (AEST)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="experienceLevel" className="text-sm font-medium">Trading Experience Level *</Label>
-                  <Select value={formData.experienceLevel} onValueChange={(value) => setFormData({ ...formData, experienceLevel: value })}>
-                    <SelectTrigger className="h-12 text-base">
-                      <SelectValue placeholder="Select your experience level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="beginner">Beginner (0-1 years)</SelectItem>
-                      <SelectItem value="intermediate">Intermediate (1-3 years)</SelectItem>
-                      <SelectItem value="advanced">Advanced (3+ years)</SelectItem>
-                      <SelectItem value="professional">Professional (5+ years)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="purpose" className="text-sm font-medium">What would you like to discuss? *</Label>
-                  <Textarea
-                    id="purpose"
-                    placeholder="Describe your trading goals, challenges, or specific topics you'd like to cover during the session..."
-                    value={formData.purpose}
-                    onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
-                    required
-                    className="min-h-[120px] resize-none text-base"
-                  />
-                </div>
-
-                <Button 
-                  type="submit" 
-                  disabled={isSubmitting} 
-                  className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70"
-                >
-                  {isSubmitting ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      Submitting...
+            <ScrollReveal delay={300} distance="30px" duration={700}>
+              <Card className="mx-auto shadow-lg max-w-2xl">
+                <CardHeader className="text-center space-y-4 px-4 sm:px-6">
+                  <CardTitle className="flex items-center justify-center gap-2 text-2xl sm:text-3xl">
+                    <User className="h-6 w-6 sm:h-8 sm:w-8 text-accent" />
+                    Your Information
+                  </CardTitle>
+                  <p className="text-muted-foreground text-base sm:text-lg">Tell us about yourself and your trading goals</p>
+                </CardHeader>
+                <CardContent className="space-y-6 px-4 sm:px-6">
+                <form onSubmit={handleFormSubmit} className="space-y-6">
+                  <ScrollReveal delay={400} distance="20px" duration={500}>
+                    <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="name" className="text-sm font-medium">Full Name *</Label>
+                        <Input
+                          id="name"
+                          type="text"
+                          placeholder="Enter your full name"
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          required
+                          className="h-12 text-base"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-sm font-medium">Email Address *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="your@email.com"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          required
+                          className="h-12 text-base"
+                        />
+                      </div>
                     </div>
-                  ) : (
-                    'Continue to Payment'
-                  )}
-                </Button>
-              </form>
+                  </ScrollReveal>
 
-            </CardContent>
-          </Card>
+                  <ScrollReveal delay={450} distance="20px" duration={500}>
+                    <div className="grid gap-6 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="telegram" className="text-sm font-medium">Telegram Username</Label>
+                        <Input
+                          id="telegram"
+                          type="text"
+                          placeholder="@yourusername"
+                          value={formData.telegram}
+                          onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
+                          className="h-12 text-base"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="preferredTime" className="text-sm font-medium">Preferred Time Zone *</Label>
+                        <Select value={formData.preferredTime} onValueChange={(value) => setFormData({ ...formData, preferredTime: value })}>
+                          <SelectTrigger className="h-12 text-base">
+                            <SelectValue placeholder="Select your time zone" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="EST">Eastern Time (EST)</SelectItem>
+                            <SelectItem value="PST">Pacific Time (PST)</SelectItem>
+                            <SelectItem value="GMT">Greenwich Mean Time (GMT)</SelectItem>
+                            <SelectItem value="CET">Central European Time (CET)</SelectItem>
+                            <SelectItem value="JST">Japan Standard Time (JST)</SelectItem>
+                            <SelectItem value="AEST">Australian Eastern Time (AEST)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+
+                  <ScrollReveal delay={500} distance="20px" duration={500}>
+                    <div className="space-y-2">
+                      <Label htmlFor="experienceLevel" className="text-sm font-medium">Trading Experience Level *</Label>
+                      <Select value={formData.experienceLevel} onValueChange={(value) => setFormData({ ...formData, experienceLevel: value })}>
+                        <SelectTrigger className="h-12 text-base">
+                          <SelectValue placeholder="Select your experience level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="beginner">Beginner (0-1 years)</SelectItem>
+                          <SelectItem value="intermediate">Intermediate (1-3 years)</SelectItem>
+                          <SelectItem value="advanced">Advanced (3+ years)</SelectItem>
+                          <SelectItem value="professional">Professional (5+ years)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </ScrollReveal>
+
+                  <ScrollReveal delay={550} distance="20px" duration={500}>
+                    <div className="space-y-2">
+                      <Label htmlFor="purpose" className="text-sm font-medium">What would you like to discuss? *</Label>
+                      <Textarea
+                        id="purpose"
+                        placeholder="Describe your trading goals, challenges, or specific topics you'd like to cover during the session..."
+                        value={formData.purpose}
+                        onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
+                        required
+                        className="min-h-[120px] resize-none text-base"
+                      />
+                    </div>
+                  </ScrollReveal>
+
+                  <ScrollReveal delay={600} distance="20px" duration={600}>
+                    <Button 
+                      type="submit" 
+                      disabled={isSubmitting} 
+                      className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70 transform transition-transform duration-200 hover:scale-105"
+                    >
+                      {isSubmitting ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          Submitting...
+                        </div>
+                      ) : (
+                        'Continue to Payment'
+                      )}
+                    </Button>
+                  </ScrollReveal>
+                </form>
+
+              </CardContent>
+            </Card>
+            </ScrollReveal>
           </div>
         )}
 
@@ -843,165 +865,186 @@ const BookConsultation = () => {
                 </Card>
               </ScrollReveal>
             ) : cryptoPayment ? (
-              <Card className="border-2 shadow-lg">
-                <CardHeader className="text-center">
-                  <CardTitle className="flex items-center justify-center gap-2 text-3xl">
-                    <Coins className="h-8 w-8 text-orange-500" />
-                    TCN Payment Required
-                  </CardTitle>
-                  <div className="text-2xl font-bold text-accent">
-                    ${cryptoPayment.amount_usd} USD = {formatTCN(cryptoPayment.amount_tcn)} TCN
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Timer and Status */}
-                  <div className="space-y-4">
-                    {timeLeft > 0 && paymentStatus?.status !== 'completed' && (
-                      <div className="rounded-lg border-2 border-orange-200 bg-orange-50 p-4 text-center dark:border-orange-800 dark:bg-orange-950">
-                        <div className="flex items-center justify-center gap-2 text-orange-700 dark:text-orange-300">
-                          <Clock className="h-5 w-5" />
-                          <span className="font-medium">Payment expires in:</span>
-                        </div>
-                        <div className="mt-2 text-3xl font-bold text-orange-600 dark:text-orange-400">
-                          {formatTime(timeLeft)}
-                        </div>
+              <div className="space-y-6">
+                <ScrollReveal delay={0} distance="30px" duration={600}>
+                  <Card className="border-2 shadow-lg">
+                    <CardHeader className="text-center">
+                      <CardTitle className="flex items-center justify-center gap-2 text-3xl">
+                        <Coins className="h-8 w-8 text-orange-500" />
+                        TCN Payment Required
+                      </CardTitle>
+                      <div className="text-2xl font-bold text-accent">
+                        ${cryptoPayment.amount_usd} USD = {formatTCN(cryptoPayment.amount_tcn)} TCN
                       </div>
-                    )}
+                    </CardHeader>
+                  </Card>
+                </ScrollReveal>
 
-                    {/* Payment Status */}
-                    <div className="rounded-lg border-2 p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {getStatusIcon(paymentStatus?.status || 'pending')}
-                          <div>
-                            <span className="font-semibold">
-                              Status: <span className={getStatusColor(paymentStatus?.status || 'pending')}>
-                                {paymentStatus?.status?.charAt(0).toUpperCase() + paymentStatus?.status?.slice(1) || 'Pending'}
-                              </span>
-                            </span>
-                            <div className="text-sm text-muted-foreground">
-                              Confirmations: {paymentStatus?.confirmations || 0}/1 required
+                <ScrollReveal delay={100} distance="30px" duration={600}>
+                  <Card className="border-2 shadow-lg">
+                    <CardContent className="space-y-6 pt-6">
+                      {/* Timer and Status */}
+                      <div className="space-y-4">
+                        {timeLeft > 0 && paymentStatus?.status !== 'completed' && (
+                          <ScrollReveal delay={150} distance="20px" duration={500}>
+                            <div className="rounded-lg border-2 border-orange-200 bg-orange-50 p-4 text-center dark:border-orange-800 dark:bg-orange-950">
+                              <div className="flex items-center justify-center gap-2 text-orange-700 dark:text-orange-300">
+                                <Clock className="h-5 w-5" />
+                                <span className="font-medium">Payment expires in:</span>
+                              </div>
+                              <div className="mt-2 text-3xl font-bold text-orange-600 dark:text-orange-400">
+                                {formatTime(timeLeft)}
+                              </div>
+                            </div>
+                          </ScrollReveal>
+                        )}
+
+                        {/* Payment Status */}
+                        <ScrollReveal delay={200} distance="20px" duration={500}>
+                          <div className="rounded-lg border-2 p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                {getStatusIcon(paymentStatus?.status || 'pending')}
+                                <div>
+                                  <span className="font-semibold">
+                                    Status: <span className={getStatusColor(paymentStatus?.status || 'pending')}>
+                                      {paymentStatus?.status?.charAt(0).toUpperCase() + paymentStatus?.status?.slice(1) || 'Pending'}
+                                    </span>
+                                  </span>
+                                  <div className="text-sm text-muted-foreground">
+                                    Confirmations: {paymentStatus?.confirmations || 0}/1 required
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {paymentStatus?.amount_received && (
+                              <div className="mt-2 text-sm text-muted-foreground">
+                                Received: {formatTCN(paymentStatus.amount_received)} TCN
+                              </div>
+                            )}
+                          </div>
+                        </ScrollReveal>
+                      </div>
+
+                      {/* Payment Details Grid */}
+                      <div className="grid gap-6 lg:grid-cols-2">
+                        {/* QR Code */}
+                        <ScrollReveal delay={250} distance="30px" duration={600}>
+                          <div className="flex flex-col items-center space-y-4">
+                            <div className="flex items-center gap-2 text-lg font-semibold">
+                              <QrCode className="h-5 w-5" />
+                              Scan to Pay
+                            </div>
+                            {cryptoPayment.qr_code ? (
+                              <div className="rounded-lg border-2 p-4 bg-white">
+                                <img 
+                                  src={cryptoPayment.qr_code} 
+                                  alt="Test Coin Payment QR Code"
+                                  className="h-48 w-48 object-contain"
+                                />
+                              </div>
+                            ) : (
+                              <div className="flex h-48 w-48 items-center justify-center rounded-lg border-2 bg-muted">
+                                <p className="text-center text-sm text-muted-foreground">QR Code not available</p>
+                              </div>
+                            )}
+                          </div>
+                        </ScrollReveal>
+
+                        {/* Payment Information */}
+                        <ScrollReveal delay={300} distance="30px" duration={600}>
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label className="text-sm font-semibold">Test Coin Address</Label>
+                              <div className="flex gap-2">
+                                <code className="flex-1 rounded-lg bg-muted p-3 text-xs break-all font-mono">
+                                  {cryptoPayment.address}
+                                </code>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => copyToClipboard(cryptoPayment.address)}
+                                  className="shrink-0 hover:scale-105 transition-transform duration-200"
+                                >
+                                  <Copy className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-sm font-semibold">Amount (TCN)</Label>
+                              <div className="flex gap-2">
+                                <code className="flex-1 rounded-lg bg-muted p-3 text-sm font-bold font-mono">
+                                  {formatTCN(cryptoPayment.amount_tcn)}
+                                </code>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => copyToClipboard(formatTCN(cryptoPayment.amount_tcn))}
+                                  className="shrink-0 hover:scale-105 transition-transform duration-200"
+                                >
+                                  <Copy className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-sm font-semibold">Amount (USD)</Label>
+                              <div className="rounded-lg bg-muted p-3">
+                                <span className="text-lg font-bold">${cryptoPayment.amount_usd}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        </ScrollReveal>
                       </div>
-                      
-                      {paymentStatus?.amount_received && (
-                        <div className="mt-2 text-sm text-muted-foreground">
-                          Received: {formatTCN(paymentStatus.amount_received)} TCN
+
+                      {/* Instructions */}
+                      <ScrollReveal delay={350} distance="30px" duration={600}>
+                        <div className="rounded-lg border-2 border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-950">
+                          <h4 className="mb-3 font-semibold text-blue-900 dark:text-blue-100">Payment Instructions:</h4>
+                          <ol className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
+                            <li className="flex items-start gap-2">
+                              <span className="font-semibold">1.</span>
+                              Send exactly <strong>{formatTCN(cryptoPayment.amount_tcn)} TCN</strong> to the address above
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="font-semibold">2.</span>
+                              Payment will be confirmed automatically within 10-15 minutes
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="font-semibold">3.</span>
+                              Once confirmed, you'll be able to schedule your consultation
+                            </li>
+                          </ol>
                         </div>
+                      </ScrollReveal>
+
+                      {/* Success State */}
+                      {paymentStatus?.status === 'completed' && (
+                        <ScrollReveal delay={400} distance="30px" duration={700}>
+                          <div className="rounded-lg border-2 border-green-200 bg-green-50 p-6 text-center dark:border-green-800 dark:bg-green-950">
+                            <CheckCircle className="mx-auto h-16 w-16 text-green-600 dark:text-green-400" />
+                            <h3 className="mt-4 text-2xl font-bold text-green-900 dark:text-green-100">
+                              Payment Confirmed! 🎉
+                            </h3>
+                            <p className="mt-2 text-green-800 dark:text-green-200">
+                              Your payment has been verified. You can now schedule your consultation.
+                            </p>
+                            <Button 
+                              onClick={() => setCurrentStep('schedule')}
+                              className="mt-6 bg-green-600 hover:bg-green-700 text-white hover:scale-105 transition-transform duration-200"
+                              size="lg"
+                            >
+                              Schedule Your Session
+                            </Button>
+                          </div>
+                        </ScrollReveal>
                       )}
-                    </div>
-                  </div>
-
-                  {/* Payment Details Grid */}
-                  <div className="grid gap-6 lg:grid-cols-2">
-                    {/* QR Code */}
-                    <div className="flex flex-col items-center space-y-4">
-                      <div className="flex items-center gap-2 text-lg font-semibold">
-                        <QrCode className="h-5 w-5" />
-                        Scan to Pay
-                      </div>
-                      {cryptoPayment.qr_code ? (
-                        <div className="rounded-lg border-2 p-4 bg-white">
-                          <img 
-                            src={cryptoPayment.qr_code} 
-                            alt="Test Coin Payment QR Code"
-                            className="h-48 w-48 object-contain"
-                          />
-                        </div>
-                      ) : (
-                        <div className="flex h-48 w-48 items-center justify-center rounded-lg border-2 bg-muted">
-                          <p className="text-center text-sm text-muted-foreground">QR Code not available</p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Payment Information */}
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-semibold">Test Coin Address</Label>
-                        <div className="flex gap-2">
-                          <code className="flex-1 rounded-lg bg-muted p-3 text-xs break-all font-mono">
-                            {cryptoPayment.address}
-                          </code>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => copyToClipboard(cryptoPayment.address)}
-                            className="shrink-0"
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label className="text-sm font-semibold">Amount (TCN)</Label>
-                        <div className="flex gap-2">
-                          <code className="flex-1 rounded-lg bg-muted p-3 text-sm font-bold font-mono">
-                            {formatTCN(cryptoPayment.amount_tcn)}
-                          </code>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => copyToClipboard(formatTCN(cryptoPayment.amount_tcn))}
-                            className="shrink-0"
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label className="text-sm font-semibold">Amount (USD)</Label>
-                        <div className="rounded-lg bg-muted p-3">
-                          <span className="text-lg font-bold">${cryptoPayment.amount_usd}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Instructions */}
-                  <div className="rounded-lg border-2 border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-950">
-                    <h4 className="mb-3 font-semibold text-blue-900 dark:text-blue-100">Payment Instructions:</h4>
-                    <ol className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
-                      <li className="flex items-start gap-2">
-                        <span className="font-semibold">1.</span>
-                        Send exactly <strong>{formatTCN(cryptoPayment.amount_tcn)} TCN</strong> to the address above
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="font-semibold">2.</span>
-                        Payment will be confirmed automatically within 10-15 minutes
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="font-semibold">3.</span>
-                        Once confirmed, you'll be able to schedule your consultation
-                      </li>
-                    </ol>
-                  </div>
-
-                  {/* Success State */}
-                  {paymentStatus?.status === 'completed' && (
-                    <div className="rounded-lg border-2 border-green-200 bg-green-50 p-6 text-center dark:border-green-800 dark:bg-green-950">
-                      <CheckCircle className="mx-auto h-16 w-16 text-green-600 dark:text-green-400" />
-                      <h3 className="mt-4 text-2xl font-bold text-green-900 dark:text-green-100">
-                        Payment Confirmed! 🎉
-                      </h3>
-                      <p className="mt-2 text-green-800 dark:text-green-200">
-                        Your payment has been verified. You can now schedule your consultation.
-                      </p>
-                      <Button 
-                        onClick={() => setCurrentStep('schedule')}
-                        className="mt-6 bg-green-600 hover:bg-green-700 text-white"
-                        size="lg"
-                      >
-                        Schedule Your Session
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                    </CardContent>
+                  </Card>
+                </ScrollReveal>
+              </div>
             ) : (
               <ScrollReveal>
                 <Card className="border-2 border-red-200 shadow-lg">
@@ -1045,28 +1088,30 @@ const BookConsultation = () => {
             </ScrollReveal>
 
             {/* Session Details Card */}
-            <Card className="mx-4 sm:mx-auto sm:max-w-md">
-              <CardContent className="p-4 sm:p-6">
-                <h3 className="mb-3 sm:mb-4 text-lg sm:text-xl font-semibold text-center">Session Details</h3>
-                <div className="space-y-2 sm:space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Duration:</span>
-                    <span>30 minutes</span>
+            <ScrollReveal delay={100} distance="30px" duration={600}>
+              <Card className="mx-4 sm:mx-auto sm:max-w-md">
+                <CardContent className="p-4 sm:p-6">
+                  <h3 className="mb-3 sm:mb-4 text-lg sm:text-xl font-semibold text-center">Session Details</h3>
+                  <div className="space-y-2 sm:space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="font-medium">Duration:</span>
+                      <span>30 minutes</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Format:</span>
+                      <span>Video call</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium">Price:</span>
+                      <span className="text-green-600 font-semibold">Paid ✓</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Format:</span>
-                    <span>Video call</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Price:</span>
-                    <span className="text-green-600 font-semibold">Paid ✓</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </ScrollReveal>
 
             {/* Main Scheduling Action */}
-            <ScrollReveal delay={100}>
+            <ScrollReveal delay={150} distance="30px" duration={700}>
               <Card className="text-center shadow-lg mx-4 sm:mx-0">
                 <CardContent className="p-6 sm:p-8 lg:p-12">
                   <div className="space-y-4 sm:space-y-6">
@@ -1089,7 +1134,7 @@ const BookConsultation = () => {
                         <Button
                           onClick={handleScheduleClick}
                           disabled={isCalendlyLoading || !isCalendlyLoaded}
-                          className="w-full max-w-md h-14 text-lg font-semibold"
+                          className="w-full max-w-md h-14 text-lg font-semibold hover:scale-105 transition-transform duration-200"
                           size="lg"
                         >
                           {isCalendlyLoading ? (
@@ -1116,26 +1161,28 @@ const BookConsultation = () => {
 
                     {/* Booking Confirmation - Appears after actual booking */}
                     {hasBookedAppointment && (
-                      <Card className="bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800 mt-6">
-                        <CardContent className="p-6">
-                          <div className="text-center space-y-4">
-                            <div className="flex justify-center">
-                              <CheckCircle className="h-16 w-16 text-green-600 dark:text-green-400" />
+                      <ScrollReveal delay={200} distance="20px" duration={600}>
+                        <Card className="bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800 mt-6">
+                          <CardContent className="p-6">
+                            <div className="text-center space-y-4">
+                              <div className="flex justify-center">
+                                <CheckCircle className="h-16 w-16 text-green-600 dark:text-green-400" />
+                              </div>
+                              <h4 className="text-2xl font-bold text-green-900 dark:text-green-100">
+                                🎉 Appointment Successfully Booked!
+                              </h4>
+                              <p className="text-green-800 dark:text-green-200">
+                                Thank you! Your consultation has been scheduled. You'll receive a confirmation email with all the details shortly.
+                              </p>
+                              <div className="text-sm text-green-700 dark:text-green-300 space-y-1">
+                                <p>• Check your email for the meeting link</p>
+                                <p>• Add the event to your calendar</p>
+                                <p>• Prepare any questions you'd like to discuss</p>
+                              </div>
                             </div>
-                            <h4 className="text-2xl font-bold text-green-900 dark:text-green-100">
-                              🎉 Appointment Successfully Booked!
-                            </h4>
-                            <p className="text-green-800 dark:text-green-200">
-                              Thank you! Your consultation has been scheduled. You'll receive a confirmation email with all the details shortly.
-                            </p>
-                            <div className="text-sm text-green-700 dark:text-green-300 space-y-1">
-                              <p>• Check your email for the meeting link</p>
-                              <p>• Add the event to your calendar</p>
-                              <p>• Prepare any questions you'd like to discuss</p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                          </CardContent>
+                        </Card>
+                      </ScrollReveal>
                     )}
 
                     {isScheduleClicked && (
@@ -1149,7 +1196,7 @@ const BookConsultation = () => {
             </ScrollReveal>
 
             {/* Alternative Contact Information */}
-            <ScrollReveal delay={200}>
+            <ScrollReveal delay={250} distance="30px" duration={600}>
               <Card className="bg-muted/50 mx-4 sm:mx-0">
                 <CardContent className="p-4 sm:p-6 text-center">
                   <h4 className="font-semibold mb-2 text-sm sm:text-base">Having Issues?</h4>
@@ -1157,29 +1204,29 @@ const BookConsultation = () => {
                     If you have any trouble scheduling, feel free to reach out directly:
                   </p>
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
-                     <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm">
+                     <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm hover:scale-105 transition-transform duration-200">
                        <a href="mailto:support@tradewithmrk.com" className="inline-flex items-center gap-2">
                          <Mail className="h-4 w-4" />
                          Email Support
                        </a>
                      </Button>
-                     <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm">
+                     <Button variant="outline" size="sm" asChild className="min-h-[44px] text-sm hover:scale-105 transition-transform duration-200">
                        <a href="https://t.me/Mrk_trading" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
                          <MessageSquare className="h-4 w-4" />
                          Telegram
                        </a>
                      </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </ScrollReveal>
-          </div>
-        )}
-      </div>
-      </div>
-      <Footer />
-    </div>
-  );
-};
+                   </div>
+                 </CardContent>
+               </Card>
+             </ScrollReveal>
+           </div>
+         )}
+       </div>
+       </div>
+       <Footer />
+     </div>
+   );
+ };
 
 export default BookConsultation;
