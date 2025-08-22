@@ -177,22 +177,26 @@ serve(async (req) => {
     // Send payment details email if consultation data is available
     if (paymentData.consultations?.[0]?.email && paymentData.consultations?.[0]?.name) {
       try {
+        console.log('📧 Sending payment details email...');
         await supabase.functions.invoke('send-payment-details-email', {
           body: {
-            name: paymentData.consultations[0].name,
-            email: paymentData.consultations[0].email,
+            userName: paymentData.consultations[0].name,
+            userEmail: paymentData.consultations[0].email,
             paymentAddress: coinRemitterData.data.address,
             amountTCN: amountTCN,
             amountUSD: amountUSD,
             expiresAt: paymentData.expires_at,
-            qrCodeUrl: coinRemitterData.data.qr_code || null,
             consultationId: consultationId
           }
         });
+        console.log('✅ Payment details email sent successfully');
       } catch (emailError) {
         // Don't fail payment creation for email errors
-        console.error('Failed to send payment details email:', emailError);
+        console.error('❌ Failed to send payment details email:', emailError);
+        // Email failure is logged but doesn't block payment success
       }
+    } else {
+      console.log('⚠️ No consultation data available for email sending');
     }
 
     return new Response(JSON.stringify({

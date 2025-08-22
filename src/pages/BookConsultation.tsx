@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Copy, Clock, CheckCircle, AlertCircle, Coins, QrCode, Calendar, User, Mail, MessageSquare, Target, Award, Loader2 } from 'lucide-react';
+import { Copy, Clock, CheckCircle, AlertCircle, Coins, QrCode, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, AlertTriangle } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 
 import { ScrollReveal } from '@/hooks/useScrollReveal';
@@ -860,6 +860,21 @@ const BookConsultation = () => {
                 <ScrollReveal delay={100} distance="30px" duration={600}>
                   <Card className="border-2 shadow-lg">
                     <CardContent className="space-y-6 pt-6">
+                      {/* Critical Warning Alert */}
+                      <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                          <AlertTriangle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                          <div className="space-y-2">
+                            <h3 className="font-semibold text-destructive">⚠️ Critical: Do Not Refresh This Page</h3>
+                            <ul className="text-sm text-destructive/80 space-y-1 list-disc list-inside">
+                              <li>Your payment details will be permanently lost if you refresh</li>
+                              <li>Keep this tab open until payment is confirmed</li>
+                              <li>Use a different tab if you need to check your wallet</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
                       {/* Timer and Status */}
                       <div className="space-y-4">
                         {timeLeft > 0 && paymentStatus?.status !== 'completed' && (
