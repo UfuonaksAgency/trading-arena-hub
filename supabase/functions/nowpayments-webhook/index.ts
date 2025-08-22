@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.52.0";
 import { Resend } from "npm:resend@2.0.0";
-import { createHmac } from "https://deno.land/std@0.190.0/node/crypto.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,11 +21,21 @@ interface NOWPaymentsWebhook {
   outcome_currency: string;
 }
 
-function verifyIPNSignature(payload: string, signature: string, secret: string): boolean {
+async function verifyIPNSignature(payload: string, signature: string, secret: string): Promise<boolean> {
   try {
-    const expectedSignature = createHmac('sha512', secret)
-      .update(payload)
-      .digest('hex');
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(secret),
+      { name: 'HMAC', hash: 'SHA-512' },
+      false,
+      ['sign']
+    );
+    
+    const hmacBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
+    const expectedSignature = Array.from(new Uint8Array(hmacBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
     
     return signature === expectedSignature;
   } catch (error) {
@@ -68,7 +77,7 @@ serve(async (req) => {
     
     if (ipnSecret && signature) {
       console.log('Verifying IPN signature...');
-      if (!verifyIPNSignature(rawBody, signature, ipnSecret)) {
+      if (!(await verifyIPNSignature(rawBody, signature, ipnSecret))) {
         console.error('IPN signature verification failed');
         return new Response('Invalid signature', { status: 401 });
       }
