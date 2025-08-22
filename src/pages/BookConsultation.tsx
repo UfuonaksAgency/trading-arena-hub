@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Copy, Clock, CheckCircle, AlertCircle, Coins, QrCode, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, AlertTriangle } from 'lucide-react';
+import { Coins, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, CheckCircle } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 
 import { ScrollReveal } from '@/hooks/useScrollReveal';
@@ -57,32 +57,11 @@ const handleCalendlyMessage = (e: MessageEvent) => {
   }
 };
 
-interface CryptoPayment {
-  id: string;
-  payment_address: string;
-  amount_crypto: number;
-  amount_usd: number;
-  expires_at: string;
-  qr_code?: string;
-}
-
-interface PaymentStatus {
-  id: string;
-  status: 'pending' | 'partial' | 'completed' | 'expired';
-  confirmations: number;
-  amount_received?: number;
-  transaction_hash?: string;
-}
 
 const BookConsultation = () => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState<'form' | 'payment' | 'schedule'>('form');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [cryptoPayment, setCryptoPayment] = useState<CryptoPayment | null>(null);
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null);
-  const [timeLeft, setTimeLeft] = useState<number>(0);
-  const [showCalendly, setShowCalendly] = useState(false);
-  const [isCreatingPayment, setIsCreatingPayment] = useState(false);
   const [isScheduleClicked, setIsScheduleClicked] = useState(false);
   const [hasBookedAppointment, setHasBookedAppointment] = useState(false);
   const [isCalendlyLoading, setIsCalendlyLoading] = useState(false);
@@ -187,13 +166,6 @@ const BookConsultation = () => {
     };
   }, [toast]);
 
-  // Initialize Calendly when payment is confirmed
-  useEffect(() => {
-    if (paymentStatus?.status === 'completed' && !showCalendly) {
-      setShowCalendly(true);
-      setCurrentStep('schedule');
-    }
-  }, [paymentStatus?.status, showCalendly]);
 
   // Initialize Calendly widget when schedule step is reached
   useEffect(() => {
@@ -248,80 +220,6 @@ const BookConsultation = () => {
     }
   }, [currentStep, formData.name, formData.email]);
 
-  // Payment expiration timer
-  useEffect(() => {
-    if (!cryptoPayment?.expires_at) return;
-
-    const updateTimer = () => {
-      const now = new Date().getTime();
-      const expiry = new Date(cryptoPayment.expires_at).getTime();
-      const difference = expiry - now;
-
-      if (difference > 0) {
-        setTimeLeft(Math.floor(difference / 1000));
-      } else {
-        setTimeLeft(0);
-        setPaymentStatus(prev => prev ? { ...prev, status: 'expired' } : null);
-      }
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [cryptoPayment?.expires_at]);
-
-  // Check payment status periodically
-  useEffect(() => {
-    if (!cryptoPayment?.id || paymentStatus?.status === 'completed') return;
-
-    {
-      const checkStatus = async () => {
-        try {
-          const { data, error } = await supabase.functions.invoke('verify-crypto-payment', {
-            body: { paymentId: cryptoPayment.id }
-          });
-
-          if (error) {
-            return;
-          }
-
-          if (data?.success && data?.payment) {
-            setPaymentStatus(data.payment);
-            
-            if (data.payment.status === 'completed') {
-              // Send payment success emails
-              try {
-                await supabase.functions.invoke('send-payment-success-email', {
-                  body: {
-                    userEmail: formData.email,
-                    userName: formData.name,
-                    paymentAddress: cryptoPayment.payment_address,
-                    amountCrypto: cryptoPayment.amount_crypto,
-                    amountUSD: cryptoPayment.amount_usd,
-                    transactionHash: data.payment.transaction_hash,
-                    consultationId: consultationId || cryptoPayment.id
-                  }
-                });
-              } catch (emailError) {
-                console.error('Failed to send payment success emails:', emailError);
-                // Don't block the UI for email failures
-              }
-
-              toast({
-                title: "Payment Confirmed! 🎉",
-                description: "Your payment has been verified. You can now schedule your consultation.",
-              });
-            }
-          }
-        } catch (error) {
-          // Silent error handling for payment status checks
-        }
-      };
-
-      const interval = setInterval(checkStatus, 10000); // Check every 10 seconds
-      return () => clearInterval(interval);
-    }
-  }, [cryptoPayment?.id, paymentStatus?.status, toast]);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -338,7 +236,6 @@ const BookConsultation = () => {
 
       if (data?.success && data?.consultationId) {
         setConsultationId(data.consultationId);
-        await createCryptoPayment(data.consultationId);
         setCurrentStep('payment');
         toast({
           title: "Form Submitted Successfully! ✅",
@@ -358,119 +255,6 @@ const BookConsultation = () => {
     }
   };
 
-  const createCryptoPayment = async (consultationId: string) => {
-    setIsCreatingPayment(true);
-    console.log('🚀 Creating crypto payment for consultation:', consultationId);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('create-crypto-payment', {
-        body: { 
-          consultationId,
-          amountUSD: CONSULTATION_FEE_USD 
-        }
-      });
-
-      console.log('💡 Payment creation response:', { data, error });
-
-      if (error) {
-        console.error('❌ Supabase function error:', error);
-        throw new Error(`Function error: ${error.message}`);
-      }
-
-      if (data?.success && data?.payment) {
-        console.log('✅ Payment created successfully:', data.payment);
-        setCryptoPayment(data.payment);
-        setPaymentStatus({
-          id: data.payment.id,
-          status: 'pending',
-          confirmations: 0,
-        });
-        
-        toast({
-          title: "Payment Created! 💰",
-          description: "Your Test Coin payment address has been generated. Check your email for payment details.",
-        });
-      } else {
-        console.error('❌ Payment creation failed:', data);
-        
-        // Handle specific error types with better categorization
-        const errorType = data?.error_type || data?.type || 'unknown';
-        const errorMessage = data?.error || "Unknown error occurred";
-        const errorDetails = data?.details || "";
-        
-        let userFriendlyMessage = "There was an issue creating your payment. Please try again.";
-        
-        if (errorType === 'api_configuration_error') {
-          userFriendlyMessage = "Payment system temporarily unavailable. Please contact support.";
-        } else if (errorType === 'nowpayments_error') {
-          userFriendlyMessage = "Payment provider error. Please try again in a few minutes.";
-        } else if (errorType === 'database_error') {
-          userFriendlyMessage = "Database error. Please try again.";
-        } else if (errorType === 'credentials_error') {
-          userFriendlyMessage = "Payment system is temporarily unavailable. Please contact support.";
-        }
-        
-        throw new Error(userFriendlyMessage);
-      }
-    } catch (error: any) {
-      console.error('💥 Payment creation error:', error);
-      toast({
-        title: "Payment Creation Failed",
-        description: error.message || "There was an issue creating your payment. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsCreatingPayment(false);
-    }
-  };
-
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast({
-        title: "Copied! 📋",
-        description: "Address copied to clipboard",
-      });
-    } catch (error) {
-      toast({
-        title: "Copy Failed",
-        description: "Please copy the address manually",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const formatTCN = (amount: number | undefined | null) => {
-    if (amount === undefined || amount === null || isNaN(amount)) {
-      return '0.00';
-    }
-    return Number(amount).toFixed(8); // Use 8 decimals for crypto precision
-  };
-
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'text-green-600 dark:text-green-400';
-      case 'partial': return 'text-yellow-600 dark:text-yellow-400';
-      case 'expired': return 'text-red-600 dark:text-red-400';
-      default: return 'text-blue-600 dark:text-blue-400';
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed': return <CheckCircle className="h-5 w-5 text-green-600" />;
-      case 'partial': return <Clock className="h-5 w-5 text-yellow-600" />;
-      case 'expired': return <AlertCircle className="h-5 w-5 text-red-600" />;
-      default: return <Clock className="h-5 w-5 text-blue-600" />;
-    }
-  };
 
   const handleScheduleClick = () => {
     if (!window.Calendly || !isCalendlyLoaded) {
@@ -519,12 +303,12 @@ const BookConsultation = () => {
   return ( 
     <div>
       <Helmet>
-        <title>Book Trading Consultation - $300 TCN Payment | Mr. K Trading Arena</title>
+        <title>Book Trading Consultation - $300 Crypto Payment | Mr. K Trading Arena</title>
         <meta name="description" content="Book a 30-minute personalized trading consultation with professional crypto trader Mr. K for $300 USD. Expert market analysis, strategy development, and actionable trading insights." />
-        <meta name="keywords" content="trading consultation, crypto trading advice, test payment, trading strategy, market analysis, professional trader" />
+        <meta name="keywords" content="trading consultation, crypto trading advice, cryptocurrency payment, trading strategy, market analysis, professional trader" />
         <link rel="canonical" href="https://tradewithmrk.com/book-consultation" />
         <meta property="og:title" content="Book Trading Consultation - Professional Crypto Trading Guidance" />
-        <meta property="og:description" content="Get personalized trading advice from expert trader Mr. K. 30-minute consultation for $300 USD with test payment." />
+        <meta property="og:description" content="Get personalized trading advice from expert trader Mr. K. 30-minute consultation for $300 USD with cryptocurrency payment." />
         <meta property="og:url" content="https://tradewithmrk.com/book-consultation" />
         <meta property="og:type" content="website" />
       </Helmet>
@@ -607,7 +391,7 @@ const BookConsultation = () => {
                     strategy development, and actionable insights tailored to your trading goals.
                   </p>
                   <div className="text-xs text-muted-foreground space-y-1">
-                    <p>• Payment via Test Coin (TCN) for testing purposes</p>
+                    <p>• Payment via cryptocurrency for secure processing</p>
                     <p>• Schedule immediately after payment confirmation</p>
                     <p>• Professional guidance worth much more than the fee</p>
                   </div>
@@ -804,221 +588,67 @@ const BookConsultation = () => {
         {/* Step 2: Payment */}
         {currentStep === 'payment' && (
           <div className="space-y-6">
-            {isCreatingPayment ? (
-              <ScrollReveal>
-                <Card className="border-2 shadow-lg">
-                  <CardContent className="flex flex-col items-center justify-center py-12">
-                    <Loader2 className="h-12 w-12 animate-spin text-accent" />
-                    <h3 className="mt-4 text-xl font-semibold">Creating Payment Address...</h3>
-                    <p className="text-muted-foreground">Please wait while we set up your TCN payment</p>
-                  </CardContent>
-                </Card>
-              </ScrollReveal>
-            ) : cryptoPayment ? (
-              <div className="space-y-6">
-                <ScrollReveal delay={0} distance="30px" duration={600}>
-                  <Card className="border-2 shadow-lg">
-                    <CardHeader className="text-center">
-                      <CardTitle className="flex items-center justify-center gap-2 text-3xl">
-                        <Coins className="h-8 w-8 text-orange-500" />
-                        TCN Payment Required
-                      </CardTitle>
-                       <div className="text-2xl font-bold text-accent">
-                        ${cryptoPayment.amount_usd} USD = {formatTCN(cryptoPayment.amount_crypto)} TCN
-                      </div>
-                    </CardHeader>
-                  </Card>
-                </ScrollReveal>
+            <ScrollReveal delay={0} distance="30px" duration={600}>
+              <Card className="border-2 shadow-lg">
+                <CardHeader className="text-center">
+                  <CardTitle className="flex items-center justify-center gap-2 text-3xl">
+                    <Coins className="h-8 w-8 text-primary" />
+                    Complete Your Payment
+                  </CardTitle>
+                  <div className="text-2xl font-bold text-accent">
+                    ${CONSULTATION_FEE_USD} USD
+                  </div>
+                  <p className="text-muted-foreground">
+                    Use the payment widget below to complete your consultation booking
+                  </p>
+                </CardHeader>
+              </Card>
+            </ScrollReveal>
 
-                <ScrollReveal delay={100} distance="30px" duration={600}>
-                  <Card className="border-2 shadow-lg">
-                    <CardContent className="space-y-6 pt-6">
-                      {/* Payment Information Header */}
-                      <div className="text-center space-y-2 mb-6">
-                        <h3 className="text-xl font-semibold">Complete Your Payment</h3>
-                        <p className="text-muted-foreground">Send the exact amount to proceed with booking</p>
-                      </div>
+            <ScrollReveal delay={100} distance="30px" duration={600}>
+              <Card className="border-2 shadow-lg">
+                <CardContent className="p-6">
+                  <div className="text-center space-y-6">
+                    <h3 className="text-xl font-semibold">NOWPayments Secure Checkout</h3>
+                    
+                    {/* NOWPayments Widget */}
+                    <div className="flex justify-center">
+                      <iframe 
+                        src="https://nowpayments.io/embeds/payment-widget?iid=4948195650" 
+                        width="410" 
+                        height="696" 
+                        frameBorder="0" 
+                        scrolling="no" 
+                        style={{overflow: 'hidden'}}
+                        title="NOWPayments Crypto Payment Widget"
+                        className="border-2 border-muted rounded-lg shadow-lg"
+                      >
+                        Can't load payment widget. Please try refreshing the page or contact support.
+                      </iframe>
+                    </div>
 
-                      {/* Timer and Status */}
-                      <div className="space-y-4">
-                        {timeLeft > 0 && paymentStatus?.status !== 'completed' && (
-                          <ScrollReveal delay={150} distance="20px" duration={500}>
-                            <div className="rounded-lg border-2 border-orange-200 bg-orange-50 p-4 text-center dark:border-orange-800 dark:bg-orange-950">
-                              <div className="flex items-center justify-center gap-2 text-orange-700 dark:text-orange-300">
-                                <Clock className="h-5 w-5" />
-                                <span className="font-medium">Payment expires in:</span>
-                              </div>
-                              <div className="mt-2 text-3xl font-bold text-orange-600 dark:text-orange-400">
-                                {formatTime(timeLeft)}
-                              </div>
-                            </div>
-                          </ScrollReveal>
-                        )}
+                    <div className="text-sm text-muted-foreground space-y-2">
+                      <p>• Payment is processed securely through NOWPayments</p>
+                      <p>• Multiple cryptocurrency options available</p>
+                      <p>• Once payment is completed, you can schedule your consultation</p>
+                    </div>
 
-                        {/* Payment Status */}
-                        <ScrollReveal delay={200} distance="20px" duration={500}>
-                          <div className="rounded-lg border-2 p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                {getStatusIcon(paymentStatus?.status || 'pending')}
-                                <div>
-                                  <span className="font-semibold">
-                                    Status: <span className={getStatusColor(paymentStatus?.status || 'pending')}>
-                                      {paymentStatus?.status?.charAt(0).toUpperCase() + paymentStatus?.status?.slice(1) || 'Pending'}
-                                    </span>
-                                  </span>
-                                  <div className="text-sm text-muted-foreground">
-                                    Confirmations: {paymentStatus?.confirmations || 0}/1 required
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {paymentStatus?.amount_received && (
-                              <div className="mt-2 text-sm text-muted-foreground">
-                                Received: {formatTCN(paymentStatus.amount_received)} TCN
-                              </div>
-                            )}
-                          </div>
-                        </ScrollReveal>
-                      </div>
-
-                      {/* Payment Details Grid */}
-                      <div className="grid gap-6 lg:grid-cols-2">
-                        {/* QR Code */}
-                        <ScrollReveal delay={250} distance="30px" duration={600}>
-                          <div className="flex flex-col items-center space-y-4">
-                            <div className="flex items-center gap-2 text-lg font-semibold">
-                              <QrCode className="h-5 w-5" />
-                              Scan to Pay
-                            </div>
-                            {cryptoPayment.qr_code ? (
-                              <div className="rounded-lg border-2 p-4 bg-white">
-                                <img 
-                                  src={cryptoPayment.qr_code} 
-                                  alt="Test Coin Payment QR Code"
-                                  className="h-48 w-48 object-contain"
-                                />
-                              </div>
-                            ) : (
-                              <div className="flex h-48 w-48 items-center justify-center rounded-lg border-2 bg-muted">
-                                <p className="text-center text-sm text-muted-foreground">QR Code not available</p>
-                              </div>
-                            )}
-                          </div>
-                        </ScrollReveal>
-
-                        {/* Payment Information */}
-                        <ScrollReveal delay={300} distance="30px" duration={600}>
-                          <div className="space-y-4">
-                            <div className="space-y-2">
-                              <Label className="text-sm font-semibold">Test Coin Address</Label>
-                              <div className="flex gap-2">
-                                <code className="flex-1 rounded-lg bg-muted p-3 text-xs break-all font-mono">
-                                  {cryptoPayment.payment_address}
-                                </code>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => copyToClipboard(cryptoPayment.payment_address)}
-                                  className="shrink-0 hover:scale-105 transition-transform duration-200"
-                                >
-                                  <Copy className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label className="text-sm font-semibold">Amount (TCN)</Label>
-                              <div className="flex gap-2">
-                                <code className="flex-1 rounded-lg bg-muted p-3 text-sm font-bold font-mono">
-                                  {formatTCN(cryptoPayment.amount_crypto)}
-                                </code>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => copyToClipboard(formatTCN(cryptoPayment.amount_crypto))}
-                                  className="shrink-0 hover:scale-105 transition-transform duration-200"
-                                >
-                                  <Copy className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label className="text-sm font-semibold">Amount (USD)</Label>
-                              <div className="rounded-lg bg-muted p-3">
-                                <span className="text-lg font-bold">${cryptoPayment.amount_usd}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </ScrollReveal>
-                      </div>
-
-                      {/* Instructions */}
-                      <ScrollReveal delay={350} distance="30px" duration={600}>
-                        <div className="rounded-lg border-2 border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-950">
-                          <h4 className="mb-3 font-semibold text-blue-900 dark:text-blue-100">Payment Instructions:</h4>
-                          <ol className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
-                            <li className="flex items-start gap-2">
-                              <span className="font-semibold">1.</span>
-                              Send exactly <strong>{formatTCN(cryptoPayment.amount_crypto)} TCN</strong> to the address above
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="font-semibold">2.</span>
-                              Payment will be confirmed automatically within 10-15 minutes
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="font-semibold">3.</span>
-                              Once confirmed, you'll be able to schedule your consultation
-                            </li>
-                          </ol>
-                        </div>
-                      </ScrollReveal>
-
-                      {/* Success State */}
-                      {paymentStatus?.status === 'completed' && (
-                        <ScrollReveal delay={400} distance="30px" duration={700}>
-                          <div className="rounded-lg border-2 border-green-200 bg-green-50 p-6 text-center dark:border-green-800 dark:bg-green-950">
-                            <CheckCircle className="mx-auto h-16 w-16 text-green-600 dark:text-green-400" />
-                            <h3 className="mt-4 text-2xl font-bold text-green-900 dark:text-green-100">
-                              Payment Confirmed! 🎉
-                            </h3>
-                            <p className="mt-2 text-green-800 dark:text-green-200">
-                              Your payment has been verified. You can now schedule your consultation.
-                            </p>
-                            <Button 
-                              onClick={() => setCurrentStep('schedule')}
-                              className="mt-6 bg-green-600 hover:bg-green-700 text-white hover:scale-105 transition-transform duration-200"
-                              size="lg"
-                            >
-                              Schedule Your Session
-                            </Button>
-                          </div>
-                        </ScrollReveal>
-                      )}
-                    </CardContent>
-                  </Card>
-                </ScrollReveal>
-              </div>
-            ) : (
-              <ScrollReveal>
-                <Card className="border-2 border-red-200 shadow-lg">
-                  <CardContent className="flex flex-col items-center justify-center py-12">
-                    <AlertCircle className="h-12 w-12 text-red-500" />
-                    <h3 className="mt-4 text-xl font-semibold">Payment Creation Failed</h3>
-                    <p className="text-muted-foreground text-center">There was an issue creating your payment. Please try again.</p>
-                    <Button 
-                      onClick={() => setCurrentStep('form')}
-                      variant="outline"
-                      className="mt-4"
-                    >
-                      Return to Form
-                    </Button>
-                  </CardContent>
-                </Card>
-              </ScrollReveal>
-            )}
+                    {/* Manual continue button - user can click after payment */}
+                    <div className="pt-6 border-t">
+                      <p className="text-sm text-muted-foreground mb-4">
+                        After completing payment above, click continue to schedule your session:
+                      </p>
+                      <Button 
+                        onClick={() => setCurrentStep('schedule')}
+                        className="w-full max-w-md h-12 text-lg font-semibold bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70"
+                      >
+                        Continue to Scheduling
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </ScrollReveal>
           </div>
         )}
 
