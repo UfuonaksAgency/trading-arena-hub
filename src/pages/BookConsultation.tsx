@@ -88,6 +88,79 @@ const BookConsultation = () => {
   const [isCalendlyLoading, setIsCalendlyLoading] = useState(false);
   const [isCalendlyLoaded, setIsCalendlyLoaded] = useState(false);
 
+  // Add state for consultation ID to persist between steps
+  const [consultationId, setConsultationId] = useState<string | null>(null);
+  
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    telegram: '',
+    preferredTime: '',
+    experienceLevel: '',
+    purpose: '',
+  });
+
+  // Page refresh prevention and local storage backup
+  useEffect(() => {
+    // Save form data to localStorage whenever it changes
+    if (currentStep === 'payment' && cryptoPayment) {
+      localStorage.setItem('bookConsultation', JSON.stringify({
+        formData,
+        cryptoPayment,
+        paymentStatus,
+        consultationId,
+        currentStep,
+        timestamp: Date.now()
+      }));
+    }
+
+    // Clean up localStorage when consultation is completed
+    if (currentStep === 'schedule' && paymentStatus?.status === 'completed') {
+      localStorage.removeItem('bookConsultation');
+    }
+  }, [formData, cryptoPayment, paymentStatus, consultationId, currentStep]);
+
+  // Restore data from localStorage on component mount
+  useEffect(() => {
+    const saved = localStorage.getItem('bookConsultation');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        // Only restore if data is less than 24 hours old
+        if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
+          setFormData(data.formData || formData);
+          setCryptoPayment(data.cryptoPayment);
+          setPaymentStatus(data.paymentStatus);
+          setConsultationId(data.consultationId);
+          if (data.currentStep === 'payment' && data.cryptoPayment) {
+            setCurrentStep('payment');
+          }
+        } else {
+          localStorage.removeItem('bookConsultation');
+        }
+      } catch (error) {
+        localStorage.removeItem('bookConsultation');
+      }
+    }
+  }, []);
+
+  // Prevent page refresh/close during payment
+  useEffect(() => {
+    if (currentStep === 'payment' && cryptoPayment && paymentStatus?.status !== 'completed') {
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        e.preventDefault();
+        e.returnValue = 'Your payment is in progress. Are you sure you want to leave? Your payment details will be lost.';
+        return e.returnValue;
+      };
+
+      window.addEventListener('beforeunload', handleBeforeUnload);
+
+      return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      };
+    }
+  }, [currentStep, cryptoPayment, paymentStatus?.status]);
+
   // Scroll to top when step changes
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -102,14 +175,6 @@ const BookConsultation = () => {
     return () => clearTimeout(timer);
   }, [isScheduleClicked]);
   
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    telegram: '',
-    preferredTime: '',
-    experienceLevel: '',
-    purpose: '',
-  });
 
   // Load Calendly widget and set up event listeners
   useEffect(() => {
@@ -280,6 +345,24 @@ const BookConsultation = () => {
             setPaymentStatus(data.payment);
             
             if (data.payment.status === 'completed') {
+              // Send payment success emails
+              try {
+                await supabase.functions.invoke('send-payment-success-email', {
+                  body: {
+                    userEmail: formData.email,
+                    userName: formData.name,
+                    paymentAddress: cryptoPayment.address,
+                    amountTCN: cryptoPayment.amount_tcn,
+                    amountUSD: cryptoPayment.amount_usd,
+                    transactionHash: data.payment.transaction_hash,
+                    consultationId: consultationId || cryptoPayment.id
+                  }
+                });
+              } catch (emailError) {
+                console.error('Failed to send payment success emails:', emailError);
+                // Don't block the UI for email failures
+              }
+
               toast({
                 title: "Payment Confirmed! 🎉",
                 description: "Your payment has been verified. You can now schedule your consultation.",
@@ -310,6 +393,7 @@ const BookConsultation = () => {
       }
 
       if (data?.success && data?.consultationId) {
+        setConsultationId(data.consultationId);
         await createCryptoPayment(data.consultationId);
         setCurrentStep('payment');
         toast({
@@ -352,9 +436,32 @@ const BookConsultation = () => {
           confirmations: 0,
         });
         
+        // Send payment details emails immediately
+        try {
+          await supabase.functions.invoke('send-payment-details-email', {
+            body: {
+              userEmail: formData.email,
+              userName: formData.name,
+              paymentAddress: data.payment.address,
+              amountTCN: data.payment.amount_tcn,
+              amountUSD: data.payment.amount_usd,
+              expiresAt: data.payment.expires_at,
+              consultationId: consultationId || data.payment.id
+            }
+          });
+        } catch (emailError) {
+          console.error('Failed to send payment details emails:', emailError);
+          // Don't block the UI for email failures, but inform user
+          toast({
+            title: "Payment Created (Email Warning)",
+            description: "Payment created successfully, but email notification failed. Payment details are shown below.",
+            variant: "destructive",
+          });
+        }
+        
         toast({
           title: "Payment Created! 💰",
-          description: "Your Test Coin payment address has been generated.",
+          description: "Your Test Coin payment address has been generated. Check your email for payment details.",
         });
       } else {
         throw new Error('Invalid response from payment service');
