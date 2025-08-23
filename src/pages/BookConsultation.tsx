@@ -614,7 +614,7 @@ const BookConsultation = () => {
                     {/* NOWPayments Widget */}
                     <div className="flex justify-center">
                       <iframe 
-                        src="https://nowpayments.io/embeds/payment-widget?iid=5448383947" 
+                        src="https://nowpayments.io/embeds/payment-widget?iid=6404156588" 
                         width="410" 
                         height="696" 
                         frameBorder="0" 
