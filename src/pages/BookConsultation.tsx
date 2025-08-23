@@ -16,7 +16,7 @@ import { Helmet } from 'react-helmet-async';
 import { ScrollReveal } from '@/hooks/useScrollReveal';
 
 // Production configuration
-const CONSULTATION_FEE_USD = 2;
+const CONSULTATION_FEE_USD = 300;
 
 // Calendly interface for TypeScript
 declare global {
@@ -303,8 +303,8 @@ const BookConsultation = () => {
   return ( 
     <div>
       <Helmet>
-        <title>Book Trading Consultation - $300 Crypto Payment | Mr. K Trading Arena</title>
-        <meta name="description" content="Book a 30-minute personalized trading consultation with professional crypto trader Mr. K for $300 USD. Expert market analysis, strategy development, and actionable trading insights." />
+        <title>Book Trading Consultation - $300 USD Crypto Payment | Mr. K Trading Arena</title>
+        <meta name="description" content="Book a 30-minute personalized trading consultation with professional crypto trader Mr. K for $300 USD. Secure cryptocurrency payment via NOWPayments. Partial payments accepted." />
         <meta name="keywords" content="trading consultation, crypto trading advice, cryptocurrency payment, trading strategy, market analysis, professional trader" />
         <link rel="canonical" href="https://tradewithmrk.com/book-consultation" />
         <meta property="og:title" content="Book Trading Consultation - Professional Crypto Trading Guidance" />
@@ -614,7 +614,7 @@ const BookConsultation = () => {
                     {/* NOWPayments Widget */}
                     <div className="flex justify-center">
                       <iframe 
-                        src="https://nowpayments.io/embeds/payment-widget?iid=4948195650" 
+                        src="https://nowpayments.io/embeds/payment-widget?iid=4510566359" 
                         width="410" 
                         height="696" 
                         frameBorder="0" 
@@ -630,7 +630,27 @@ const BookConsultation = () => {
                     <div className="text-sm text-muted-foreground space-y-2">
                       <p>• Payment is processed securely through NOWPayments</p>
                       <p>• Multiple cryptocurrency options available</p>
-                      <p>• Once payment is completed, you can schedule your consultation</p>
+                      <p>• Partial payments accepted - minimum 50% to proceed</p>
+                      <p>• Once payment is confirmed, you can schedule your consultation</p>
+                    </div>
+                    
+                    {/* Payment Status Information */}
+                    <div className="mt-6 p-4 bg-muted/30 rounded-lg border">
+                      <h4 className="font-semibold text-center mb-3">Payment Status Guide</h4>
+                      <div className="grid gap-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                          <span><strong>Unpaid:</strong> Complete payment to proceed</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                          <span><strong>Partial (50%+):</strong> You can schedule with balance due</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                          <span><strong>Fully Paid:</strong> Ready to schedule your session</span>
+                        </div>
+                      </div>
                     </div>
 
                     {/* Manual continue button - user can click after payment */}

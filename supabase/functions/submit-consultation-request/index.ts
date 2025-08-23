@@ -75,7 +75,7 @@ serve(async (req) => {
                 Thank you for your interest in a personalized trading consultation. Your information has been received and processed.
               </p>
               <p style="color: #1e40af; font-weight: bold; margin: 0;">
-                Complete your Test Coin payment to secure your 30-minute session.
+                Complete your cryptocurrency payment using the secure widget to book your 30-minute session.
               </p>
             </div>
 
@@ -107,7 +107,8 @@ serve(async (req) => {
 
             <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 25px 0; text-align: center;">
               <h3 style="color: #92400e; margin: 0 0 10px 0;">💰 Consultation Fee: $300 USD</h3>
-              <p style="color: #92400e; margin: 0; font-size: 14px;">Payment via Test Coin for security and privacy</p>
+              <p style="color: #92400e; margin: 0 0 15px 0; font-size: 14px;">Secure cryptocurrency payment via NOWPayments</p>
+              <p style="color: #92400e; margin: 0; font-size: 13px; font-style: italic;">Partial payments accepted (minimum 50% to proceed)</p>
             </div>
 
             <div style="background: #d1fae5; border-radius: 8px; padding: 20px; margin: 25px 0;">
@@ -120,12 +121,18 @@ serve(async (req) => {
               </ul>
             </div>
 
-            <div style="text-align: center; margin: 30px 0;">
-              <p style="color: #6b7280; margin: 0 0 20px 0;">Continue with the payment process on the booking page:</p>
+            <div style="background: #eff6ff; border: 2px solid #3b82f6; border-radius: 8px; padding: 25px; margin: 25px 0; text-align: center;">
+              <h3 style="color: #1e40af; margin: 0 0 15px 0;">💳 Make Your Payment</h3>
+              <p style="color: #1e40af; margin: 0 0 20px 0;">Use the secure NOWPayments widget on the booking page:</p>
               <a href="https://tradewithmrk.com/book-consultation" 
-                 style="background: #0369ff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                 style="background: #0369ff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; margin-bottom: 15px;">
                 Complete Payment & Schedule
               </a>
+              <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 6px; font-size: 13px;">
+                <p style="color: #374151; margin: 0 0 8px 0;"><strong>Payment Options:</strong></p>
+                <p style="color: #6b7280; margin: 0;">✅ Full Payment: $300 USD - Immediate scheduling access</p>
+                <p style="color: #6b7280; margin: 0;">✅ Partial Payment: Minimum $150 USD (50%) - Schedule with balance due</p>
+              </div>
             </div>
 
             <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center;">
