@@ -688,16 +688,16 @@ const BookConsultation = () => {
                     
                     {/* NOWPayments Widget */}
                     <div className="flex justify-center">
-                       <iframe 
-                        src="https://nowpayments.io/embeds/payment-widget?iid=5448383947" 
-                        width="410" 
-                        height="696" 
-                        frameBorder="0" 
-                        scrolling="no" 
-                        style={{overflow: 'hidden'}}
-                        title="NOWPayments Crypto Payment Widget"
-                        className="border-2 border-muted rounded-lg shadow-lg"
-                      >
+                        <iframe 
+                         src="https://nowpayments.io/embeds/payment-widget?iid=4847106013" 
+                         width="410" 
+                         height="696" 
+                         frameBorder="0" 
+                         scrolling="no" 
+                         style={{overflow: 'hidden'}}
+                         title="NOWPayments Crypto Payment Widget"
+                         className="border-2 border-muted rounded-lg shadow-lg"
+                       >
                         Can't load payment widget. Please try refreshing the page or contact support.
                       </iframe>
                     </div>
