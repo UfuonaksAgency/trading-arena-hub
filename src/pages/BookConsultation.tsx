@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Coins, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, CheckCircle } from 'lucide-react';
+import { Coins, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 
 import { ScrollReveal } from '@/hooks/useScrollReveal';
@@ -67,6 +67,11 @@ const BookConsultation = () => {
   const [isCalendlyLoading, setIsCalendlyLoading] = useState(false);
   const [isCalendlyLoaded, setIsCalendlyLoaded] = useState(false);
 
+  // Payment status tracking
+  const [paymentStatus, setPaymentStatus] = useState<'unpaid' | 'processing' | 'completed'>('unpaid');
+  const [paymentId, setPaymentId] = useState<string | null>(null);
+  const [isCheckingPayment, setIsCheckingPayment] = useState(false);
+
   // Add state for consultation ID to persist between steps
   const [consultationId, setConsultationId] = useState<string | null>(null);
   
@@ -97,6 +102,56 @@ const BookConsultation = () => {
 
     return () => clearTimeout(timer);
   }, [isScheduleClicked]);
+
+  // Payment status polling effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (currentStep === 'payment' && paymentStatus !== 'completed' && consultationId) {
+      // Check payment status every 10 seconds
+      interval = setInterval(async () => {
+        if (!isCheckingPayment) {
+          await checkPaymentStatus();
+        }
+      }, 10000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [currentStep, paymentStatus, consultationId, isCheckingPayment]);
+
+  const checkPaymentStatus = async () => {
+    if (!consultationId || isCheckingPayment) return;
+    
+    setIsCheckingPayment(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-crypto-payment', {
+        body: { paymentId: consultationId }
+      });
+
+      if (error) {
+        console.error('Payment verification error:', error);
+        return;
+      }
+
+      if (data?.status === 'completed') {
+        setPaymentStatus('completed');
+        toast({
+          title: "Payment Confirmed! ✅",
+          description: "Your payment has been successfully verified. You can now proceed to scheduling.",
+        });
+      } else if (data?.status === 'partial') {
+        setPaymentStatus('processing');
+      }
+    } catch (error) {
+      console.error('Payment check failed:', error);
+    } finally {
+      setIsCheckingPayment(false);
+    }
+  };
   
 
   // Load Calendly widget and set up event listeners
@@ -613,8 +668,8 @@ const BookConsultation = () => {
                     
                     {/* NOWPayments Widget */}
                     <div className="flex justify-center">
-                      <iframe 
-                        src="https://nowpayments.io/embeds/payment-widget?iid=6404156588" 
+                       <iframe 
+                        src="https://nowpayments.io/embeds/payment-widget?iid=5448383947" 
                         width="410" 
                         height="696" 
                         frameBorder="0" 
@@ -627,43 +682,83 @@ const BookConsultation = () => {
                       </iframe>
                     </div>
 
-                    <div className="text-sm text-muted-foreground space-y-2">
+                    <div className="text-sm text-muted-foreground space-y-2 bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                      <div className="flex items-center gap-2 font-medium text-yellow-800 dark:text-yellow-200">
+                        <AlertTriangle className="h-4 w-4" />
+                        <span>Important Payment Instructions</span>
+                      </div>
+                      <p>• Please verify the payment amount (${CONSULTATION_FEE_USD} USD) is correct before proceeding</p>
+                      <p>• Ensure all payment details in the widget above are accurate</p>
+                      <p>• Complete the <strong>full payment</strong> to proceed with scheduling</p>
+                      <p>• Do not close this page until payment is confirmed</p>
                       <p>• Payment is processed securely through NOWPayments</p>
-                      <p>• Multiple cryptocurrency options available</p>
-                      <p>• Partial payments accepted - minimum 50% to proceed</p>
-                      <p>• Once payment is confirmed, you can schedule your consultation</p>
                     </div>
                     
                     {/* Payment Status Information */}
                     <div className="mt-6 p-4 bg-muted/30 rounded-lg border">
-                      <h4 className="font-semibold text-center mb-3">Payment Status Guide</h4>
-                      <div className="grid gap-2 text-sm">
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                          <span><strong>Unpaid:</strong> Complete payment to proceed</span>
+                      <h4 className="font-semibold text-center mb-3 flex items-center justify-center gap-2">
+                        <div className={`w-3 h-3 rounded-full ${
+                          paymentStatus === 'completed' ? 'bg-green-500' : 
+                          paymentStatus === 'processing' ? 'bg-yellow-500' : 'bg-red-500'
+                        }`}></div>
+                        Payment Status: {paymentStatus === 'completed' ? 'Confirmed' : 
+                                        paymentStatus === 'processing' ? 'Processing' : 'Awaiting Payment'}
+                      </h4>
+                      {paymentStatus === 'completed' && (
+                        <div className="text-center text-green-600 dark:text-green-400">
+                          <CheckCircle className="h-6 w-6 mx-auto mb-2" />
+                          <p className="font-medium">Payment confirmed! You can now proceed to scheduling.</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                          <span><strong>Partial (50%+):</strong> You can schedule with balance due</span>
+                      )}
+                      {paymentStatus === 'processing' && (
+                        <div className="text-center text-yellow-600 dark:text-yellow-400">
+                          <Clock className="h-6 w-6 mx-auto mb-2" />
+                          <p className="font-medium">Payment received, verifying transaction...</p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                          <span><strong>Fully Paid:</strong> Ready to schedule your session</span>
+                      )}
+                      {paymentStatus === 'unpaid' && (
+                        <div className="text-center text-muted-foreground">
+                          <p>Complete your payment using the widget above to proceed.</p>
                         </div>
-                      </div>
+                      )}
                     </div>
 
-                    {/* Manual continue button - user can click after payment */}
+                    {/* Continue button - only enabled after full payment */}
                     <div className="pt-6 border-t">
-                      <p className="text-sm text-muted-foreground mb-4">
-                        After completing payment above, click continue to schedule your session:
-                      </p>
+                      <div className="flex items-center justify-center gap-2 mb-4">
+                        {isCheckingPayment && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Checking payment status...
+                          </div>
+                        )}
+                      </div>
                       <Button 
                         onClick={() => setCurrentStep('schedule')}
-                        className="w-full max-w-md h-12 text-lg font-semibold bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70"
+                        disabled={paymentStatus !== 'completed'}
+                        className={`w-full max-w-md h-12 text-lg font-semibold transition-all duration-200 ${
+                          paymentStatus === 'completed' 
+                            ? 'bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70 hover:scale-105' 
+                            : 'bg-muted text-muted-foreground cursor-not-allowed'
+                        }`}
                       >
-                        Continue to Scheduling
+                        {paymentStatus === 'completed' ? (
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="h-5 w-5" />
+                            Continue to Scheduling
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-5 w-5" />
+                            Complete Payment to Continue
+                          </div>
+                        )}
                       </Button>
+                      {paymentStatus !== 'completed' && (
+                        <p className="text-xs text-muted-foreground mt-2 text-center">
+                          This button will be enabled once your payment is confirmed
+                        </p>
+                      )}
                     </div>
                   </div>
                 </CardContent>
