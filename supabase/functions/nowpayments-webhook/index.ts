@@ -100,8 +100,8 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Find payment by NOWPayments payment ID
-    const { data: payment, error: paymentError } = await supabase
+    // Try to find existing payment by NOWPayments payment ID first
+    let { data: payment, error: paymentError } = await supabase
       .from('crypto_payments')
       .select(`
         *,
@@ -114,17 +114,45 @@ serve(async (req) => {
       .eq('nowpayments_payment_id', webhookData.payment_id)
       .single();
 
+    // If no existing payment record found, try to find consultation by order_id
+    let consultation = null;
     if (paymentError || !payment) {
-      console.error('Payment not found:', webhookData.payment_id);
-      return new Response('Payment not found', { status: 404 });
+      console.log('No crypto_payments record found, looking for consultation by order_id:', webhookData.order_id);
+      
+      const { data: consultationData, error: consultationError } = await supabase
+        .from('consultations')
+        .select('*')
+        .eq('id', webhookData.order_id)
+        .single();
+
+      if (consultationError || !consultationData) {
+        console.error('Neither payment nor consultation found for:', { 
+          payment_id: webhookData.payment_id, 
+          order_id: webhookData.order_id 
+        });
+        return new Response('Payment/consultation not found', { status: 404 });
+      }
+
+      consultation = consultationData;
+      console.log('Consultation found via order_id:', consultation.id);
     }
 
-    console.log('Payment found:', payment.id);
-
-    // Skip if already completed
-    if (payment.status === 'completed') {
-      console.log('Payment already completed');
-      return new Response('Payment already completed', { status: 200 });
+    if (payment) {
+      console.log('Payment found:', payment.id);
+      
+      // Skip if already completed
+      if (payment.status === 'completed') {
+        console.log('Payment already completed');
+        return new Response('Payment already completed', { status: 200 });
+      }
+    } else {
+      console.log('Processing widget payment for consultation:', consultation.id);
+      
+      // Skip if consultation already marked as paid
+      if (consultation.payment_status === 'paid') {
+        console.log('Consultation already marked as paid');
+        return new Response('Consultation already paid', { status: 200 });
+      }
     }
 
     // Map NOWPayments status to our internal status
@@ -149,37 +177,57 @@ serve(async (req) => {
         break;
     }
 
-    console.log(`Updating payment status from ${payment.status} to ${newStatus}`);
+    // Update either payment record or consultation directly
+    if (payment) {
+      console.log(`Updating payment status from ${payment.status} to ${newStatus}`);
+      
+      const { error: updateError } = await supabase
+        .from('crypto_payments')
+        .update({
+          status: newStatus,
+          payment_data: {
+            ...payment.payment_data,
+            webhook_data: webhookData,
+            updated_via_webhook: true,
+            webhook_received_at: new Date().toISOString(),
+          }
+        })
+        .eq('id', payment.id);
 
-    // Update payment record
-    const { error: updateError } = await supabase
-      .from('crypto_payments')
-      .update({
-        status: newStatus,
-        payment_data: {
-          ...payment.payment_data,
-          webhook_data: webhookData,
-          updated_via_webhook: true,
-          webhook_received_at: new Date().toISOString(),
-        }
-      })
-      .eq('id', payment.id);
+      if (updateError) {
+        throw updateError;
+      }
+      
+      consultation = payment.consultations?.[0];
+    } else {
+      // Update consultation payment status directly for widget payments
+      const consultationPaymentStatus = newStatus === 'completed' ? 'paid' : 'unpaid';
+      console.log(`Updating consultation payment status to ${consultationPaymentStatus}`);
+      
+      const { error: updateError } = await supabase
+        .from('consultations')
+        .update({
+          payment_status: consultationPaymentStatus,
+          admin_notes: `Payment confirmed via NOWPayments widget. Payment ID: ${webhookData.payment_id}. Amount: ${webhookData.outcome_amount} ${webhookData.outcome_currency} ($${webhookData.price_amount} USD). Status: ${webhookData.payment_status}.`
+        })
+        .eq('id', consultation.id);
 
-    if (updateError) {
-      throw updateError;
+      if (updateError) {
+        throw updateError;
+      }
     }
 
     console.log('✅ Payment status updated successfully');
 
     // Send email notification if payment is completed
-    if (newStatus === 'completed' && payment.consultations?.[0]?.email) {
+    if (newStatus === 'completed' && consultation?.email) {
       try {
         console.log('Sending completion email...');
         const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
         
         await resend.emails.send({
           from: 'Mr. K Trading Arena <noreply@tradewithmrk.com>',
-          to: [payment.consultations[0].email],
+          to: [consultation.email],
           subject: '🎉 Payment Confirmed - Schedule Your Trading Consultation',
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9fafb; padding: 20px;">
@@ -190,7 +238,7 @@ serve(async (req) => {
                 </div>
 
                 <div style="background: #d1fae5; border: 2px solid #059669; border-radius: 8px; padding: 25px; margin: 25px 0; text-align: center;">
-                  <h2 style="color: #065f46; margin: 0 0 15px 0;">Hello ${payment.consultations[0].name}!</h2>
+                  <h2 style="color: #065f46; margin: 0 0 15px 0;">Hello ${consultation.name}!</h2>
                   <p style="color: #065f46; font-size: 16px; margin: 0 0 15px 0;">
                     Your ${webhookData.pay_currency.toUpperCase()} payment has been successfully confirmed and verified on the blockchain.
                   </p>

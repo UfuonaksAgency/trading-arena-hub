@@ -103,55 +103,75 @@ const BookConsultation = () => {
     return () => clearTimeout(timer);
   }, [isScheduleClicked]);
 
-  // Payment status polling effect
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
+  const checkPaymentStatus = useCallback(async () => {
+    if (!formData.email) return;
     
-    if (currentStep === 'payment' && paymentStatus !== 'completed' && consultationId) {
-      // Check payment status every 10 seconds
-      interval = setInterval(async () => {
-        if (!isCheckingPayment) {
-          await checkPaymentStatus();
-        }
-      }, 10000);
-    }
-
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [currentStep, paymentStatus, consultationId, isCheckingPayment]);
-
-  const checkPaymentStatus = async () => {
-    if (!consultationId || isCheckingPayment) return;
-    
-    setIsCheckingPayment(true);
     try {
-      const { data, error } = await supabase.functions.invoke('verify-crypto-payment', {
-        body: { paymentId: consultationId }
-      });
+      // Check consultation payment status directly
+      const { data: consultationData, error } = await supabase
+        .from('consultations')
+        .select('payment_status, admin_notes')
+        .eq('email', formData.email)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
 
       if (error) {
-        console.error('Payment verification error:', error);
+        console.error('Consultation check error:', error);
         return;
       }
 
-      if (data?.status === 'completed') {
+      if (consultationData?.payment_status === 'paid') {
         setPaymentStatus('completed');
         toast({
-          title: "Payment Confirmed! ✅",
-          description: "Your payment has been successfully verified. You can now proceed to scheduling.",
+          title: "Payment Confirmed! 🎉",
+          description: "Your payment has been confirmed. You can now schedule your consultation.",
         });
-      } else if (data?.status === 'partial') {
-        setPaymentStatus('processing');
       }
     } catch (error) {
-      console.error('Payment check failed:', error);
-    } finally {
-      setIsCheckingPayment(false);
+      console.error('Payment status check error:', error);
     }
-  };
+  }, [formData.email, toast]);
+
+  // Real-time payment status updates
+  useEffect(() => {
+    if (currentStep === 'payment' && formData.email) {
+      const channel = supabase
+        .channel('consultation-payments')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'consultations',
+            filter: `email=eq.${formData.email}`
+          },
+          (payload) => {
+            console.log('Consultation updated:', payload);
+            if (payload.new.payment_status === 'paid') {
+              setPaymentStatus('completed');
+              toast({
+                title: "Payment Confirmed! 🎉",
+                description: "Your payment has been confirmed. You can now schedule your consultation.",
+              });
+            }
+          }
+        )
+        .subscribe();
+
+      // Initial check
+      checkPaymentStatus();
+      
+      // Fallback polling every 30 seconds
+      const interval = setInterval(checkPaymentStatus, 30000);
+
+      return () => {
+        supabase.removeChannel(channel);
+        clearInterval(interval);
+      };
+    }
+  }, [currentStep, formData.email, checkPaymentStatus, toast]);
   
 
   // Load Calendly widget and set up event listeners
