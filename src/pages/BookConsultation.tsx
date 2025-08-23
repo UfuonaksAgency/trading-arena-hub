@@ -71,6 +71,7 @@ const BookConsultation = () => {
   const [paymentStatus, setPaymentStatus] = useState<'unpaid' | 'processing' | 'completed'>('unpaid');
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
+  const [paymentWidgetUrl, setPaymentWidgetUrl] = useState<string>('');
 
   // Add state for consultation ID to persist between steps
   const [consultationId, setConsultationId] = useState<string | null>(null);
@@ -311,6 +312,23 @@ const BookConsultation = () => {
 
       if (data?.success && data?.consultationId) {
         setConsultationId(data.consultationId);
+        
+        // Generate dynamic payment widget URL with consultation ID as order_id
+        const baseWidgetUrl = 'https://nowpayments.io/embeds/payment-widget?iid=4623735469';
+        const dynamicParams = new URLSearchParams({
+          order_id: data.consultationId,
+          order_description: `Trading Consultation for ${formData.name}`,
+          price_amount: CONSULTATION_FEE_USD.toString(),
+          price_currency: 'USD',
+          success_url: `${window.location.origin}/book-consultation?payment=success`,
+          cancel_url: `${window.location.origin}/book-consultation?payment=cancel`
+        });
+        
+        const dynamicWidgetUrl = `${baseWidgetUrl}&${dynamicParams.toString()}`;
+        setPaymentWidgetUrl(dynamicWidgetUrl);
+        
+        console.log('Generated widget URL:', dynamicWidgetUrl);
+        
         setCurrentStep('payment');
         toast({
           title: "Form Submitted Successfully! ✅",
@@ -686,21 +704,21 @@ const BookConsultation = () => {
                   <div className="text-center space-y-6">
                     <h3 className="text-xl font-semibold">NOWPayments Secure Checkout</h3>
                     
-                    {/* NOWPayments Widget */}
-                    <div className="flex justify-center">
-                        <iframe 
-                         src="https://nowpayments.io/embeds/payment-widget?iid=4623735469" 
-                         width="410" 
-                         height="696" 
-                         frameBorder="0" 
-                         scrolling="no" 
-                         style={{overflow: 'hidden'}}
-                         title="NOWPayments Crypto Payment Widget"
-                         className="border-2 border-muted rounded-lg shadow-lg"
-                       >
-                        Can't load payment widget. Please try refreshing the page or contact support.
-                      </iframe>
-                    </div>
+                     {/* NOWPayments Widget */}
+                     <div className="flex justify-center">
+                         <iframe 
+                          src={paymentWidgetUrl || "https://nowpayments.io/embeds/payment-widget?iid=4623735469"} 
+                          width="410" 
+                          height="696" 
+                          frameBorder="0" 
+                          scrolling="no" 
+                          style={{overflow: 'hidden'}}
+                          title="NOWPayments Crypto Payment Widget"
+                          className="border-2 border-muted rounded-lg shadow-lg"
+                        >
+                         Can't load payment widget. Please try refreshing the page or contact support.
+                       </iframe>
+                     </div>
 
                     <div className="text-sm text-muted-foreground space-y-2 bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
                       <div className="flex items-center gap-2 font-medium text-yellow-800 dark:text-yellow-200">
@@ -714,34 +732,39 @@ const BookConsultation = () => {
                       <p>• Payment is processed securely through NOWPayments</p>
                     </div>
                     
-                    {/* Payment Status Information */}
-                    <div className="mt-6 p-4 bg-muted/30 rounded-lg border">
-                      <h4 className="font-semibold text-center mb-3 flex items-center justify-center gap-2">
-                        <div className={`w-3 h-3 rounded-full ${
-                          paymentStatus === 'completed' ? 'bg-green-500' : 
-                          paymentStatus === 'processing' ? 'bg-yellow-500' : 'bg-red-500'
-                        }`}></div>
-                        Payment Status: {paymentStatus === 'completed' ? 'Confirmed' : 
-                                        paymentStatus === 'processing' ? 'Processing' : 'Awaiting Payment'}
-                      </h4>
-                      {paymentStatus === 'completed' && (
-                        <div className="text-center text-green-600 dark:text-green-400">
-                          <CheckCircle className="h-6 w-6 mx-auto mb-2" />
-                          <p className="font-medium">Payment confirmed! You can now proceed to scheduling.</p>
-                        </div>
-                      )}
-                      {paymentStatus === 'processing' && (
-                        <div className="text-center text-yellow-600 dark:text-yellow-400">
-                          <Clock className="h-6 w-6 mx-auto mb-2" />
-                          <p className="font-medium">Payment received, verifying transaction...</p>
-                        </div>
-                      )}
-                      {paymentStatus === 'unpaid' && (
-                        <div className="text-center text-muted-foreground">
-                          <p>Complete your payment using the widget above to proceed.</p>
-                        </div>
-                      )}
-                    </div>
+                     {/* Payment Status Information */}
+                     <div className="mt-6 p-4 bg-muted/30 rounded-lg border">
+                       <h4 className="font-semibold text-center mb-3 flex items-center justify-center gap-2">
+                         <div className={`w-3 h-3 rounded-full ${
+                           paymentStatus === 'completed' ? 'bg-green-500' : 
+                           paymentStatus === 'processing' ? 'bg-yellow-500' : 'bg-red-500'
+                         }`}></div>
+                         Payment Status: {paymentStatus === 'completed' ? 'Confirmed' : 
+                                         paymentStatus === 'processing' ? 'Processing' : 'Awaiting Payment'}
+                       </h4>
+                       {paymentStatus === 'completed' && (
+                         <div className="text-center text-green-600 dark:text-green-400">
+                           <CheckCircle className="h-6 w-6 mx-auto mb-2" />
+                           <p className="font-medium">Payment confirmed! You can now proceed to scheduling.</p>
+                         </div>
+                       )}
+                       {paymentStatus === 'processing' && (
+                         <div className="text-center text-yellow-600 dark:text-yellow-400">
+                           <Clock className="h-6 w-6 mx-auto mb-2" />
+                           <p className="font-medium">Payment received, verifying transaction...</p>
+                         </div>
+                       )}
+                       {paymentStatus === 'unpaid' && (
+                         <div className="text-center text-muted-foreground">
+                           <p>Complete your payment using the widget above to proceed.</p>
+                           {consultationId && (
+                             <p className="mt-2 text-xs font-mono bg-muted/50 p-2 rounded">
+                               Order ID: {consultationId}
+                             </p>
+                           )}
+                         </div>
+                       )}
+                     </div>
 
                     {/* Continue button - only enabled after full payment */}
                     <div className="pt-6 border-t">

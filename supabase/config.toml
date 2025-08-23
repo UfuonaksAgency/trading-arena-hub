@@ -58,3 +58,6 @@ gcp_jwt_path = "supabase/gcp.json"
 
 [functions.submit-mentorship-application]
 verify_jwt = false
+
+[functions.manual-payment-verify]
+verify_jwt = false
