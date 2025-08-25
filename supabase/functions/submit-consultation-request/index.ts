@@ -11,8 +11,8 @@ interface ConsultationRequest {
   name: string;
   email: string;
   telegram?: string;
-  preferred_time: string;
-  experience_level: string;
+  preferredTime: string;
+  experienceLevel: string;
   purpose: string;
 }
 
@@ -23,9 +23,19 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const resendApiKey = Deno.env.get("RESEND_API_KEY")!;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+
+    // Validate environment variables
+    if (!supabaseUrl || !supabaseServiceKey || !resendApiKey) {
+      console.error('Missing environment variables:', {
+        supabaseUrl: !!supabaseUrl,
+        supabaseServiceKey: !!supabaseServiceKey,
+        resendApiKey: !!resendApiKey
+      });
+      throw new Error('Server configuration error: Missing required environment variables');
+    }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const resend = new Resend(resendApiKey);
@@ -34,6 +44,13 @@ serve(async (req) => {
 
     console.log('Received consultation request:', consultationData);
 
+    // Validate required fields
+    if (!consultationData.name || !consultationData.email || !consultationData.preferredTime || 
+        !consultationData.experienceLevel || !consultationData.purpose) {
+      console.error('Missing required fields:', consultationData);
+      throw new Error('Missing required fields in consultation request');
+    }
+
     // Insert consultation request into database
     const { data: consultation, error: insertError } = await supabase
       .from('consultations')
@@ -41,8 +58,8 @@ serve(async (req) => {
         name: consultationData.name,
         email: consultationData.email,
         telegram: consultationData.telegram,
-        preferred_time: consultationData.preferredTime, // Map camelCase to snake_case
-        experience_level: consultationData.experienceLevel, // Map camelCase to snake_case
+        preferred_time: consultationData.preferredTime,
+        experience_level: consultationData.experienceLevel,
         purpose: consultationData.purpose,
         status: 'pending'
       }])
