@@ -1069,26 +1069,23 @@ const BookConsultation = () => {
                      <div className="flex justify-center">
                        {invoiceUrl ? (
                          <div className="space-y-4">
-                            <Button
-                              onClick={() => {
-                                setPaymentWindowOpened(true);
-                                setPaymentStatus('processing');
-                                window.open(invoiceUrl, '_blank');
-                                toast({
-                                  title: "Payment window opened",
-                                  description: "Complete your payment in the new tab, then return to this page. We'll automatically check your payment status.",
-                                });
-                              }}
-                              className="w-full max-w-md h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-105 transition-all duration-200"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Coins className="h-6 w-6" />
-                                Pay with Crypto - ${CONSULTATION_FEE_USD} USD
-                              </div>
-                            </Button>
-                            <p className="text-sm text-muted-foreground">
-                              Click to open secure payment page in a new tab
-                            </p>
+                             <Button
+                               onClick={handlePaymentClick}
+                               className="w-full max-w-md h-16 text-lg font-bold bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 hover:scale-105 transition-all duration-200 shadow-lg border-2 border-white animate-pulse"
+                             >
+                               <div className="flex items-center gap-3">
+                                 <ExternalLink className="h-6 w-6 animate-bounce" />
+                                 <div className="text-center">
+                                   <div className="text-xl font-black">🚨 OPENS NEW TAB 🚨</div>
+                                   <div className="text-base">Pay ${CONSULTATION_FEE_USD} - RETURN HERE!</div>
+                                 </div>
+                               </div>
+                             </Button>
+                             <div className="bg-red-100 dark:bg-red-900/30 border-2 border-red-500 rounded-lg p-3 animate-pulse">
+                               <p className="text-red-800 dark:text-red-200 font-bold text-center">
+                                 ⚠️ OPENS NEW TAB - RETURN TO THIS PAGE AFTER PAYMENT! ⚠️
+                               </p>
+                             </div>
                          </div>
                        ) : consultationId ? (
                          <div className="space-y-4">
@@ -1169,28 +1166,62 @@ const BookConsultation = () => {
                           {paymentStatus === 'unpaid' && (
                             <div className="text-center">
                               {paymentWindowOpened ? (
-                                <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-3">
-                                  <div className="flex items-center justify-center gap-2 text-blue-800 dark:text-blue-200">
-                                    <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-                                    <span className="font-semibold text-lg">Payment Window Opened</span>
-                                  </div>
-                                  <div className="text-blue-700 dark:text-blue-300 space-y-2">
-                                    <p className="text-lg font-medium">👆 Complete your payment in the new tab</p>
-                                    <p className="text-base"><strong>THEN RETURN HERE</strong> - We'll detect your payment automatically</p>
-                                    <div className="flex items-center justify-center gap-2 mt-3 text-sm bg-blue-100 dark:bg-blue-900/50 p-2 rounded">
-                                      <ArrowLeft className="h-4 w-4" />
-                                      <span>Keep this tab open and return after payment</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              ) : (
-                                <p className="text-muted-foreground">Complete your payment using the button above to proceed.</p>
-                              )}
-                              {consultationId && (
-                                <p className="mt-2 text-xs font-mono bg-muted/50 p-2 rounded">
-                                  Order ID: {consultationId}
-                                </p>
-                              )}
+                                 <div className="relative">
+                                   {/* Flashing border animation */}
+                                   <div className="absolute inset-0 bg-gradient-to-r from-red-500 via-yellow-500 to-red-500 rounded-lg animate-pulse"></div>
+                                   <div className="relative bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/50 dark:to-orange-900/50 border-4 border-red-500 rounded-lg p-6 m-1 shadow-2xl">
+                                     <div className="text-center space-y-4">
+                                       {/* Attention-grabbing header */}
+                                       <div className="bg-red-600 text-white rounded-full px-6 py-2 inline-block animate-bounce">
+                                         <span className="font-black text-xl">🚨 PAYMENT WINDOW OPEN 🚨</span>
+                                       </div>
+                                       
+                                       {/* Primary instruction */}
+                                       <div className="bg-yellow-400 text-black rounded-lg p-4 border-4 border-yellow-600 shadow-lg">
+                                         <div className="text-2xl font-black animate-pulse">
+                                           💰 COMPLETE PAYMENT IN OTHER TAB
+                                         </div>
+                                         <div className="text-xl font-bold mt-2">
+                                           ⬅️ THEN RETURN TO THIS TAB ⬅️
+                                         </div>
+                                       </div>
+                                       
+                                       {/* Visual indicators */}
+                                       <div className="flex justify-center items-center gap-4 bg-blue-600 text-white p-3 rounded-lg">
+                                         <div className="w-4 h-4 bg-white rounded-full animate-ping"></div>
+                                         <span className="font-bold text-lg">WE'LL AUTO-DETECT YOUR PAYMENT</span>
+                                         <div className="w-4 h-4 bg-white rounded-full animate-ping"></div>
+                                       </div>
+                                       
+                                       {/* Keep tab open reminder */}
+                                       <div className="bg-purple-600 text-white p-3 rounded-lg border-2 border-purple-400">
+                                         <div className="flex items-center justify-center gap-2">
+                                           <ArrowLeft className="h-6 w-6 animate-bounce" />
+                                           <span className="font-bold text-lg">KEEP THIS TAB OPEN!</span>
+                                           <ArrowLeft className="h-6 w-6 animate-bounce" />
+                                         </div>
+                                       </div>
+                                     </div>
+                                   </div>
+                                 </div>
+                               ) : (
+                                 <div className="space-y-3">
+                                   <p className="text-muted-foreground">Complete your payment using the button above to proceed.</p>
+                                   <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-lg border-2 border-white shadow-lg animate-pulse">
+                                     <div className="text-center font-bold text-lg">
+                                       💡 PAYMENT OPENS IN NEW TAB
+                                     </div>
+                                     <div className="text-center font-black text-xl mt-2 animate-bounce">
+                                       🔴 MUST RETURN TO THIS PAGE! 🔴
+                                     </div>
+                                   </div>
+                                 </div>
+                               )}
+                               {consultationId && (
+                                 <p className="mt-2 text-xs font-mono bg-muted/50 p-2 rounded">
+                                   Order ID: {consultationId}
+                                 </p>
+                               )}
                             </div>
                           )}
                      </div>
@@ -1275,44 +1306,80 @@ const BookConsultation = () => {
           </div>
         )}
 
-        {/* Payment Warning Dialog */}
+        {/* Enhanced Payment Warning Dialog */}
         <Dialog open={showPaymentWarning} onOpenChange={setShowPaymentWarning}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-lg border-4 border-red-500 shadow-2xl">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-xl">
-                <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                Important Payment Instructions
+              <DialogTitle className="flex items-center justify-center gap-2 text-2xl bg-red-600 text-white p-3 rounded-lg -mx-6 -mt-6 mb-4">
+                <AlertTriangle className="h-8 w-8 text-yellow-300 animate-bounce" />
+                🚨 CRITICAL PAYMENT INSTRUCTIONS 🚨
               </DialogTitle>
-              <DialogDescription className="text-base space-y-3 pt-2">
-                <div className="bg-yellow-50 dark:bg-yellow-950/30 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                  <div className="space-y-2 text-sm">
-                    <p className="font-medium text-yellow-800 dark:text-yellow-200">
-                      📋 Before you proceed, please read carefully:
-                    </p>
-                    <div className="space-y-1 text-yellow-700 dark:text-yellow-300">
-                      <p>• Payment will open in a <strong>NEW TAB</strong></p>
-                      <p>• <strong>Keep this page open</strong> at all times</p>
-                      <p>• Complete your payment in the new tab</p>
-                      <p>• <strong className="text-lg">⚠️ RETURN TO THIS TAB after payment</strong></p>
-                      <p>• We'll automatically detect your payment when you return</p>
+              <DialogDescription className="text-base space-y-4 pt-2">
+                <div className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/50 dark:to-orange-900/50 p-6 rounded-xl border-4 border-yellow-500 shadow-lg">
+                  <div className="space-y-6 text-center">
+                    {/* Critical warning header */}
+                    <div className="bg-red-600 text-white rounded-xl p-4 animate-pulse">
+                      <div className="text-2xl font-black">⚠️ PAYMENT OPENS NEW TAB ⚠️</div>
+                      <div className="text-xl font-bold mt-2">YOU MUST RETURN HERE!</div>
+                    </div>
+                    
+                    {/* Step-by-step instructions */}
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border-4 border-blue-500 shadow-lg">
+                      <div className="text-lg font-bold text-blue-800 dark:text-blue-200 mb-3">
+                        📋 FOLLOW THESE STEPS EXACTLY:
+                      </div>
+                      <div className="space-y-3 text-left">
+                        <div className="flex items-center gap-3 bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg">
+                          <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">1</div>
+                          <span className="font-semibold text-lg">Click "Open Payment" button</span>
+                        </div>
+                        <div className="flex items-center gap-3 bg-yellow-50 dark:bg-yellow-900/30 p-3 rounded-lg">
+                          <div className="bg-yellow-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">2</div>
+                          <span className="font-semibold text-lg">Payment opens in <strong>NEW TAB</strong></span>
+                        </div>
+                        <div className="flex items-center gap-3 bg-green-50 dark:bg-green-900/30 p-3 rounded-lg">
+                          <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">3</div>
+                          <span className="font-semibold text-lg">Complete your $17 payment</span>
+                        </div>
+                        <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/30 p-3 rounded-lg">
+                          <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">4</div>
+                          <span className="font-semibold text-lg"><strong>RETURN TO THIS TAB</strong></span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Critical reminders */}
+                    <div className="space-y-3">
+                      <div className="bg-red-100 dark:bg-red-900/50 border-3 border-red-500 rounded-xl p-4">
+                        <div className="text-red-800 dark:text-red-200 font-black text-xl">
+                          🚫 DO NOT CLOSE THIS TAB!
+                        </div>
+                        <div className="text-red-700 dark:text-red-300 font-bold text-lg mt-2">
+                          You'll lose your booking progress!
+                        </div>
+                      </div>
+                      
+                      <div className="bg-green-100 dark:bg-green-900/50 border-3 border-green-500 rounded-xl p-4">
+                        <div className="text-green-800 dark:text-green-200 font-black text-xl">
+                          ✅ WE'LL AUTO-DETECT YOUR PAYMENT
+                        </div>
+                        <div className="text-green-700 dark:text-green-300 font-bold text-lg mt-2">
+                          Just return here after payment!
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div className="bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200 dark:border-red-800">
-                  <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                    ❌ If you close this tab, you may lose your booking progress
-                  </p>
-                </div>
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter className="gap-2 sm:gap-0">
-              <Button variant="outline" onClick={() => setShowPaymentWarning(false)}>
+            <DialogFooter className="gap-2 sm:gap-0 bg-gray-50 dark:bg-gray-800 -mx-6 -mb-6 p-6 rounded-b-lg">
+              <Button variant="outline" onClick={() => setShowPaymentWarning(false)} className="border-2">
                 Cancel
               </Button>
-              <Button onClick={confirmPayment} className="bg-gradient-to-r from-primary to-primary/80">
+              <Button onClick={confirmPayment} className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-bold text-lg px-6 py-3 h-auto animate-pulse">
                 <div className="flex items-center gap-2">
-                  <ExternalLink className="h-4 w-4" />
-                  I Understand - Open Payment
+                  <ExternalLink className="h-5 w-5" />
+                  🚀 I UNDERSTAND - OPEN PAYMENT
                 </div>
               </Button>
             </DialogFooter>
