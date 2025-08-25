@@ -8,9 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Coins, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, CheckCircle, Clock, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Coins, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, CheckCircle, Clock, AlertTriangle, RefreshCw, CreditCard, Shield, ExternalLink, ArrowLeft } from 'lucide-react';
 
 
 import { ScrollReveal } from '@/hooks/useScrollReveal';
@@ -70,6 +71,7 @@ const BookConsultation = () => {
   // Payment status tracking
   const [paymentStatus, setPaymentStatus] = useState<'unpaid' | 'processing' | 'completed' | 'confirmed'>('unpaid');
   const [paymentWindowOpened, setPaymentWindowOpened] = useState(false);
+  const [showPaymentWarning, setShowPaymentWarning] = useState(false);
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
   const [invoiceUrl, setInvoiceUrl] = useState<string>('');
@@ -741,7 +743,27 @@ const BookConsultation = () => {
     }
   };
 
-  return ( 
+  // Function to handle payment with warning
+  const handlePaymentClick = () => {
+    setShowPaymentWarning(true);
+  };
+
+  // Function to confirm and proceed with payment
+  const confirmPayment = () => {
+    setShowPaymentWarning(false);
+    openPaymentInvoice();
+  };
+
+  // Function to open the payment invoice
+  const openPaymentInvoice = () => {
+    if (invoiceUrl) {
+      console.log('🔗 Opening payment URL:', invoiceUrl);
+      setPaymentWindowOpened(true);
+      window.open(invoiceUrl, '_blank');
+    }
+  };
+
+  return (
     <div>
       <Header />
       <div className="min-h-screen pt-16 bg-gradient-to-br from-background via-background to-muted/30">
@@ -1107,17 +1129,17 @@ const BookConsultation = () => {
                        )}
                      </div>
 
-                    <div className="text-sm text-muted-foreground space-y-2 bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                      <div className="flex items-center gap-2 font-medium text-yellow-800 dark:text-yellow-200">
-                        <AlertTriangle className="h-4 w-4" />
-                        <span>Important Payment Instructions</span>
-                      </div>
-                      <p>• Please verify the payment amount (${CONSULTATION_FEE_USD} USD) is correct before proceeding</p>
-                      <p>• Click the payment button to open secure NOWPayments page</p>
-                      <p>• Complete the <strong>full payment</strong> to proceed with scheduling</p>
-                      <p>• Return to this page after completing payment</p>
-                      <p>• Payment is processed securely through NOWPayments</p>
-                    </div>
+                     <div className="text-sm text-muted-foreground space-y-2 bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                       <div className="flex items-center gap-2 font-medium text-yellow-800 dark:text-yellow-200">
+                         <AlertTriangle className="h-4 w-4" />
+                         <span>Important Payment Instructions</span>
+                       </div>
+                       <p>• Please verify the payment amount (${CONSULTATION_FEE_USD} USD) is correct before proceeding</p>
+                       <p>• Payment will open in a <strong>new tab</strong> - keep this page open</p>
+                       <p>• Complete the <strong>full payment</strong> in the new tab</p>
+                       <p>• <strong className="text-yellow-800 dark:text-yellow-200">IMPORTANT: Return to this page after payment</strong></p>
+                       <p>• We'll automatically detect your payment when you return</p>
+                     </div>
                     
                       {/* Payment Status Information */}
                       <div className="mt-6 p-4 bg-muted/30 rounded-lg border">
@@ -1143,18 +1165,33 @@ const BookConsultation = () => {
                             <p className="text-sm text-yellow-500 mt-1">This usually takes 1-5 minutes</p>
                           </div>
                         )}
-                         {paymentStatus === 'unpaid' && (
-                           <div className="text-center text-muted-foreground">
-                             <p>{paymentWindowOpened 
-                               ? "Return to this tab after completing your payment. We'll automatically detect when it's confirmed." 
-                               : "Complete your payment using the button above to proceed."}</p>
-                             {consultationId && (
-                               <p className="mt-2 text-xs font-mono bg-muted/50 p-2 rounded">
-                                 Order ID: {consultationId}
-                               </p>
-                             )}
-                           </div>
-                         )}
+                          {paymentStatus === 'unpaid' && (
+                            <div className="text-center">
+                              {paymentWindowOpened ? (
+                                <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-3">
+                                  <div className="flex items-center justify-center gap-2 text-blue-800 dark:text-blue-200">
+                                    <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                                    <span className="font-semibold text-lg">Payment Window Opened</span>
+                                  </div>
+                                  <div className="text-blue-700 dark:text-blue-300 space-y-2">
+                                    <p className="text-lg font-medium">👆 Complete your payment in the new tab</p>
+                                    <p className="text-base"><strong>THEN RETURN HERE</strong> - We'll detect your payment automatically</p>
+                                    <div className="flex items-center justify-center gap-2 mt-3 text-sm bg-blue-100 dark:bg-blue-900/50 p-2 rounded">
+                                      <ArrowLeft className="h-4 w-4" />
+                                      <span>Keep this tab open and return after payment</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-muted-foreground">Complete your payment using the button above to proceed.</p>
+                              )}
+                              {consultationId && (
+                                <p className="mt-2 text-xs font-mono bg-muted/50 p-2 rounded">
+                                  Order ID: {consultationId}
+                                </p>
+                              )}
+                            </div>
+                          )}
                      </div>
 
                      {/* Payment Status Check and Continue Button */}
@@ -1236,6 +1273,50 @@ const BookConsultation = () => {
             </ScrollReveal>
           </div>
         )}
+
+        {/* Payment Warning Dialog */}
+        <Dialog open={showPaymentWarning} onOpenChange={setShowPaymentWarning}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-xl">
+                <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                Important Payment Instructions
+              </DialogTitle>
+              <DialogDescription className="text-base space-y-3 pt-2">
+                <div className="bg-yellow-50 dark:bg-yellow-950/30 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                  <div className="space-y-2 text-sm">
+                    <p className="font-medium text-yellow-800 dark:text-yellow-200">
+                      📋 Before you proceed, please read carefully:
+                    </p>
+                    <div className="space-y-1 text-yellow-700 dark:text-yellow-300">
+                      <p>• Payment will open in a <strong>NEW TAB</strong></p>
+                      <p>• <strong>Keep this page open</strong> at all times</p>
+                      <p>• Complete your payment in the new tab</p>
+                      <p>• <strong className="text-lg">⚠️ RETURN TO THIS TAB after payment</strong></p>
+                      <p>• We'll automatically detect your payment when you return</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200 dark:border-red-800">
+                  <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                    ❌ If you close this tab, you may lose your booking progress
+                  </p>
+                </div>
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setShowPaymentWarning(false)}>
+                Cancel
+              </Button>
+              <Button onClick={confirmPayment} className="bg-gradient-to-r from-primary to-primary/80">
+                <div className="flex items-center gap-2">
+                  <ExternalLink className="h-4 w-4" />
+                  I Understand - Open Payment
+                </div>
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Step 3: Schedule */}
         {currentStep === 'schedule' && (
