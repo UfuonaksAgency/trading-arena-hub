@@ -1206,39 +1206,27 @@ const BookConsultation = () => {
                                  Complete Payment to Continue
                                </div>
                              </Button>
-                             <p className="text-xs text-muted-foreground text-center">
-                               This button will be enabled once your payment is confirmed
-                             </p>
-                             
-                             {/* Manual Override - Available after payment creation */}
-                             {(invoiceUrl || paymentId) && (
-                               <div className="pt-4 border-t border-muted-foreground/20">
-                                 <p className="text-sm text-muted-foreground text-center mb-3">
-                                   Already completed your payment but not detected yet?
-                                 </p>
-                                 <Button 
-                                   onClick={() => {
-                                     console.log('🚀 Manual override: proceeding to schedule');
-                                     setPaymentStatus('confirmed');
-                                     setCurrentStep('schedule');
-                                     toast({
-                                       title: "Proceeding to Schedule",
-                                       description: "You can now schedule your consultation. If payment wasn't completed, please contact support.",
-                                     });
-                                   }}
-                                   variant="outline"
-                                   className="w-full max-w-md h-11 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-all duration-200"
-                                 >
-                                   <div className="flex items-center gap-2">
-                                     <CheckCircle className="h-4 w-4" />
-                                     I've Completed Payment - Continue to Schedule
-                                   </div>
-                                 </Button>
-                                 <p className="text-xs text-muted-foreground/80 text-center mt-2">
-                                   Use this if automatic verification is taking too long
-                                 </p>
-                               </div>
-                             )}
+                              <p className="text-xs text-muted-foreground text-center">
+                                Payment will be automatically detected when completed
+                              </p>
+                              
+                              {/* Payment Detection Information */}
+                              {(invoiceUrl || paymentId) && (
+                                <div className="pt-4 border-t border-muted-foreground/20">
+                                  <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                                      <RefreshCw className="h-4 w-4" />
+                                      Automatic Payment Detection Active
+                                    </div>
+                                    <div className="space-y-2 text-xs text-muted-foreground">
+                                      <p>• Real-time monitoring for instant detection</p>
+                                      <p>• Automatic checks when you return to this tab</p>
+                                      <p>• Status updates every 15 seconds</p>
+                                      <p>• You'll be automatically redirected when payment is confirmed</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
                            </div>
                          )}
                      </div>
