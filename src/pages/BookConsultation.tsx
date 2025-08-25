@@ -69,6 +69,7 @@ const BookConsultation = () => {
 
   // Payment status tracking
   const [paymentStatus, setPaymentStatus] = useState<'unpaid' | 'processing' | 'completed' | 'confirmed'>('unpaid');
+  const [paymentWindowOpened, setPaymentWindowOpened] = useState(false);
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
   const [invoiceUrl, setInvoiceUrl] = useState<string>('');
@@ -406,6 +407,20 @@ const BookConsultation = () => {
       };
     }
   }, [currentStep, formData.email, consultationId, checkPaymentStatus, toast]);
+
+  // Window focus detection for payment UX
+  useEffect(() => {
+    if (paymentWindowOpened && consultationId) {
+      const handleFocus = async () => {
+        setIsCheckingPayment(true);
+        await checkPaymentStatus();
+        setIsCheckingPayment(false);
+      };
+
+      window.addEventListener('focus', handleFocus);
+      return () => window.removeEventListener('focus', handleFocus);
+    }
+  }, [paymentWindowOpened, consultationId, checkPaymentStatus]);
   
 
   // Load Calendly widget and set up event listeners
@@ -495,7 +510,7 @@ const BookConsultation = () => {
         }
         
         if (container && !container.querySelector('iframe')) {
-          const calendlyUrl = 'https://calendly.com/tradewithmrk/30min';
+          const calendlyUrl = 'https://calendly.com/tradewithmrk/30-minutes-consultation-meeting';
           
           try {
             window.Calendly.initInlineWidget({
@@ -599,7 +614,7 @@ const BookConsultation = () => {
         setCurrentStep('payment');
         toast({
           title: "Ready for Payment! 💳",
-          description: "Please complete the payment to confirm your consultation booking.",
+          description: "Click the payment button to open the secure payment page in a new tab.",
         });
 
       } catch (paymentError: any) {
@@ -696,7 +711,7 @@ const BookConsultation = () => {
     setIsScheduleClicked(true);
 
     try {
-      const calendlyUrl = 'https://calendly.com/tradewithmrk/30min';
+      const calendlyUrl = 'https://calendly.com/tradewithmrk/30-minutes-consultation-meeting';
       
       window.Calendly.initPopupWidget({
         url: calendlyUrl,
@@ -1031,18 +1046,26 @@ const BookConsultation = () => {
                      <div className="flex justify-center">
                        {invoiceUrl ? (
                          <div className="space-y-4">
-                           <Button
-                             onClick={() => window.open(invoiceUrl, '_blank')}
-                             className="w-full max-w-md h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-105 transition-all duration-200"
-                           >
-                             <div className="flex items-center gap-2">
-                               <Coins className="h-6 w-6" />
-                               Pay with Crypto - ${CONSULTATION_FEE_USD} USD
-                             </div>
-                           </Button>
-                           <p className="text-sm text-muted-foreground">
-                             Click to open secure payment page in a new tab
-                           </p>
+                            <Button
+                              onClick={() => {
+                                setPaymentWindowOpened(true);
+                                setPaymentStatus('processing');
+                                window.open(invoiceUrl, '_blank');
+                                toast({
+                                  title: "Payment window opened",
+                                  description: "Complete your payment in the new tab, then return to this page. We'll automatically check your payment status.",
+                                });
+                              }}
+                              className="w-full max-w-md h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-105 transition-all duration-200"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Coins className="h-6 w-6" />
+                                Pay with Crypto - ${CONSULTATION_FEE_USD} USD
+                              </div>
+                            </Button>
+                            <p className="text-sm text-muted-foreground">
+                              Click to open secure payment page in a new tab
+                            </p>
                          </div>
                        ) : consultationId ? (
                          <div className="space-y-4">
@@ -1096,16 +1119,17 @@ const BookConsultation = () => {
                       <p>• Payment is processed securely through NOWPayments</p>
                     </div>
                     
-                     {/* Payment Status Information */}
-                     <div className="mt-6 p-4 bg-muted/30 rounded-lg border">
-                        <h4 className="font-semibold text-center mb-3 flex items-center justify-center gap-2">
-                          <div className={`w-3 h-3 rounded-full ${
-                            paymentStatus === 'completed' || paymentStatus === 'confirmed' ? 'bg-green-500' : 
-                            paymentStatus === 'processing' ? 'bg-yellow-500' : 'bg-red-500'
-                          }`}></div>
-                          Payment Status: {(paymentStatus === 'completed' || paymentStatus === 'confirmed') ? 'Confirmed' : 
-                                          paymentStatus === 'processing' ? 'Processing' : 'Awaiting Payment'}
-                        </h4>
+                      {/* Payment Status Information */}
+                      <div className="mt-6 p-4 bg-muted/30 rounded-lg border">
+                         <h4 className="font-semibold text-center mb-3 flex items-center justify-center gap-2">
+                           <div className={`w-3 h-3 rounded-full ${
+                             paymentStatus === 'completed' || paymentStatus === 'confirmed' ? 'bg-green-500' : 
+                             paymentStatus === 'processing' ? 'bg-yellow-500' : 'bg-red-500'
+                           }`}></div>
+                           {isCheckingPayment ? "Checking Payment Status..." : 
+                            `Payment Status: ${(paymentStatus === 'completed' || paymentStatus === 'confirmed') ? 'Confirmed' : 
+                                               paymentStatus === 'processing' ? 'Processing' : 'Awaiting Payment'}`}
+                         </h4>
                         {(paymentStatus === 'completed' || paymentStatus === 'confirmed') && (
                           <div className="text-center text-green-600 dark:text-green-400">
                             <CheckCircle className="h-6 w-6 mx-auto mb-2" />
@@ -1119,16 +1143,18 @@ const BookConsultation = () => {
                             <p className="text-sm text-yellow-500 mt-1">This usually takes 1-5 minutes</p>
                           </div>
                         )}
-                        {paymentStatus === 'unpaid' && (
-                          <div className="text-center text-muted-foreground">
-                            <p>Complete your payment using the button above to proceed.</p>
-                            {consultationId && (
-                              <p className="mt-2 text-xs font-mono bg-muted/50 p-2 rounded">
-                                Order ID: {consultationId}
-                              </p>
-                            )}
-                          </div>
-                        )}
+                         {paymentStatus === 'unpaid' && (
+                           <div className="text-center text-muted-foreground">
+                             <p>{paymentWindowOpened 
+                               ? "Return to this tab after completing your payment. We'll automatically detect when it's confirmed." 
+                               : "Complete your payment using the button above to proceed."}</p>
+                             {consultationId && (
+                               <p className="mt-2 text-xs font-mono bg-muted/50 p-2 rounded">
+                                 Order ID: {consultationId}
+                               </p>
+                             )}
+                           </div>
+                         )}
                      </div>
 
                      {/* Payment Status Check and Continue Button */}
