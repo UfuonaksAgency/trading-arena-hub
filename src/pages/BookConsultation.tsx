@@ -15,8 +15,8 @@ import { Helmet } from 'react-helmet-async';
 
 import { ScrollReveal } from '@/hooks/useScrollReveal';
 
-// Production configuration
-const CONSULTATION_FEE_USD = 300;
+// Testing configuration - will change to 300 after testing
+const CONSULTATION_FEE_USD = 17;
 
 // Calendly interface for TypeScript
 declare global {
@@ -71,7 +71,7 @@ const BookConsultation = () => {
   const [paymentStatus, setPaymentStatus] = useState<'unpaid' | 'processing' | 'completed'>('unpaid');
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
-  const [paymentWidgetUrl, setPaymentWidgetUrl] = useState<string>('');
+  const [invoiceUrl, setInvoiceUrl] = useState<string>('');
 
   // Add state for consultation ID to persist between steps
   const [consultationId, setConsultationId] = useState<string | null>(null);
@@ -302,6 +302,7 @@ const BookConsultation = () => {
     setIsSubmitting(true);
 
     try {
+      // First submit the consultation form
       const { data, error } = await supabase.functions.invoke('submit-consultation-request', {
         body: formData
       });
@@ -313,27 +314,32 @@ const BookConsultation = () => {
       if (data?.success && data?.consultationId) {
         setConsultationId(data.consultationId);
         
-        // Generate dynamic payment widget URL with consultation ID as order_id
-        const baseWidgetUrl = 'https://nowpayments.io/embeds/payment-widget?iid=4623735469';
-        const dynamicParams = new URLSearchParams({
-          order_id: data.consultationId,
-          order_description: `Trading Consultation for ${formData.name}`,
-          price_amount: CONSULTATION_FEE_USD.toString(),
-          price_currency: 'USD',
-          success_url: `${window.location.origin}/book-consultation?payment=success`,
-          cancel_url: `${window.location.origin}/book-consultation?payment=cancel`
+        // Create NOWPayments invoice
+        const { data: paymentData, error: paymentError } = await supabase.functions.invoke('create-crypto-payment', {
+          body: {
+            consultationId: data.consultationId,
+            amountUSD: CONSULTATION_FEE_USD
+          }
         });
-        
-        const dynamicWidgetUrl = `${baseWidgetUrl}&${dynamicParams.toString()}`;
-        setPaymentWidgetUrl(dynamicWidgetUrl);
-        
-        console.log('Generated widget URL:', dynamicWidgetUrl);
-        
-        setCurrentStep('payment');
-        toast({
-          title: "Form Submitted Successfully! ✅",
-          description: "Please complete the payment to confirm your consultation booking.",
-        });
+
+        if (paymentError) {
+          throw new Error(paymentError.message || 'Failed to create payment invoice');
+        }
+
+        if (paymentData?.success && paymentData?.payment?.invoice_url) {
+          setInvoiceUrl(paymentData.payment.invoice_url);
+          setPaymentId(paymentData.payment.id);
+          
+          console.log('Invoice created successfully:', paymentData.payment.invoice_url);
+          
+          setCurrentStep('payment');
+          toast({
+            title: "Form Submitted Successfully! ✅",
+            description: "Please complete the payment to confirm your consultation booking.",
+          });
+        } else {
+          throw new Error('Invalid payment response from server');
+        }
       } else {
         throw new Error('Invalid response from server');
       }
@@ -396,12 +402,12 @@ const BookConsultation = () => {
   return ( 
     <div>
       <Helmet>
-        <title>Book Trading Consultation - $300 USD Crypto Payment | Mr. K Trading Arena</title>
-        <meta name="description" content="Book a 30-minute personalized trading consultation with professional crypto trader Mr. K for $300 USD. Secure cryptocurrency payment via NOWPayments. Partial payments accepted." />
+        <title>Book Trading Consultation - $17 USD Crypto Payment (Testing) | Mr. K Trading Arena</title>
+        <meta name="description" content="Book a 30-minute personalized trading consultation with professional crypto trader Mr. K for $17 USD (testing price). Secure cryptocurrency payment via NOWPayments invoice system." />
         <meta name="keywords" content="trading consultation, crypto trading advice, cryptocurrency payment, trading strategy, market analysis, professional trader" />
         <link rel="canonical" href="https://tradewithmrk.com/book-consultation" />
         <meta property="og:title" content="Book Trading Consultation - Professional Crypto Trading Guidance" />
-        <meta property="og:description" content="Get personalized trading advice from expert trader Mr. K. 30-minute consultation for $300 USD with cryptocurrency payment." />
+        <meta property="og:description" content="Get personalized trading advice from expert trader Mr. K. 30-minute consultation for $17 USD (testing) with cryptocurrency payment." />
         <meta property="og:url" content="https://tradewithmrk.com/book-consultation" />
         <meta property="og:type" content="website" />
       </Helmet>
@@ -475,7 +481,7 @@ const BookConsultation = () => {
                     <Award className="h-6 w-6 text-primary" />
                     Professional Trading Consultation
                   </CardTitle>
-                  <div className="text-3xl font-bold text-primary mt-2">$300 USD</div>
+                  <div className="text-3xl font-bold text-primary mt-2">${CONSULTATION_FEE_USD} USD</div>
                   <p className="text-muted-foreground mt-2">One-time fee for your 30-minute expert session</p>
                 </CardHeader>
                 <CardContent className="text-center">
@@ -692,7 +698,7 @@ const BookConsultation = () => {
                     ${CONSULTATION_FEE_USD} USD
                   </div>
                   <p className="text-muted-foreground">
-                    Use the payment widget below to complete your consultation booking
+                    Click the secure payment button to complete your consultation booking
                   </p>
                 </CardHeader>
               </Card>
@@ -702,22 +708,31 @@ const BookConsultation = () => {
               <Card className="border-2 shadow-lg">
                 <CardContent className="p-6">
                   <div className="text-center space-y-6">
-                    <h3 className="text-xl font-semibold">NOWPayments Secure Checkout</h3>
+                    <h3 className="text-xl font-semibold">Complete Your Crypto Payment</h3>
                     
-                     {/* NOWPayments Widget */}
+                     {/* Invoice Payment Button */}
                      <div className="flex justify-center">
-                         <iframe 
-                          src={paymentWidgetUrl || "https://nowpayments.io/embeds/payment-widget?iid=4623735469"} 
-                          width="410" 
-                          height="696" 
-                          frameBorder="0" 
-                          scrolling="no" 
-                          style={{overflow: 'hidden'}}
-                          title="NOWPayments Crypto Payment Widget"
-                          className="border-2 border-muted rounded-lg shadow-lg"
-                        >
-                         Can't load payment widget. Please try refreshing the page or contact support.
-                       </iframe>
+                       {invoiceUrl ? (
+                         <div className="space-y-4">
+                           <Button
+                             onClick={() => window.open(invoiceUrl, '_blank')}
+                             className="w-full max-w-md h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-105 transition-all duration-200"
+                           >
+                             <div className="flex items-center gap-2">
+                               <Coins className="h-6 w-6" />
+                               Pay with Crypto - ${CONSULTATION_FEE_USD} USD
+                             </div>
+                           </Button>
+                           <p className="text-sm text-muted-foreground">
+                             Click to open secure payment page in a new tab
+                           </p>
+                         </div>
+                       ) : (
+                         <div className="flex items-center gap-2 text-muted-foreground">
+                           <Loader2 className="h-4 w-4 animate-spin" />
+                           Loading payment options...
+                         </div>
+                       )}
                      </div>
 
                     <div className="text-sm text-muted-foreground space-y-2 bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
@@ -726,9 +741,9 @@ const BookConsultation = () => {
                         <span>Important Payment Instructions</span>
                       </div>
                       <p>• Please verify the payment amount (${CONSULTATION_FEE_USD} USD) is correct before proceeding</p>
-                      <p>• Ensure all payment details in the widget above are accurate</p>
+                      <p>• Click the payment button to open secure NOWPayments page</p>
                       <p>• Complete the <strong>full payment</strong> to proceed with scheduling</p>
-                      <p>• Do not close this page until payment is confirmed</p>
+                      <p>• Return to this page after completing payment</p>
                       <p>• Payment is processed securely through NOWPayments</p>
                     </div>
                     
@@ -754,16 +769,16 @@ const BookConsultation = () => {
                            <p className="font-medium">Payment received, verifying transaction...</p>
                          </div>
                        )}
-                       {paymentStatus === 'unpaid' && (
-                         <div className="text-center text-muted-foreground">
-                           <p>Complete your payment using the widget above to proceed.</p>
-                           {consultationId && (
-                             <p className="mt-2 text-xs font-mono bg-muted/50 p-2 rounded">
-                               Order ID: {consultationId}
-                             </p>
-                           )}
-                         </div>
-                       )}
+                        {paymentStatus === 'unpaid' && (
+                          <div className="text-center text-muted-foreground">
+                            <p>Complete your payment using the button above to proceed.</p>
+                            {consultationId && (
+                              <p className="mt-2 text-xs font-mono bg-muted/50 p-2 rounded">
+                                Order ID: {consultationId}
+                              </p>
+                            )}
+                          </div>
+                        )}
                      </div>
 
                     {/* Continue button - only enabled after full payment */}

@@ -11,28 +11,27 @@ interface CreatePaymentRequest {
   amountUSD: number;
 }
 
-interface NOWPaymentsResponse {
-  payment_id: string;
-  payment_status: string;
-  pay_address: string;
-  price_amount: number;
-  price_currency: string;
-  pay_amount: number;
-  pay_currency: string;
+interface NOWPaymentsInvoiceResponse {
+  id: string;
   order_id: string;
   order_description: string;
+  price_amount: number;
+  price_currency: string;
+  pay_currency?: string;
+  invoice_url: string;
+  success_url: string;
+  cancel_url: string;
   created_at: string;
-  updated_at: string;
-  payment_url?: string;
+  ipn_callback_url: string;
 }
 
-async function createNOWPayment(
+async function createNOWInvoice(
   apiKey: string,
   consultationId: string,
   amountUSD: number,
   consultation: any,
   supabaseUrl: string
-): Promise<NOWPaymentsResponse> {
+): Promise<NOWPaymentsInvoiceResponse> {
   console.log('🌐 NOWPAYMENTS API CALL START');
   
   // Validate API key format
@@ -40,28 +39,27 @@ async function createNOWPayment(
     throw new Error('Invalid NOWPayments API key format');
   }
   
-  const paymentData = {
+  const invoiceData = {
     price_amount: amountUSD,
     price_currency: "USD",
-    pay_currency: "btc", // Default to Bitcoin
-    order_id: `consultation-${consultationId.substring(0, 20)}`,
+    order_id: consultationId,
     order_description: `Trading Consultation Payment - ${consultation.email}`,
     ipn_callback_url: `${supabaseUrl}/functions/v1/nowpayments-webhook`,
     success_url: `https://tradewithmrk.com/book-consultation?payment=success`,
     cancel_url: `https://tradewithmrk.com/book-consultation?payment=cancelled`
   };
 
-  console.log("Creating NOWPayments payment request...");
+  console.log("Creating NOWPayments invoice request...");
   console.log("API Key length:", apiKey.length);
   console.log("API Key first 10 chars:", apiKey.substring(0, 10) + "...");
   
-  const response = await fetch('https://api.nowpayments.io/v1/payment', {
+  const response = await fetch('https://api.nowpayments.io/v1/invoice', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': apiKey,
     },
-    body: JSON.stringify(paymentData),
+    body: JSON.stringify(invoiceData),
   });
 
   console.log(`NOWPayments API response status: ${response.status}`);
@@ -85,38 +83,38 @@ async function createNOWPayment(
     }
   }
 
-  const paymentResponse: NOWPaymentsResponse = await response.json();
+  const invoiceResponse: NOWPaymentsInvoiceResponse = await response.json();
   
   // Validate response structure
-  if (!paymentResponse.payment_id || !paymentResponse.pay_address) {
-    console.error("Invalid NOWPayments response:", paymentResponse);
-    throw new Error('Invalid payment response from NOWPayments');
+  if (!invoiceResponse.id || !invoiceResponse.invoice_url) {
+    console.error("Invalid NOWPayments invoice response:", invoiceResponse);
+    throw new Error('Invalid invoice response from NOWPayments');
   }
   
-  console.log("NOWPayments payment created successfully");
-  console.log(`Payment ID: ${paymentResponse.payment_id}`);
-  console.log(`Payment Address: ${paymentResponse.pay_address}`);
-  console.log(`Amount: ${paymentResponse.pay_amount} ${paymentResponse.pay_currency}`);
+  console.log("NOWPayments invoice created successfully");
+  console.log(`Invoice ID: ${invoiceResponse.id}`);
+  console.log(`Invoice URL: ${invoiceResponse.invoice_url}`);
+  console.log(`Amount: ${invoiceResponse.price_amount} ${invoiceResponse.price_currency}`);
   
-  return paymentResponse;
+  return invoiceResponse;
 }
 
 async function storePaymentRecord(
   supabase: any,
   consultationId: string,
-  paymentResponse: NOWPaymentsResponse
+  invoiceResponse: NOWPaymentsInvoiceResponse
 ): Promise<any> {
   console.log('💾 DATABASE INSERT START');
   
   const insertData = {
     consultation_id: consultationId,
-    nowpayments_payment_id: paymentResponse.payment_id,
-    payment_address: paymentResponse.pay_address,
-    coin_type: paymentResponse.pay_currency.toUpperCase(),
-    amount_usd: paymentResponse.price_amount,
-    amount_crypto: paymentResponse.pay_amount,
+    nowpayments_payment_id: invoiceResponse.id,
+    payment_address: invoiceResponse.invoice_url,
+    coin_type: 'MULTI', // Invoice supports multiple currencies
+    amount_usd: invoiceResponse.price_amount,
+    amount_crypto: invoiceResponse.price_amount, // Will be determined by user's currency choice
     status: 'pending',
-    payment_data: paymentResponse,
+    payment_data: invoiceResponse,
     expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours from now
   };
   
@@ -201,9 +199,9 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Consultation found:", consultation.id);
     console.log("✅ STEP 4 COMPLETE");
 
-    console.log("\n💰 STEP 5: NOWPAYMENTS PAYMENT CREATION");
+    console.log("\n💰 STEP 5: NOWPAYMENTS INVOICE CREATION");
     
-    const paymentResponse = await createNOWPayment(
+    const invoiceResponse = await createNOWInvoice(
       NOWPAYMENTS_API_KEY,
       consultationId,
       amountUSD,
@@ -218,32 +216,28 @@ const handler = async (req: Request): Promise<Response> => {
     const paymentRecord = await storePaymentRecord(
       supabase,
       consultationId,
-      paymentResponse
+      invoiceResponse
     );
 
     console.log(`Payment record stored with ID: ${paymentRecord.id}`);
     console.log("✅ STEP 6 COMPLETE");
 
     console.log("\n🎉 STEP 7: SUCCESS RESPONSE");
-    console.log("Payment creation successful!");
-    console.log(`Payment ID: ${paymentResponse.payment_id}`);
-    console.log(`Address: ${paymentResponse.pay_address}`);
-    console.log(`Amount: ${paymentResponse.price_amount} USD / ${paymentResponse.pay_amount} ${paymentResponse.pay_currency.toUpperCase()}`);
-    console.log(`Status: ${paymentResponse.payment_status}`);
+    console.log("Invoice creation successful!");
+    console.log(`Invoice ID: ${invoiceResponse.id}`);
+    console.log(`Invoice URL: ${invoiceResponse.invoice_url}`);
+    console.log(`Amount: ${invoiceResponse.price_amount} ${invoiceResponse.price_currency}`);
 
     return new Response(JSON.stringify({
       success: true,
       payment: {
         id: paymentRecord.id,
-        nowpayments_payment_id: paymentResponse.payment_id,
-        payment_address: paymentResponse.pay_address, // Fixed: match frontend expectation
-        coin_type: paymentResponse.pay_currency.toUpperCase(),
-        amount_usd: paymentResponse.price_amount,
-        amount_crypto: paymentResponse.pay_amount || 0, // Ensure not undefined
-        status: paymentResponse.payment_status,
+        invoice_id: invoiceResponse.id,
+        invoice_url: invoiceResponse.invoice_url,
+        amount_usd: invoiceResponse.price_amount,
+        status: 'pending',
         expires_at: paymentRecord.expires_at,
-        payment_url: paymentResponse.payment_url,
-        qr_code_url: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${paymentResponse.pay_address}`,
+        order_id: invoiceResponse.order_id,
       }
     }), {
       status: 200,
