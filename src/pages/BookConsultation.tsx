@@ -487,7 +487,16 @@ const BookConsultation = () => {
         });
 
         if (paymentError) {
-          throw new Error(paymentError.message || 'Failed to create payment invoice');
+          console.error('Payment creation error:', paymentError);
+          
+          // More specific error messages based on the error type
+          if (paymentError.message?.includes('Service configuration error')) {
+            throw new Error('Payment system is temporarily unavailable. Please try again in a few minutes or contact support.');
+          } else if (paymentError.message?.includes('environment variable')) {
+            throw new Error('Payment system configuration issue. Please contact support.');
+          } else {
+            throw new Error(paymentError.message || 'Failed to create payment invoice');
+          }
         }
 
         if (paymentData?.success && paymentData?.payment?.invoice_url) {

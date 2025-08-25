@@ -311,15 +311,18 @@ const handler = async (req: Request): Promise<Response> => {
       console.log(`  * Format: ${SUPABASE_SERVICE_ROLE_KEY.substring(0, 10)}...${SUPABASE_SERVICE_ROLE_KEY.substring(SUPABASE_SERVICE_ROLE_KEY.length - 10)}`);
     }
 
-    // Enhanced validation with specific error messages
-    if (!NOWPAYMENTS_API_KEY) {
-      console.error("❌ CRITICAL: NOWPAYMENTS_API_KEY is missing from environment variables");
+    // Enhanced validation with specific error messages and better debugging
+    if (!NOWPAYMENTS_API_KEY || NOWPAYMENTS_API_KEY.trim() === '') {
+      console.error("❌ CRITICAL: NOWPAYMENTS_API_KEY is missing or empty from environment variables");
       console.error("🔍 This could mean:");
       console.error("  1. The secret was not set in Supabase Edge Functions settings");
       console.error("  2. The secret name doesn't match exactly");
       console.error("  3. The secret hasn't propagated to this edge function instance yet");
       console.error("  4. There's a caching issue with the edge function deployment");
-      throw new Error('NOWPAYMENTS_API_KEY environment variable is missing - check Supabase secrets configuration');
+      console.error("  5. The secret value is empty or contains only whitespace");
+      
+      // More user-friendly error message
+      throw new Error('Service configuration error. Please try again later.');
     }
     
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
