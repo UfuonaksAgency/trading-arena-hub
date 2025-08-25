@@ -157,12 +157,13 @@ const BookConsultation = () => {
   }, [isScheduleClicked]);
 
   const checkPaymentStatus = useCallback(async () => {
-    if (!formData.email && !consultationId) return;
+    if (!formData.email && !consultationId && !paymentId) return;
     
     setIsCheckingPayment(true);
     
     try {
       let consultationData;
+      let shouldVerifyPayment = false;
       
       // Check by consultation ID first if available, otherwise by email
       if (consultationId) {
@@ -205,16 +206,61 @@ const BookConsultation = () => {
         }
       }
 
+      // If we have a paymentId and payment is not already confirmed, verify with NOWPayments
+      if (paymentId && consultationData?.payment_status !== 'paid') {
+        console.log('Verifying payment with NOWPayments API...');
+        shouldVerifyPayment = true;
+        
+        const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-crypto-payment', {
+          body: { paymentId }
+        });
+
+        if (verifyError) {
+          console.error('Payment verification error:', verifyError);
+          toast({
+            title: "Verification Failed",
+            description: "Unable to verify payment with provider. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (verifyData?.success && verifyData?.payment) {
+          console.log('Payment verification response:', verifyData.payment);
+          
+          // Re-check consultation status after verification
+          if (consultationId) {
+            const { data: updatedConsultation } = await supabase
+              .from('consultations')
+              .select('payment_status')
+              .eq('id', consultationId)
+              .single();
+            
+            if (updatedConsultation) {
+              consultationData = { ...consultationData, payment_status: updatedConsultation.payment_status };
+            }
+          }
+        }
+      }
+
+      // Update UI based on final payment status
       if (consultationData?.payment_status === 'paid') {
         setPaymentStatus('completed');
+        setCurrentStep('schedule');
         toast({
           title: "Payment Confirmed! 🎉",
-          description: "Your payment has been confirmed. Redirecting to scheduling...",
+          description: "Your payment has been confirmed. You can now schedule your consultation.",
         });
       } else if (consultationData?.payment_status === 'processing') {
         setPaymentStatus('processing');
       } else {
         setPaymentStatus('unpaid');
+        if (shouldVerifyPayment) {
+          toast({
+            title: "Payment Pending",
+            description: "Payment is still being processed. Please wait or check again in a few minutes.",
+          });
+        }
       }
     } catch (error) {
       console.error('Payment status check error:', error);
@@ -226,7 +272,7 @@ const BookConsultation = () => {
     } finally {
       setIsCheckingPayment(false);
     }
-  }, [formData.email, consultationId, toast]);
+  }, [formData.email, consultationId, paymentId, toast]);
 
   // Real-time payment status updates
   useEffect(() => {

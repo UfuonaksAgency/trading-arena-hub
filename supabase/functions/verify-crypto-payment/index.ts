@@ -137,6 +137,18 @@ serve(async (req) => {
               }
             })
             .eq('id', paymentId);
+
+          // Also update consultation payment status if linked
+          if (payment.consultation_id && newStatus === 'completed') {
+            console.log(`Updating consultation payment status to paid for consultation: ${payment.consultation_id}`);
+            await supabase
+              .from('consultations')
+              .update({
+                payment_status: 'paid',
+                admin_notes: `Payment confirmed via API verification. NOWPayments ID: ${payment.nowpayments_payment_id}. Amount: ${nowPaymentsData.outcome_amount} ${nowPaymentsData.outcome_currency}.`
+              })
+              .eq('id', payment.consultation_id);
+          }
         }
 
         return new Response(JSON.stringify({
