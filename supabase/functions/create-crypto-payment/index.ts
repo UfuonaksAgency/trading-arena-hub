@@ -1,7 +1,52 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.52.0";
 
-// NOWPAYMENTS Payment Creation Function - Updated 2025-08-25T16:11:00Z
+// NOWPAYMENTS Payment Creation Function - Updated 2025-08-25T17:15:00Z - FORCE REDEPLOY v3.0
+// Enhanced environment validation and error handling
+
+// CRITICAL: Validate environment variables at module load time
+const REQUIRED_SECRETS = ['NOWPAYMENTS_API_KEY', 'NOWPAYMENTS_IPN_SECRET', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'];
+
+function validateEnvironmentAtStartup() {
+  console.log('🔧 STARTUP ENVIRONMENT VALIDATION - v3.0');
+  console.log(`📅 Function loaded at: ${new Date().toISOString()}`);
+  
+  const envStatus: Record<string, any> = {};
+  let criticalMissing = false;
+  
+  REQUIRED_SECRETS.forEach(secretName => {
+    const value = Deno.env.get(secretName);
+    const isPresent = value && value.trim().length > 0;
+    
+    envStatus[secretName] = {
+      present: isPresent,
+      length: isPresent ? value.length : 0,
+      preview: isPresent ? `${value.substring(0, 6)}...${value.substring(value.length - 4)}` : 'MISSING'
+    };
+    
+    if (!isPresent) {
+      criticalMissing = true;
+      console.error(`❌ CRITICAL: ${secretName} is missing or empty!`);
+    } else {
+      console.log(`✅ ${secretName}: Present (${value.length} chars)`);
+    }
+  });
+  
+  console.log('📊 Environment Status Summary:', JSON.stringify(envStatus, null, 2));
+  
+  if (criticalMissing) {
+    console.error('🚨 CRITICAL: Some required environment variables are missing!');
+    console.error('🔧 This will cause payment creation to fail.');
+    console.error('💡 Solution: Ensure all secrets are properly configured in Supabase Edge Functions settings.');
+  } else {
+    console.log('✅ All required environment variables are present at startup');
+  }
+  
+  return { criticalMissing, envStatus };
+}
+
+// Run validation at module load
+const startupValidation = validateEnvironmentAtStartup();
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -225,78 +270,42 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`⏱️ Step 1 Duration: ${Date.now() - startTime}ms`);
     console.log("✅ STEP 1 COMPLETE");
 
-    console.log(`\n🔐 STEP 2: ENVIRONMENT VALIDATION [${requestId}] - Enhanced Debug`);
+    console.log(`\n🔐 STEP 2: RUNTIME ENVIRONMENT VALIDATION [${requestId}] - v3.0`);
     const step2Start = Date.now();
     
-    // Debug: List all available environment variables
-    const allEnvVars = Deno.env.toObject();
-    const envKeys = Object.keys(allEnvVars);
-    console.log(`🔍 Total environment variables available: ${envKeys.length}`);
-    console.log(`🔍 Environment variables containing 'NOWPAYMENTS':`, envKeys.filter(key => key.includes('NOWPAYMENTS')));
-    console.log(`🔍 Environment variables containing 'API':`, envKeys.filter(key => key.includes('API')));
+    // Reference startup validation results
+    console.log('📊 Startup Validation Status:', JSON.stringify(startupValidation.envStatus, null, 2));
     
-    // Get all environment variables
+    if (startupValidation.criticalMissing) {
+      console.error('🚨 RUNTIME CHECK: Critical environment variables were missing at startup!');
+      console.error('💡 This indicates a configuration issue that needs to be resolved.');
+      throw new Error('Service configuration error. Please try again later.');
+    }
+    
+    // Runtime re-validation of critical variables
     const NOWPAYMENTS_API_KEY = Deno.env.get('NOWPAYMENTS_API_KEY');
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     
-    // Log detailed environment variable status
-    console.log("🔍 Environment Variables Detailed Check:");
-    console.log(`- NOWPAYMENTS_API_KEY: ${NOWPAYMENTS_API_KEY ? 'FOUND' : 'MISSING'}`);
-    if (NOWPAYMENTS_API_KEY) {
-      console.log(`  * Length: ${NOWPAYMENTS_API_KEY.length} characters`);
-      console.log(`  * Format: ${NOWPAYMENTS_API_KEY.substring(0, 3)}...${NOWPAYMENTS_API_KEY.substring(NOWPAYMENTS_API_KEY.length - 3)}`);
-      console.log(`  * Contains dashes: ${NOWPAYMENTS_API_KEY.includes('-')}`);
-      console.log(`  * All uppercase: ${NOWPAYMENTS_API_KEY === NOWPAYMENTS_API_KEY.toUpperCase()}`);
-    } else {
-      console.error("🚨 CRITICAL: NOWPAYMENTS_API_KEY is completely missing!");
-      console.error("🔍 Checking for alternative key names...");
-      const altKeys = ['NOWPAYMENTS_API_KEY', 'nowpayments_api_key', 'NOW_PAYMENTS_API_KEY', 'NOWPAYMENTS_KEY'];
-      altKeys.forEach(key => {
-        const value = Deno.env.get(key);
-        console.error(`  - ${key}: ${value ? 'FOUND' : 'NOT FOUND'}`);
-      });
-    }
-    
-    console.log(`- SUPABASE_URL: ${SUPABASE_URL ? 'FOUND' : 'MISSING'}`);
-    if (SUPABASE_URL) {
-      console.log(`  * Value: ${SUPABASE_URL}`);
-    }
-    
-    console.log(`- SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY ? 'FOUND' : 'MISSING'}`);
-    if (SUPABASE_SERVICE_ROLE_KEY) {
-      console.log(`  * Length: ${SUPABASE_SERVICE_ROLE_KEY.length} characters`);
-      console.log(`  * Format: ${SUPABASE_SERVICE_ROLE_KEY.substring(0, 10)}...${SUPABASE_SERVICE_ROLE_KEY.substring(SUPABASE_SERVICE_ROLE_KEY.length - 10)}`);
-    }
-
-    // Enhanced validation with specific error messages and better debugging
+    // Final runtime validation
     if (!NOWPAYMENTS_API_KEY || NOWPAYMENTS_API_KEY.trim() === '') {
-      console.error("❌ CRITICAL: NOWPAYMENTS_API_KEY is missing or empty from environment variables");
-      console.error("🔍 This could mean:");
-      console.error("  1. The secret was not set in Supabase Edge Functions settings");
-      console.error("  2. The secret name doesn't match exactly");
-      console.error("  3. The secret hasn't propagated to this edge function instance yet");
-      console.error("  4. There's a caching issue with the edge function deployment");
-      console.error("  5. The secret value is empty or contains only whitespace");
-      
-      // More user-friendly error message
+      console.error("❌ RUNTIME: NOWPAYMENTS_API_KEY became unavailable after startup");
+      console.error("🔍 This indicates an edge function environment issue");
       throw new Error('Service configuration error. Please try again later.');
     }
     
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-      console.error("❌ CRITICAL: Supabase environment variables missing");
-      console.error(`SUPABASE_URL: ${SUPABASE_URL ? 'OK' : 'MISSING'}`);
-      console.error(`SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY ? 'OK' : 'MISSING'}`);
+      console.error("❌ RUNTIME: Supabase environment variables became unavailable");
       throw new Error('Supabase environment variables are required');
     }
     
-    // Test API key format
+    // Validate API key format
     if (NOWPAYMENTS_API_KEY.length < 10) {
-      console.error(`❌ NOWPAYMENTS_API_KEY appears to be invalid - too short: ${NOWPAYMENTS_API_KEY.length} characters`);
-      throw new Error('NOWPAYMENTS_API_KEY appears to be invalid format');
+      console.error(`❌ NOWPAYMENTS_API_KEY format invalid: ${NOWPAYMENTS_API_KEY.length} characters`);
+      throw new Error('Invalid API key format');
     }
     
-    console.log("✅ All environment variables validated successfully");
+    console.log("✅ Runtime environment validation passed");
     console.log(`⏱️ Step 2 Duration: ${Date.now() - step2Start}ms`);
     console.log("✅ STEP 2 COMPLETE");
 
