@@ -73,6 +73,7 @@ const BookConsultation = () => {
   const [paymentWindowOpened, setPaymentWindowOpened] = useState(false);
   // Payment warning dialog state 
   const [showPaymentWarning, setShowPaymentWarning] = useState(false);
+  const [showReturnBanner, setShowReturnBanner] = useState(false);
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
   const [invoiceUrl, setInvoiceUrl] = useState<string>('');
@@ -699,6 +700,18 @@ const BookConsultation = () => {
     }
   };
 
+  const handlePaymentConfirmation = () => {
+    setShowPaymentWarning(false);
+    setShowReturnBanner(true);
+    setPaymentWindowOpened(true);
+    setPaymentStatus('processing');
+    window.open(invoiceUrl, '_blank');
+    toast({
+      title: "Payment Window Opened",
+      description: "Complete your payment and return to this tab. We'll check your status automatically.",
+    });
+  };
+
 
   const handleScheduleClick = () => {
     if (!window.Calendly || !isCalendlyLoaded) {
@@ -765,9 +778,31 @@ const BookConsultation = () => {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-background relative">
       <Header />
-      <div className="min-h-screen pt-16 bg-gradient-to-br from-background via-background to-muted/30">
+      
+      {/* Professional Return Banner */}
+      {showReturnBanner && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary to-primary/90 shadow-xl border-b border-primary/20">
+          <div className="max-w-4xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="h-3 w-3 bg-white rounded-full animate-pulse"></div>
+                <div className="text-white">
+                  <p className="font-semibold text-lg">Payment Window Opened</p>
+                  <p className="text-white/90 text-sm">Complete your payment and return to this tab</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4 text-white">
+                <ArrowLeft className="h-5 w-5" />
+                <span className="font-medium">Return Here After Payment</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className={`min-h-screen pt-16 bg-gradient-to-br from-background via-background to-muted/30 ${showReturnBanner ? 'pt-32' : ''} transition-all duration-300`}>
        
       
       {/* Header Section */}
@@ -1069,18 +1104,10 @@ const BookConsultation = () => {
                      <div className="flex justify-center">
                        {invoiceUrl ? (
                          <div className="space-y-4">
-                            <Button
-                              onClick={() => {
-                                setPaymentWindowOpened(true);
-                                setPaymentStatus('processing');
-                                window.open(invoiceUrl, '_blank');
-                                toast({
-                                  title: "Payment window opened",
-                                  description: "Complete your payment in the new tab, then return to this page. We'll automatically check your payment status.",
-                                });
-                              }}
-                              className="w-full max-w-md h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-105 transition-all duration-200"
-                            >
+                             <Button
+                               onClick={() => setShowPaymentWarning(true)}
+                               className="w-full max-w-md h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-105 transition-all duration-200"
+                             >
                               <div className="flex items-center gap-2">
                                 <Coins className="h-6 w-6" />
                                 Pay with Crypto - ${CONSULTATION_FEE_USD} USD
@@ -1474,12 +1501,49 @@ const BookConsultation = () => {
                </Card>
              </ScrollReveal>
            </div>
-         )}
+           )}
+         </div>
+         
+         {/* Payment Confirmation Dialog */}
+         <Dialog open={showPaymentWarning} onOpenChange={setShowPaymentWarning}>
+           <DialogContent className="sm:max-w-md">
+             <DialogHeader>
+               <DialogTitle className="flex items-center space-x-2">
+                 <Shield className="h-5 w-5 text-primary" />
+                 <span>Secure Payment Process</span>
+               </DialogTitle>
+               <DialogDescription className="space-y-3 text-sm">
+                 <p>You'll be redirected to our secure payment provider in a new tab.</p>
+                 <div className="bg-muted/50 p-4 rounded-lg border border-border/50">
+                   <div className="flex items-start space-x-3">
+                     <ExternalLink className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                     <div className="space-y-2">
+                       <p className="font-medium text-foreground">Important Instructions:</p>
+                       <ul className="space-y-1 text-muted-foreground">
+                         <li>• Complete your payment in the new tab</li>
+                         <li>• Keep this tab open during payment</li>
+                         <li>• Return here after successful payment</li>
+                         <li>• Payment confirmation will appear automatically</li>
+                       </ul>
+                     </div>
+                   </div>
+                 </div>
+               </DialogDescription>
+             </DialogHeader>
+             <DialogFooter className="flex-col space-y-2 sm:space-y-0">
+               <Button onClick={handlePaymentConfirmation} className="w-full bg-primary hover:bg-primary/90">
+                 <ExternalLink className="mr-2 h-4 w-4" />
+                 Continue to Payment
+               </Button>
+               <Button variant="outline" onClick={() => setShowPaymentWarning(false)} className="w-full">
+                 Cancel
+               </Button>
+             </DialogFooter>
+           </DialogContent>
+         </Dialog>
        </div>
-       </div>
-       <Footer />
      </div>
    );
- };
+};
 
 export default BookConsultation;
