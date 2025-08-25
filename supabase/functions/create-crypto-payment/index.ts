@@ -33,18 +33,10 @@ async function createNOWInvoice(
   consultation: any,
   supabaseUrl: string
 ): Promise<NOWPaymentsInvoiceResponse> {
-  const invoiceStartTime = Date.now();
-  console.log(`🌐 NOWPAYMENTS API CALL START - ${new Date().toISOString()}`);
-  
-  // Enhanced API key validation
-  console.log("🔐 API Key Validation:");
-  console.log(`  * Length: ${apiKey.length} characters`);
-  console.log(`  * Format: ${apiKey.substring(0, 3)}...${apiKey.substring(apiKey.length - 3)}`);
-  console.log(`  * Contains dashes: ${apiKey.includes('-')}`);
-  console.log(`  * All uppercase: ${apiKey === apiKey.toUpperCase()}`);
+  console.log(`Creating NOWPayments invoice for consultation ${consultationId}`);
   
   if (!apiKey || apiKey.length < 10) {
-    console.error(`❌ Invalid API key format - Length: ${apiKey?.length || 0}`);
+    console.error('Invalid NOWPayments API key format');
     throw new Error('Invalid NOWPayments API key format');
   }
   
@@ -57,13 +49,6 @@ async function createNOWInvoice(
     success_url: `https://tradewithmrk.com/book-consultation?payment=success`,
     cancel_url: `https://tradewithmrk.com/book-consultation?payment=cancelled`
   };
-
-  console.log("📋 Invoice Request Data:");
-  console.log(JSON.stringify(invoiceData, null, 2));
-  console.log(`🎯 Target URL: https://api.nowpayments.io/v1/invoice`);
-  console.log(`🔑 Using API Key: ${apiKey.substring(0, 10)}...`);
-  
-  const fetchStartTime = Date.now();
   
   try {
     const response = await fetch('https://api.nowpayments.io/v1/invoice', {
@@ -74,61 +59,33 @@ async function createNOWInvoice(
       },
       body: JSON.stringify(invoiceData),
     });
-
-    const fetchDuration = Date.now() - fetchStartTime;
-    console.log(`⏱️ NOWPayments API call completed in ${fetchDuration}ms`);
-    console.log(`📊 Response Status: ${response.status} ${response.statusText}`);
-    console.log(`📋 Response Headers:`, Object.fromEntries(response.headers.entries()));
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`❌ NOWPayments API Error Response:`);
-      console.error(`   Status: ${response.status} ${response.statusText}`);
-      console.error(`   Headers:`, Object.fromEntries(response.headers.entries()));
-      console.error(`   Body: ${errorText}`);
+      console.error(`NOWPayments API Error: ${response.status} - ${errorText}`);
       
-      // Enhanced error parsing
       try {
         const errorData = JSON.parse(errorText);
-        console.error(`   Parsed Error:`, errorData);
-        
         if (errorData.code === 'INVALID_API_KEY') {
-          console.error("🚨 API Key is invalid - check your NOWPayments account");
           throw new Error('invalid_api_key');
         } else if (errorData.code === 'FORBIDDEN') {
-          console.error("🚨 API access forbidden - check account verification");
           throw new Error('api_forbidden');
         } else {
-          console.error(`🚨 NOWPayments API error: ${errorData.message || 'Unknown error'}`);
           throw new Error(`nowpayments_error: ${errorData.message || errorText}`);
         }
       } catch (parseError) {
-        console.error("❌ Failed to parse error response:", parseError);
         throw new Error(`nowpayments_error: ${errorText}`);
       }
     }
 
     const invoiceResponse: NOWPaymentsInvoiceResponse = await response.json();
-    console.log("✅ NOWPayments Response Received:");
-    console.log(JSON.stringify(invoiceResponse, null, 2));
     
-    // Enhanced response validation
     if (!invoiceResponse.id || !invoiceResponse.invoice_url) {
-      console.error("❌ Invalid NOWPayments invoice response structure:");
-      console.error(`   Missing ID: ${!invoiceResponse.id}`);
-      console.error(`   Missing URL: ${!invoiceResponse.invoice_url}`);
-      console.error(`   Full response:`, invoiceResponse);
+      console.error('Invalid NOWPayments invoice response structure');
       throw new Error('Invalid invoice response from NOWPayments');
     }
     
-    const totalDuration = Date.now() - invoiceStartTime;
-    console.log("✅ NOWPayments invoice created successfully");
-    console.log(`   Invoice ID: ${invoiceResponse.id}`);
-    console.log(`   Invoice URL: ${invoiceResponse.invoice_url}`);
-    console.log(`   Amount: ${invoiceResponse.price_amount} ${invoiceResponse.price_currency}`);
-    console.log(`   Order ID: ${invoiceResponse.order_id}`);
-    console.log(`⏱️ Total NOWPayments operation duration: ${totalDuration}ms`);
-    
+    console.log(`NOWPayments invoice created: ${invoiceResponse.id}`);
     return invoiceResponse;
     
   } catch (networkError: any) {
