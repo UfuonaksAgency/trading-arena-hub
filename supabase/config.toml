@@ -61,3 +61,12 @@ verify_jwt = false
 
 [functions.manual-payment-verify]
 verify_jwt = false
+
+[functions.verify-crypto-payment]
+verify_jwt = false
+
+[functions.create-crypto-payment]
+verify_jwt = false
+
+[functions.nowpayments-webhook]
+verify_jwt = false
