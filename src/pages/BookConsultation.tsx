@@ -113,18 +113,6 @@ const BookConsultation = () => {
       // Clear URL parameters to clean up the URL
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
-    } else if (paymentParam === 'cancelled') {
-      console.log('Payment cancelled detected from URL');
-      setCurrentStep('payment');
-      toast({
-        title: "Payment Cancelled ❌",
-        description: "Your payment was cancelled. You can try again when ready.",
-        variant: "destructive",
-      });
-      
-      // Clear URL parameters
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, '', newUrl);
     }
   }, []);
 

@@ -92,7 +92,7 @@ async function createNOWInvoice(
     order_description: `Trading Consultation Payment - ${consultation.email}`,
     ipn_callback_url: `${supabaseUrl}/functions/v1/nowpayments-webhook`,
     success_url: `https://tradewithmrk.com/payment-success`,
-    cancel_url: `https://tradewithmrk.com/book-consultation?payment=cancelled`
+    cancel_url: `https://tradewithmrk.com/payment-cancelled`
   };
   
   try {
