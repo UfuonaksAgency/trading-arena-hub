@@ -30,27 +30,44 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get payment record
+    // Get payment record with consultation info
     const { data: payment, error: paymentError } = await supabase
       .from('crypto_payments')
-      .select('*')
+      .select(`
+        *,
+        consultations (
+          id,
+          payment_status
+        )
+      `)
       .eq('id', paymentId)
       .single();
 
     if (paymentError || !payment) {
+      console.error('Payment lookup error:', paymentError);
       throw new Error('Payment not found');
     }
 
-    console.log(`Payment found with status: ${payment.status}`);
+    console.log(`Payment found with status: ${payment.status}`, {
+      paymentId,
+      paymentStatus: payment.status,
+      consultationStatus: payment.consultations?.payment_status
+    });
 
     // If already completed, return current status
-    if (payment.status === 'completed') {
+    if (payment.status === 'completed' || payment.consultations?.payment_status === 'paid') {
+      const finalStatus = payment.status === 'completed' ? 'completed' : 
+                         payment.consultations?.payment_status === 'paid' ? 'paid' : payment.status;
+      
+      console.log(`Payment already confirmed with status: ${finalStatus}`);
+      
       return new Response(JSON.stringify({
         success: true,
         payment: {
           id: payment.id,
-          status: payment.status,
+          status: finalStatus,
           nowpayments_payment_id: payment.nowpayments_payment_id,
+          consultation_payment_status: payment.consultations?.payment_status
         }
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -160,6 +177,7 @@ serve(async (req) => {
             nowpayments_status: nowPaymentsData.payment_status,
             outcome_amount: nowPaymentsData.outcome_amount,
             outcome_currency: nowPaymentsData.outcome_currency,
+            consultation_payment_status: newStatus === 'completed' ? 'paid' : payment.consultations?.payment_status
           }
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -170,12 +188,15 @@ serve(async (req) => {
     }
 
     // Return current status if no API check was possible
+    const finalStatus = payment.consultations?.payment_status === 'paid' ? 'paid' : payment.status;
+    
     return new Response(JSON.stringify({
       success: true,
       payment: {
         id: payment.id,
-        status: payment.status,
+        status: finalStatus,
         nowpayments_payment_id: payment.nowpayments_payment_id,
+        consultation_payment_status: payment.consultations?.payment_status
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

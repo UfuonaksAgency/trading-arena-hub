@@ -68,7 +68,7 @@ const BookConsultation = () => {
   const [isCalendlyLoaded, setIsCalendlyLoaded] = useState(false);
 
   // Payment status tracking
-  const [paymentStatus, setPaymentStatus] = useState<'unpaid' | 'processing' | 'completed'>('unpaid');
+  const [paymentStatus, setPaymentStatus] = useState<'unpaid' | 'processing' | 'completed' | 'confirmed'>('unpaid');
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
   const [invoiceUrl, setInvoiceUrl] = useState<string>('');
@@ -129,7 +129,7 @@ const BookConsultation = () => {
 
   // Auto-advance to schedule step when payment is confirmed
   useEffect(() => {
-    if (currentStep === 'payment' && paymentStatus === 'completed') {
+    if (currentStep === 'payment' && (paymentStatus === 'completed' || paymentStatus === 'confirmed')) {
       const timer = setTimeout(() => {
         setCurrentStep('schedule');
         toast({
@@ -264,7 +264,7 @@ const BookConsultation = () => {
 
       // Update UI based on final payment status
       if (consultationData?.payment_status === 'paid') {
-        setPaymentStatus('completed');
+        setPaymentStatus('confirmed');
         setCurrentStep('schedule');
         toast({
           title: "Payment Confirmed! 🎉",
@@ -295,7 +295,7 @@ const BookConsultation = () => {
 
   // Real-time payment status updates
   useEffect(() => {
-    if (currentStep === 'payment' && formData.email) {
+    if (currentStep === 'payment' && (formData.email || consultationId)) {
       const channel = supabase
         .channel('consultation-payments')
         .on(
@@ -304,15 +304,16 @@ const BookConsultation = () => {
             event: 'UPDATE',
             schema: 'public',
             table: 'consultations',
-            filter: `email=eq.${formData.email}`
+            filter: formData.email ? `email=eq.${formData.email}` : `id=eq.${consultationId}`
           },
           (payload) => {
             console.log('Consultation updated:', payload);
             if (payload.new.payment_status === 'paid') {
-              setPaymentStatus('completed');
+              setPaymentStatus('confirmed');
+              setCurrentStep('schedule');
               toast({
                 title: "Payment Confirmed! 🎉",
-                description: "Your payment has been confirmed. Advancing to scheduling...",
+                description: "Your payment has been confirmed. You can now schedule your consultation.",
               });
             } else if (payload.new.payment_status === 'processing') {
               setPaymentStatus('processing');
@@ -322,8 +323,40 @@ const BookConsultation = () => {
               });
             }
           }
-        )
-        .subscribe();
+        );
+
+      // Also listen to crypto_payments table updates
+      if (consultationId) {
+        channel.on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'crypto_payments',
+            filter: `consultation_id=eq.${consultationId}`,
+          },
+          (payload) => {
+            console.log('Payment update received:', payload);
+            if (payload.new && typeof payload.new === 'object' && 'status' in payload.new) {
+              const newStatus = payload.new.status as string;
+              console.log('New payment status:', newStatus);
+              const mappedStatus = newStatus === 'completed' ? 'confirmed' : newStatus;
+              setPaymentStatus(mappedStatus as any);
+              
+              if (newStatus === 'completed') {
+                console.log('Payment confirmed, moving to schedule step');
+                setCurrentStep('schedule');
+                toast({
+                  title: "Payment Confirmed!",
+                  description: "Your payment has been successfully processed. You can now schedule your consultation.",
+                });
+              }
+            }
+          }
+        );
+      }
+
+      channel.subscribe();
 
       // Initial check
       checkPaymentStatus();
@@ -336,7 +369,7 @@ const BookConsultation = () => {
         clearInterval(interval);
       };
     }
-  }, [currentStep, formData.email, checkPaymentStatus, toast]);
+  }, [currentStep, formData.email, consultationId, checkPaymentStatus, toast]);
   
 
   // Load Calendly widget and set up event listeners
