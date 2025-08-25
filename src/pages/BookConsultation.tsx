@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Coins, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { Coins, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, CheckCircle, Clock, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 
 import { ScrollReveal } from '@/hooks/useScrollReveal';
@@ -90,6 +90,58 @@ const BookConsultation = () => {
     localStorage.removeItem('bookConsultation');
   }, []);
 
+  // Check URL parameters for payment status on mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentParam = urlParams.get('payment');
+    
+    if (paymentParam === 'success') {
+      console.log('Payment success detected from URL');
+      setCurrentStep('payment');
+      setPaymentStatus('processing');
+      toast({
+        title: "Payment Processing 🔄",
+        description: "Your payment is being verified. We'll update you when it's confirmed.",
+      });
+      
+      // Start checking payment status immediately
+      setTimeout(() => {
+        checkPaymentStatus();
+      }, 2000);
+      
+      // Clear URL parameters to clean up the URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    } else if (paymentParam === 'cancelled') {
+      console.log('Payment cancelled detected from URL');
+      setCurrentStep('payment');
+      toast({
+        title: "Payment Cancelled ❌",
+        description: "Your payment was cancelled. You can try again when ready.",
+        variant: "destructive",
+      });
+      
+      // Clear URL parameters
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, []);
+
+  // Auto-advance to schedule step when payment is confirmed
+  useEffect(() => {
+    if (currentStep === 'payment' && paymentStatus === 'completed') {
+      const timer = setTimeout(() => {
+        setCurrentStep('schedule');
+        toast({
+          title: "Ready to Schedule! 🎉",
+          description: "Your payment is confirmed. You can now schedule your consultation.",
+        });
+      }, 1500); // Give user time to see the confirmation
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep, paymentStatus, toast]);
+
   // Scroll to top when step changes
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -105,35 +157,76 @@ const BookConsultation = () => {
   }, [isScheduleClicked]);
 
   const checkPaymentStatus = useCallback(async () => {
-    if (!formData.email) return;
+    if (!formData.email && !consultationId) return;
+    
+    setIsCheckingPayment(true);
     
     try {
-      // Check consultation payment status directly
-      const { data: consultationData, error } = await supabase
-        .from('consultations')
-        .select('payment_status, admin_notes')
-        .eq('email', formData.email)
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+      let consultationData;
+      
+      // Check by consultation ID first if available, otherwise by email
+      if (consultationId) {
+        const { data, error } = await supabase
+          .from('consultations')
+          .select('payment_status, admin_notes, email')
+          .eq('id', consultationId)
+          .single();
+          
+        if (error) {
+          console.error('Consultation check by ID error:', error);
+        } else {
+          consultationData = data;
+          // Update formData.email if not set
+          if (!formData.email && data?.email) {
+            setFormData(prev => ({ ...prev, email: data.email }));
+          }
+        }
+      }
+      
+      // Fallback to email lookup if no consultation ID or ID lookup failed
+      if (!consultationData && formData.email) {
+        const { data, error } = await supabase
+          .from('consultations')
+          .select('payment_status, admin_notes, id')
+          .eq('email', formData.email)
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
 
-      if (error) {
-        console.error('Consultation check error:', error);
-        return;
+        if (error) {
+          console.error('Consultation check by email error:', error);
+        } else {
+          consultationData = data;
+          // Set consultation ID if found
+          if (data?.id && !consultationId) {
+            setConsultationId(data.id);
+          }
+        }
       }
 
       if (consultationData?.payment_status === 'paid') {
         setPaymentStatus('completed');
         toast({
           title: "Payment Confirmed! 🎉",
-          description: "Your payment has been confirmed. You can now schedule your consultation.",
+          description: "Your payment has been confirmed. Redirecting to scheduling...",
         });
+      } else if (consultationData?.payment_status === 'processing') {
+        setPaymentStatus('processing');
+      } else {
+        setPaymentStatus('unpaid');
       }
     } catch (error) {
       console.error('Payment status check error:', error);
+      toast({
+        title: "Check Failed",
+        description: "Unable to verify payment status. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCheckingPayment(false);
     }
-  }, [formData.email, toast]);
+  }, [formData.email, consultationId, toast]);
 
   // Real-time payment status updates
   useEffect(() => {
@@ -154,7 +247,13 @@ const BookConsultation = () => {
               setPaymentStatus('completed');
               toast({
                 title: "Payment Confirmed! 🎉",
-                description: "Your payment has been confirmed. You can now schedule your consultation.",
+                description: "Your payment has been confirmed. Advancing to scheduling...",
+              });
+            } else if (payload.new.payment_status === 'processing') {
+              setPaymentStatus('processing');
+              toast({
+                title: "Payment Processing",
+                description: "Your payment is being verified...",
               });
             }
           }
@@ -781,43 +880,60 @@ const BookConsultation = () => {
                         )}
                      </div>
 
-                    {/* Continue button - only enabled after full payment */}
-                    <div className="pt-6 border-t">
-                      <div className="flex items-center justify-center gap-2 mb-4">
-                        {isCheckingPayment && (
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Checking payment status...
+                     {/* Payment Status Check and Continue Button */}
+                     <div className="pt-6 border-t space-y-4">
+                       {/* Manual Payment Check Button */}
+                       <div className="flex items-center justify-center">
+                         <Button 
+                           onClick={checkPaymentStatus}
+                           disabled={isCheckingPayment}
+                           variant="outline"
+                           className="w-full max-w-sm h-10 text-sm"
+                         >
+                           {isCheckingPayment ? (
+                             <div className="flex items-center gap-2">
+                               <Loader2 className="h-4 w-4 animate-spin" />
+                               Checking Status...
+                             </div>
+                           ) : (
+                             <div className="flex items-center gap-2">
+                               <RefreshCw className="h-4 w-4" />
+                               Check Payment Status
+                             </div>
+                           )}
+                         </Button>
+                       </div>
+                       
+                       {/* Auto-advance notice */}
+                       {paymentStatus === 'completed' && (
+                         <div className="text-center text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 p-3 rounded-lg border border-green-200 dark:border-green-800">
+                           <div className="flex items-center justify-center gap-2 mb-2">
+                             <CheckCircle className="h-4 w-4" />
+                             <span className="font-semibold">Payment Confirmed!</span>
+                           </div>
+                           <p>Automatically advancing to scheduling...</p>
+                         </div>
+                       )}
+                       
+                        {/* Manual Continue Button - hidden when payment is completed since auto-advance will handle it */}
+                        {paymentStatus !== 'completed' && (
+                          <div>
+                            <Button 
+                              onClick={() => setCurrentStep('schedule')}
+                              disabled={true}
+                              className="w-full max-w-md h-12 text-lg font-semibold bg-muted text-muted-foreground cursor-not-allowed transition-all duration-200"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Clock className="h-5 w-5" />
+                                Complete Payment to Continue
+                              </div>
+                            </Button>
+                            <p className="text-xs text-muted-foreground mt-2 text-center">
+                              This button will be enabled once your payment is confirmed
+                            </p>
                           </div>
                         )}
-                      </div>
-                      <Button 
-                        onClick={() => setCurrentStep('schedule')}
-                        disabled={paymentStatus !== 'completed'}
-                        className={`w-full max-w-md h-12 text-lg font-semibold transition-all duration-200 ${
-                          paymentStatus === 'completed' 
-                            ? 'bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70 hover:scale-105' 
-                            : 'bg-muted text-muted-foreground cursor-not-allowed'
-                        }`}
-                      >
-                        {paymentStatus === 'completed' ? (
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="h-5 w-5" />
-                            Continue to Scheduling
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-5 w-5" />
-                            Complete Payment to Continue
-                          </div>
-                        )}
-                      </Button>
-                      {paymentStatus !== 'completed' && (
-                        <p className="text-xs text-muted-foreground mt-2 text-center">
-                          This button will be enabled once your payment is confirmed
-                        </p>
-                      )}
-                    </div>
+                     </div>
                   </div>
                 </CardContent>
               </Card>
