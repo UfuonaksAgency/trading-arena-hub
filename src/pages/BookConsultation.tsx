@@ -1100,6 +1100,19 @@ const BookConsultation = () => {
                   <div className="text-center space-y-6">
                     <h3 className="text-xl font-semibold">Complete Your Crypto Payment</h3>
                     
+                     {/* Important Payment Instructions */}
+                     <div className="text-sm text-muted-foreground space-y-2 bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800 mb-6">
+                       <div className="flex items-center gap-2 font-medium text-yellow-800 dark:text-yellow-200">
+                         <AlertTriangle className="h-4 w-4" />
+                         <span>Important Payment Instructions</span>
+                       </div>
+                       <p>• Please verify the payment amount (${CONSULTATION_FEE_USD} USD) is correct before proceeding</p>
+                       <p>• Payment will open in a <strong>new tab</strong> - keep this page open</p>
+                       <p>• Complete the <strong>full payment</strong> in the new tab</p>
+                       <p>• <strong className="text-yellow-800 dark:text-yellow-200">IMPORTANT: Return to this page after payment</strong></p>
+                       <p>• We'll automatically detect your payment when you return</p>
+                     </div>
+
                      {/* Invoice Payment Button */}
                      <div className="flex justify-center">
                        {invoiceUrl ? (
@@ -1155,18 +1168,6 @@ const BookConsultation = () => {
                            Loading payment options...
                          </div>
                        )}
-                     </div>
-
-                     <div className="text-sm text-muted-foreground space-y-2 bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                       <div className="flex items-center gap-2 font-medium text-yellow-800 dark:text-yellow-200">
-                         <AlertTriangle className="h-4 w-4" />
-                         <span>Important Payment Instructions</span>
-                       </div>
-                       <p>• Please verify the payment amount (${CONSULTATION_FEE_USD} USD) is correct before proceeding</p>
-                       <p>• Payment will open in a <strong>new tab</strong> - keep this page open</p>
-                       <p>• Complete the <strong>full payment</strong> in the new tab</p>
-                       <p>• <strong className="text-yellow-800 dark:text-yellow-200">IMPORTANT: Return to this page after payment</strong></p>
-                       <p>• We'll automatically detect your payment when you return</p>
                      </div>
                     
                       {/* Payment Status Information */}
