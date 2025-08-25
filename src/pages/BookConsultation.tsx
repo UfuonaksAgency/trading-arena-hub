@@ -510,7 +510,7 @@ const BookConsultation = () => {
         }
         
         if (container && !container.querySelector('iframe')) {
-          const calendlyUrl = 'https://calendly.com/tradewithmrk/30-minutes-consultation-meeting';
+          const calendlyUrl = 'https://calendly.com/tradewithmrk/30min';
           
           try {
             window.Calendly.initInlineWidget({
@@ -711,7 +711,7 @@ const BookConsultation = () => {
     setIsScheduleClicked(true);
 
     try {
-      const calendlyUrl = 'https://calendly.com/tradewithmrk/30-minutes-consultation-meeting';
+      const calendlyUrl = 'https://calendly.com/tradewithmrk/30min';
       
       window.Calendly.initPopupWidget({
         url: calendlyUrl,
