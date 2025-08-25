@@ -505,13 +505,33 @@ const BookConsultation = () => {
       });
 
       if (error) {
-        throw new Error(error.message || 'Failed to submit form');
+        toast({
+          title: "Form Submission Failed",
+          description: error.message || "Failed to submit your consultation request. Please try again.",
+          variant: "destructive",
+        });
+        return;
       }
 
-      if (data?.success && data?.consultationId) {
-        setConsultationId(data.consultationId);
-        
-        // Create NOWPayments invoice
+      if (!data?.success || !data?.consultationId) {
+        toast({
+          title: "Form Submission Failed", 
+          description: "Invalid response from server. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Consultation successfully submitted
+      setConsultationId(data.consultationId);
+      
+      toast({
+        title: "Consultation Request Submitted! ✅",
+        description: "Your request is saved. Setting up payment...",
+      });
+
+      // Now try to create payment invoice
+      try {
         const { data: paymentData, error: paymentError } = await supabase.functions.invoke('create-crypto-payment', {
           body: {
             consultationId: data.consultationId,
@@ -519,40 +539,105 @@ const BookConsultation = () => {
           }
         });
 
-        if (paymentError) {
+        if (paymentError || !paymentData?.success || !paymentData?.payment?.invoice_url) {
           console.error('Payment creation error:', paymentError);
           
-          // More specific error messages based on the error type
-          if (paymentError.message?.includes('Service configuration error')) {
-            throw new Error('Payment system is temporarily unavailable. Please try again in a few minutes or contact support.');
-          } else if (paymentError.message?.includes('environment variable')) {
-            throw new Error('Payment system configuration issue. Please contact support.');
-          } else {
-            throw new Error(paymentError.message || 'Failed to create payment invoice');
-          }
+          // Show consultation success but payment setup failed
+          setCurrentStep('payment');
+          setPaymentStatus('unpaid');
+          
+          toast({
+            title: "Payment Setup Issue ⚠️",
+            description: "Your consultation request is saved, but there was an issue setting up payment. Please try the 'Retry Payment' button or contact support.",
+            variant: "destructive",
+          });
+          return;
         }
 
-        if (paymentData?.success && paymentData?.payment?.invoice_url) {
-          setInvoiceUrl(paymentData.payment.invoice_url);
-          setPaymentId(paymentData.payment.id);
-          
-          console.log('Invoice created successfully:', paymentData.payment.invoice_url);
-          
-          setCurrentStep('payment');
-          toast({
-            title: "Form Submitted Successfully! ✅",
-            description: "Please complete the payment to confirm your consultation booking.",
-          });
-        } else {
-          throw new Error('Invalid payment response from server');
-        }
-      } else {
-        throw new Error('Invalid response from server');
+        // Payment invoice created successfully
+        setInvoiceUrl(paymentData.payment.invoice_url);
+        setPaymentId(paymentData.payment.id);
+        
+        console.log('Invoice created successfully:', paymentData.payment.invoice_url);
+        
+        setCurrentStep('payment');
+        toast({
+          title: "Ready for Payment! 💳",
+          description: "Please complete the payment to confirm your consultation booking.",
+        });
+
+      } catch (paymentError: any) {
+        console.error('Payment creation failed:', paymentError);
+        
+        // Show consultation success but payment setup failed
+        setCurrentStep('payment');
+        setPaymentStatus('unpaid');
+        
+        toast({
+          title: "Payment Setup Issue ⚠️",
+          description: "Your consultation request is saved, but payment setup failed. Please use the 'Retry Payment' button below.",
+          variant: "destructive",
+        });
       }
+
     } catch (error: any) {
+      console.error('Form submission error:', error);
       toast({
-        title: "Submission Failed",
+        title: "Form Submission Failed",
         description: error.message || "There was an error submitting your form. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+
+  const handleRetryPayment = async () => {
+    if (!consultationId) {
+      toast({
+        title: "Error",
+        description: "No consultation ID found. Please refresh and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const { data: paymentData, error: paymentError } = await supabase.functions.invoke('create-crypto-payment', {
+        body: {
+          consultationId,
+          amountUSD: CONSULTATION_FEE_USD
+        }
+      });
+
+      if (paymentError || !paymentData?.success || !paymentData?.payment?.invoice_url) {
+        console.error('Payment retry error:', paymentError);
+        toast({
+          title: "Payment Setup Failed",
+          description: "Still having trouble setting up payment. Please contact support.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Payment invoice created successfully
+      setInvoiceUrl(paymentData.payment.invoice_url);
+      setPaymentId(paymentData.payment.id);
+      setPaymentStatus('unpaid');
+      
+      toast({
+        title: "Payment Ready! 💳",
+        description: "Payment setup successful. Please complete your payment now.",
+      });
+
+    } catch (error: any) {
+      console.error('Payment retry failed:', error);
+      toast({
+        title: "Retry Failed",
+        description: "Unable to retry payment setup. Please contact support.",
         variant: "destructive",
       });
     } finally {
@@ -921,6 +1006,38 @@ const BookConsultation = () => {
                            </Button>
                            <p className="text-sm text-muted-foreground">
                              Click to open secure payment page in a new tab
+                           </p>
+                         </div>
+                       ) : consultationId ? (
+                         <div className="space-y-4">
+                           <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                             <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200 mb-2">
+                               <AlertTriangle className="h-4 w-4" />
+                               <span className="font-medium">Payment Setup Issue</span>
+                             </div>
+                             <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                               Your consultation request is saved, but there was an issue setting up the payment. Please try again.
+                             </p>
+                           </div>
+                           <Button
+                             onClick={handleRetryPayment}
+                             disabled={isSubmitting}
+                             className="w-full max-w-md h-14 text-lg font-semibold bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 hover:scale-105 transition-all duration-200"
+                           >
+                             {isSubmitting ? (
+                               <div className="flex items-center gap-2">
+                                 <Loader2 className="h-5 w-5 animate-spin" />
+                                 Setting up payment...
+                               </div>
+                             ) : (
+                               <div className="flex items-center gap-2">
+                                 <RefreshCw className="h-6 w-6" />
+                                 Retry Payment Setup
+                               </div>
+                             )}
+                           </Button>
+                           <p className="text-sm text-muted-foreground">
+                             Click to retry setting up your payment
                            </p>
                          </div>
                        ) : (
