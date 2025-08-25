@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Coins, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, CheckCircle, Clock, AlertTriangle, RefreshCw, CreditCard, Shield, ExternalLink, ArrowLeft } from 'lucide-react';
+import { Coins, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, CheckCircle, Clock, AlertTriangle, RefreshCw, CreditCard, ExternalLink, ArrowLeft } from 'lucide-react';
 
 
 import { ScrollReveal } from '@/hooks/useScrollReveal';
@@ -70,14 +70,9 @@ const BookConsultation = () => {
 
   // Payment status tracking
   const [paymentStatus, setPaymentStatus] = useState<'unpaid' | 'processing' | 'completed' | 'confirmed'>('unpaid');
-  const [paymentWindowOpened, setPaymentWindowOpened] = useState(false);
-  // Payment warning dialog state 
-  const [showPaymentWarning, setShowPaymentWarning] = useState(false);
-  const [showReturnBanner, setShowReturnBanner] = useState(false);
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
   const [invoiceUrl, setInvoiceUrl] = useState<string>('');
-  const [paymentPopup, setPaymentPopup] = useState<Window | null>(null);
 
   // Add state for consultation ID to persist between steps
   const [consultationId, setConsultationId] = useState<string | null>(null);
@@ -162,73 +157,6 @@ const BookConsultation = () => {
     return () => clearTimeout(timer);
   }, [isScheduleClicked]);
 
-  // Add effect for window messaging (popup communication)
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      // Only accept messages from NOWPayments domains
-      if (!event.origin.includes('nowpayments.io')) return;
-      
-      if (event.data.type === 'PAYMENT_SUCCESS') {
-        toast({
-          title: "Payment Successful! 🎉",
-          description: "Your payment has been confirmed. Processing...",
-        });
-        setPaymentStatus('processing');
-        
-        // Close popup if it exists
-        if (paymentPopup && !paymentPopup.closed) {
-          paymentPopup.close();
-          setPaymentPopup(null);
-        }
-        
-        // Check payment status after a short delay
-        setTimeout(() => checkPaymentStatus(), 2000);
-      } else if (event.data.type === 'PAYMENT_CANCELLED') {
-        toast({
-          title: "Payment Cancelled",
-          description: "Payment was cancelled. You can try again.",
-          variant: "destructive",
-        });
-        
-        // Close popup if it exists
-        if (paymentPopup && !paymentPopup.closed) {
-          paymentPopup.close();
-          setPaymentPopup(null);
-        }
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    
-    // Cleanup popup on unmount
-    return () => {
-      window.removeEventListener('message', handleMessage);
-      if (paymentPopup && !paymentPopup.closed) {
-        paymentPopup.close();
-      }
-    };
-  }, [paymentPopup, toast]);
-
-  // Monitor popup closure
-  useEffect(() => {
-    if (!paymentPopup) return;
-    
-    const checkClosed = setInterval(() => {
-      if (paymentPopup.closed) {
-        setPaymentPopup(null);
-        // Check payment status when popup is closed
-        setTimeout(() => checkPaymentStatus(), 1000);
-        clearInterval(checkClosed);
-        
-        toast({
-          title: "Payment Window Closed",
-          description: "Checking your payment status...",
-        });
-      }
-    }, 1000);
-
-    return () => clearInterval(checkClosed);
-  }, [paymentPopup, toast]);
 
   const checkPaymentStatus = useCallback(async () => {
     if (!formData.email && !consultationId && !paymentId) return;
@@ -481,19 +409,6 @@ const BookConsultation = () => {
     }
   }, [currentStep, formData.email, consultationId, checkPaymentStatus, toast]);
 
-  // Window focus detection for payment UX
-  useEffect(() => {
-    if (paymentWindowOpened && consultationId) {
-      const handleFocus = async () => {
-        setIsCheckingPayment(true);
-        await checkPaymentStatus();
-        setIsCheckingPayment(false);
-      };
-
-      window.addEventListener('focus', handleFocus);
-      return () => window.removeEventListener('focus', handleFocus);
-    }
-  }, [paymentWindowOpened, consultationId, checkPaymentStatus]);
   
 
   // Load Calendly widget and set up event listeners
@@ -769,19 +684,6 @@ const BookConsultation = () => {
     }
   };
 
-  const handlePaymentConfirmation = () => {
-    setShowPaymentWarning(false);
-    setShowReturnBanner(true);
-    setPaymentWindowOpened(true);
-    setPaymentStatus('processing');
-    window.open(invoiceUrl, '_blank');
-    toast({
-      title: "Payment Window Opened",
-      description: "Complete your payment and return to this tab. We'll check your status automatically.",
-    });
-  };
-
-
   const handleScheduleClick = () => {
     if (!window.Calendly || !isCalendlyLoaded) {
       toast({
@@ -826,47 +728,19 @@ const BookConsultation = () => {
     }
   };
 
-  // Function to handle payment with warning
-  const handlePaymentClick = () => {
-    setShowPaymentWarning(true);
-  };
-
-  // Function to confirm and proceed with payment
-  const confirmPayment = () => {
-    setShowPaymentWarning(false);
-    openPaymentInvoice();
-  };
-
-  // Function to open the payment invoice in popup
+  // Function to open the payment invoice in new tab
   const openPaymentInvoice = () => {
     if (invoiceUrl) {
-      console.log('🔗 Opening payment URL in popup:', invoiceUrl);
-      setPaymentWindowOpened(true);
+      console.log('🔗 Opening payment URL in new tab:', invoiceUrl);
       setPaymentStatus('processing');
       
-      // Open popup with specific dimensions and features
-      const popup = window.open(
-        invoiceUrl, 
-        'payment-window',
-        'width=800,height=700,scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no'
-      );
+      // Open in new tab
+      window.open(invoiceUrl, '_blank');
       
-      if (popup) {
-        setPaymentPopup(popup);
-        popup.focus();
-        
-        toast({
-          title: "Payment Window Opened",
-          description: "Complete your payment in the popup. It will close automatically when done.",
-        });
-      } else {
-        // Fallback to new tab if popup is blocked
-        window.open(invoiceUrl, '_blank');
-        toast({
-          title: "Payment Window Opened",
-          description: "Complete your payment and return to this page.",
-        });
-      }
+      toast({
+        title: "Payment Page Opened",
+        description: "Complete your payment in the new tab and return to this page.",
+      });
       
       // Start checking payment status
       setTimeout(() => checkPaymentStatus(), 5000);
@@ -884,28 +758,7 @@ const BookConsultation = () => {
     <div className="min-h-screen bg-background relative">
       <Header />
       
-      {/* Professional Return Banner */}
-      {showReturnBanner && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary to-primary/90 shadow-xl border-b border-primary/20">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="h-3 w-3 bg-white rounded-full animate-pulse"></div>
-                <div className="text-white">
-                  <p className="font-semibold text-lg">Payment Window Opened</p>
-                  <p className="text-white/90 text-sm">Complete your payment and return to this tab</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4 text-white">
-                <ArrowLeft className="h-5 w-5" />
-                <span className="font-medium">Return Here After Payment</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      <div className={`min-h-screen pt-16 bg-gradient-to-br from-background via-background to-muted/30 ${showReturnBanner ? 'pt-32' : ''} transition-all duration-300`}>
+      <div className="min-h-screen pt-16 bg-gradient-to-br from-background via-background to-muted/30">
        
       
       {/* Header Section */}
@@ -1204,35 +1057,37 @@ const BookConsultation = () => {
                     <h3 className="text-xl font-semibold">Complete Your Crypto Payment</h3>
                     
                      {/* Important Payment Instructions */}
-                     <div className="text-sm text-muted-foreground space-y-2 bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800 mb-6">
-                       <div className="flex items-center gap-2 font-medium text-yellow-800 dark:text-yellow-200">
+                     <div className="text-sm space-y-2 bg-red-50 dark:bg-red-950/20 p-4 rounded-lg border border-red-200 dark:border-red-800 mb-6">
+                       <div className="flex items-center gap-2 font-medium text-red-700 dark:text-red-400">
                          <AlertTriangle className="h-4 w-4" />
                          <span>Important Payment Instructions</span>
                        </div>
-                       <p>• Please verify the payment amount (${CONSULTATION_FEE_USD} USD) is correct before proceeding</p>
-                       <p>• Payment will open in a <strong>popup window</strong> - keep this page open</p>
-                       <p>• Complete the <strong>full payment</strong> in the new tab</p>
-                       <p>• <strong className="text-yellow-800 dark:text-yellow-200">IMPORTANT: Complete payment in popup - it will auto-close</strong></p>
-                         <p>• We'll automatically detect your payment and update this page</p>
+                       <div className="space-y-1 text-red-700 dark:text-red-400">
+                         <p>• Verify the payment amount (${CONSULTATION_FEE_USD} USD) is correct before proceeding</p>
+                         <p>• <strong>A new TradeWithMrk payment page will open in a separate tab</strong></p>
+                         <p>• <strong>Complete the full payment in that new tab</strong></p>
+                         <p>• <strong className="text-red-800 dark:text-red-300">CRITICAL: Return to this page after payment to confirm your consultation</strong></p>
+                         <p>• We'll automatically detect your payment and update this page when you return</p>
+                       </div>
                      </div>
 
                      {/* Invoice Payment Button */}
                      <div className="flex justify-center">
-                       {invoiceUrl ? (
-                         <div className="space-y-4">
-                             <Button
-                               onClick={() => setShowPaymentWarning(true)}
-                               className="w-full max-w-md h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-105 transition-all duration-200"
-                             >
-                              <div className="flex items-center gap-2">
-                                <Coins className="h-6 w-6" />
-                                Pay with Crypto - ${CONSULTATION_FEE_USD} USD
-                              </div>
-                            </Button>
-                             <p className="text-sm text-muted-foreground">
-                               Click to open secure payment popup
-                             </p>
-                         </div>
+                        {invoiceUrl ? (
+                          <div className="space-y-4">
+                              <Button
+                                onClick={openPaymentInvoice}
+                                className="w-full max-w-md h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-105 transition-all duration-200"
+                              >
+                               <div className="flex items-center gap-2">
+                                 <Coins className="h-6 w-6" />
+                                 Pay with Crypto - ${CONSULTATION_FEE_USD} USD
+                               </div>
+                             </Button>
+                              <p className="text-sm text-red-700 dark:text-red-400 font-medium">
+                                Click to open TradeWithMrk payment page in new tab
+                              </p>
+                          </div>
                        ) : consultationId ? (
                          <div className="space-y-4">
                            <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
@@ -1299,23 +1154,23 @@ const BookConsultation = () => {
                         )}
                           {paymentStatus === 'unpaid' && (
                             <div className="text-center">
-                              {paymentWindowOpened ? (
-                                <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-3">
-                                  <div className="flex items-center justify-center gap-2 text-blue-800 dark:text-blue-200">
-                                    <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-                                    <span className="font-semibold text-lg">Payment Window Opened</span>
+                              {paymentStatus === 'unpaid' ? (
+                                <p className="text-muted-foreground">Complete your payment using the button above to proceed.</p>
+                              ) : (
+                                <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4 space-y-3">
+                                  <div className="flex items-center justify-center gap-2 text-red-800 dark:text-red-200">
+                                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                                    <span className="font-semibold text-lg">Payment Page Opened</span>
                                   </div>
-                                  <div className="text-blue-700 dark:text-blue-300 space-y-2">
-                                    <p className="text-lg font-medium">👆 Complete your payment in the new tab</p>
-                                    <p className="text-base"><strong>THEN RETURN HERE</strong> - We'll detect your payment automatically</p>
-                                    <div className="flex items-center justify-center gap-2 mt-3 text-sm bg-blue-100 dark:bg-blue-900/50 p-2 rounded">
+                                  <div className="text-red-700 dark:text-red-300 space-y-2">
+                                    <p className="text-lg font-medium">💳 Complete your payment in the TradeWithMrk tab</p>
+                                    <p className="text-base"><strong className="text-red-800 dark:text-red-200">THEN RETURN TO THIS PAGE</strong> - We'll detect your payment automatically</p>
+                                    <div className="flex items-center justify-center gap-2 mt-3 text-sm bg-red-100 dark:bg-red-900/50 p-2 rounded">
                                       <ArrowLeft className="h-4 w-4" />
-                                      <span>Keep this tab open and return after payment</span>
+                                      <span className="font-medium">Keep this page open and return after payment</span>
                                     </div>
                                   </div>
                                 </div>
-                              ) : (
-                                <p className="text-muted-foreground">Complete your payment using the button above to proceed.</p>
                               )}
                               {consultationId && (
                                 <p className="mt-2 text-xs font-mono bg-muted/50 p-2 rounded">
@@ -1406,49 +1261,6 @@ const BookConsultation = () => {
           </div>
         )}
 
-        {/* Payment Warning Dialog */}
-        <Dialog open={showPaymentWarning} onOpenChange={setShowPaymentWarning}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-xl">
-                <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                Important Payment Instructions
-              </DialogTitle>
-              <DialogDescription className="text-base space-y-3 pt-2">
-                <div className="bg-yellow-50 dark:bg-yellow-950/30 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                  <div className="space-y-2 text-sm">
-                    <p className="font-medium text-yellow-800 dark:text-yellow-200">
-                      📋 Before you proceed, please read carefully:
-                    </p>
-                     <div className="space-y-1 text-yellow-700 dark:text-yellow-300">
-                       <p>• Payment will open in a <strong>POPUP WINDOW</strong></p>
-                       <p>• <strong>Keep this page open</strong> at all times</p>
-                       <p>• Complete your payment in the popup</p>
-                       <p>• <strong className="text-lg">✅ Popup will close automatically when done</strong></p>
-                       <p>• We'll automatically detect your payment completion</p>
-                     </div>
-                  </div>
-                </div>
-                 <div className="bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200 dark:border-red-800">
-                   <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                     ❌ If you close this page, you may lose your booking progress
-                   </p>
-                 </div>
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="gap-2 sm:gap-0">
-              <Button variant="outline" onClick={() => setShowPaymentWarning(false)}>
-                Cancel
-              </Button>
-              <Button onClick={confirmPayment} className="bg-gradient-to-r from-primary to-primary/80">
-                <div className="flex items-center gap-2">
-                  <ExternalLink className="h-4 w-4" />
-                  I Understand - Open Payment
-                </div>
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
 
         {/* Step 3: Schedule */}
         {currentStep === 'schedule' && (
@@ -1608,46 +1420,9 @@ const BookConsultation = () => {
            )}
          </div>
          
-         {/* Payment Confirmation Dialog */}
-         <Dialog open={showPaymentWarning} onOpenChange={setShowPaymentWarning}>
-           <DialogContent className="sm:max-w-md">
-             <DialogHeader>
-               <DialogTitle className="flex items-center space-x-2">
-                 <Shield className="h-5 w-5 text-primary" />
-                 <span>Secure Payment Process</span>
-               </DialogTitle>
-               <DialogDescription className="space-y-3 text-sm">
-                 <p>You'll be redirected to our secure payment provider in a new tab.</p>
-                 <div className="bg-muted/50 p-4 rounded-lg border border-border/50">
-                   <div className="flex items-start space-x-3">
-                     <ExternalLink className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                     <div className="space-y-2">
-                       <p className="font-medium text-foreground">Important Instructions:</p>
-                       <ul className="space-y-1 text-muted-foreground">
-                         <li>• Complete your payment in the new tab</li>
-                         <li>• Keep this tab open during payment</li>
-                         <li>• Return here after successful payment</li>
-                         <li>• Payment confirmation will appear automatically</li>
-                       </ul>
-                     </div>
-                   </div>
-                 </div>
-               </DialogDescription>
-             </DialogHeader>
-             <DialogFooter className="flex-col space-y-2 sm:space-y-0">
-               <Button onClick={handlePaymentConfirmation} className="w-full bg-primary hover:bg-primary/90">
-                 <ExternalLink className="mr-2 h-4 w-4" />
-                 Continue to Payment
-               </Button>
-               <Button variant="outline" onClick={() => setShowPaymentWarning(false)} className="w-full">
-                 Cancel
-               </Button>
-             </DialogFooter>
-           </DialogContent>
-         </Dialog>
-       </div>
-     </div>
-   );
-};
+        </div>
+      </div>
+    );
+  };
 
 export default BookConsultation;
