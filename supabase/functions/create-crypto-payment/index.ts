@@ -222,7 +222,7 @@ const handler = async (req: Request): Promise<Response> => {
   const requestId = `req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const startTime = Date.now();
   
-  console.log(`\n🚀🚀🚀 NOWPAYMENTS PAYMENT SYSTEM [${requestId}] 🚀🚀🚀`);
+  console.log(`\n🚀🚀🚀 NOWPAYMENTS PAYMENT SYSTEM v2.1 [${requestId}] 🚀🚀🚀`);
   console.log(`🕐 Request Start Time: ${new Date().toISOString()}`);
   console.log(`🌍 Deno Version: ${Deno.version.deno}`);
   console.log(`💾 Memory Usage: ${JSON.stringify(Deno.memoryUsage())}`);
@@ -267,8 +267,15 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`⏱️ Step 1 Duration: ${Date.now() - startTime}ms`);
     console.log("✅ STEP 1 COMPLETE");
 
-    console.log(`\n🔐 STEP 2: ENVIRONMENT VALIDATION [${requestId}]`);
+    console.log(`\n🔐 STEP 2: ENVIRONMENT VALIDATION [${requestId}] - Enhanced Debug`);
     const step2Start = Date.now();
+    
+    // Debug: List all available environment variables
+    const allEnvVars = Deno.env.toObject();
+    const envKeys = Object.keys(allEnvVars);
+    console.log(`🔍 Total environment variables available: ${envKeys.length}`);
+    console.log(`🔍 Environment variables containing 'NOWPAYMENTS':`, envKeys.filter(key => key.includes('NOWPAYMENTS')));
+    console.log(`🔍 Environment variables containing 'API':`, envKeys.filter(key => key.includes('API')));
     
     // Get all environment variables
     const NOWPAYMENTS_API_KEY = Deno.env.get('NOWPAYMENTS_API_KEY');
@@ -283,6 +290,14 @@ const handler = async (req: Request): Promise<Response> => {
       console.log(`  * Format: ${NOWPAYMENTS_API_KEY.substring(0, 3)}...${NOWPAYMENTS_API_KEY.substring(NOWPAYMENTS_API_KEY.length - 3)}`);
       console.log(`  * Contains dashes: ${NOWPAYMENTS_API_KEY.includes('-')}`);
       console.log(`  * All uppercase: ${NOWPAYMENTS_API_KEY === NOWPAYMENTS_API_KEY.toUpperCase()}`);
+    } else {
+      console.error("🚨 CRITICAL: NOWPAYMENTS_API_KEY is completely missing!");
+      console.error("🔍 Checking for alternative key names...");
+      const altKeys = ['NOWPAYMENTS_API_KEY', 'nowpayments_api_key', 'NOW_PAYMENTS_API_KEY', 'NOWPAYMENTS_KEY'];
+      altKeys.forEach(key => {
+        const value = Deno.env.get(key);
+        console.error(`  - ${key}: ${value ? 'FOUND' : 'NOT FOUND'}`);
+      });
     }
     
     console.log(`- SUPABASE_URL: ${SUPABASE_URL ? 'FOUND' : 'MISSING'}`);
@@ -299,8 +314,12 @@ const handler = async (req: Request): Promise<Response> => {
     // Enhanced validation with specific error messages
     if (!NOWPAYMENTS_API_KEY) {
       console.error("❌ CRITICAL: NOWPAYMENTS_API_KEY is missing from environment variables");
-      console.error("🔍 Available environment variables:", Object.keys(Deno.env.toObject()).filter(key => key.includes('NOWPAYMENTS') || key.includes('API')));
-      throw new Error('NOWPAYMENTS_API_KEY environment variable is required');
+      console.error("🔍 This could mean:");
+      console.error("  1. The secret was not set in Supabase Edge Functions settings");
+      console.error("  2. The secret name doesn't match exactly");
+      console.error("  3. The secret hasn't propagated to this edge function instance yet");
+      console.error("  4. There's a caching issue with the edge function deployment");
+      throw new Error('NOWPAYMENTS_API_KEY environment variable is missing - check Supabase secrets configuration');
     }
     
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
