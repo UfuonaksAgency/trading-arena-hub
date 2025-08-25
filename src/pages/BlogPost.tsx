@@ -56,13 +56,22 @@ const BlogPost = () => {
         throw error;
       }
 
-      setPost(postData as BlogPost);
+      // Update local state with current view count
+      const currentViewCount = postData.view_count || 0;
+      const updatedPost = { ...postData, view_count: currentViewCount + 1 };
+      setPost(updatedPost as BlogPost);
 
-      // Increment view count
-      await supabase
+      // Increment view count in database
+      const { error: updateError } = await supabase
         .from('blog_posts')
-        .update({ view_count: (postData.view_count || 0) + 1 })
+        .update({ view_count: currentViewCount + 1 })
         .eq('id', postData.id);
+
+      if (updateError) {
+        console.error('Failed to update view count:', updateError);
+        // Still show the post even if view count update fails
+        setPost(postData as BlogPost);
+      }
 
       // Fetch related posts based on tags
       if (postData.tags && postData.tags.length > 0) {
@@ -77,6 +86,7 @@ const BlogPost = () => {
         setRelatedPosts((relatedData || []) as BlogPost[]);
       }
     } catch (error) {
+      console.error('Error fetching blog post:', error);
       setNotFound(true);
     } finally {
       setLoading(false);
