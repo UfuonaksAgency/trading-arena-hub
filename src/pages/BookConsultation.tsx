@@ -71,6 +71,7 @@ const BookConsultation = () => {
   // Payment status tracking
   const [paymentStatus, setPaymentStatus] = useState<'unpaid' | 'processing' | 'completed' | 'confirmed'>('unpaid');
   const [paymentWindowOpened, setPaymentWindowOpened] = useState(false);
+  // Payment warning dialog state 
   const [showPaymentWarning, setShowPaymentWarning] = useState(false);
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
