@@ -211,35 +211,54 @@ const BookConsultation = () => {
         console.log('Verifying payment with NOWPayments API...');
         shouldVerifyPayment = true;
         
-        const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-crypto-payment', {
-          body: { paymentId }
-        });
-
-        if (verifyError) {
-          console.error('Payment verification error:', verifyError);
-          toast({
-            title: "Verification Failed",
-            description: "Unable to verify payment with provider. Please try again.",
-            variant: "destructive",
+        try {
+          const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-crypto-payment', {
+            body: { paymentId }
           });
-          return;
-        }
 
-        if (verifyData?.success && verifyData?.payment) {
-          console.log('Payment verification response:', verifyData.payment);
-          
-          // Re-check consultation status after verification
-          if (consultationId) {
-            const { data: updatedConsultation } = await supabase
-              .from('consultations')
-              .select('payment_status')
-              .eq('id', consultationId)
-              .single();
+          if (verifyError) {
+            console.error('Payment verification error:', verifyError);
             
-            if (updatedConsultation) {
-              consultationData = { ...consultationData, payment_status: updatedConsultation.payment_status };
+            // Check if it's a server error vs payment not found
+            if (verifyError.message?.includes('Payment not found')) {
+              toast({
+                title: "Payment Not Found",
+                description: "Unable to locate your payment. Please contact support if you've made a payment.",
+                variant: "destructive",
+              });
+            } else {
+              toast({
+                title: "Verification Failed",
+                description: "Unable to verify payment with provider. Please try again in a few minutes.",
+                variant: "destructive",
+              });
+            }
+            return;
+          }
+
+          if (verifyData?.success && verifyData?.payment) {
+            console.log('Payment verification response:', verifyData.payment);
+            
+            // Re-check consultation status after verification
+            if (consultationId) {
+              const { data: updatedConsultation } = await supabase
+                .from('consultations')
+                .select('payment_status')
+                .eq('id', consultationId)
+                .single();
+              
+              if (updatedConsultation) {
+                consultationData = { ...consultationData, payment_status: updatedConsultation.payment_status };
+              }
             }
           }
+        } catch (verifyError) {
+          console.error('Payment verification failed:', verifyError);
+          toast({
+            title: "Verification Error",
+            description: "Failed to verify payment. Please try again later.",
+            variant: "destructive",
+          });
         }
       }
 
