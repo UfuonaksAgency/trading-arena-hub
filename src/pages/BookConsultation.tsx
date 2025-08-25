@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Coins, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, CheckCircle, Clock, AlertTriangle, RefreshCw } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
+
 
 import { ScrollReveal } from '@/hooks/useScrollReveal';
 
@@ -574,16 +574,6 @@ const BookConsultation = () => {
 
   return ( 
     <div>
-      <Helmet>
-        <title>Book Trading Consultation - $17 USD Crypto Payment (Testing) | Mr. K Trading Arena</title>
-        <meta name="description" content="Book a 30-minute personalized trading consultation with professional crypto trader Mr. K for $17 USD (testing price). Secure cryptocurrency payment via NOWPayments invoice system." />
-        <meta name="keywords" content="trading consultation, crypto trading advice, cryptocurrency payment, trading strategy, market analysis, professional trader" />
-        <link rel="canonical" href="https://tradewithmrk.com/book-consultation" />
-        <meta property="og:title" content="Book Trading Consultation - Professional Crypto Trading Guidance" />
-        <meta property="og:description" content="Get personalized trading advice from expert trader Mr. K. 30-minute consultation for $17 USD (testing) with cryptocurrency payment." />
-        <meta property="og:url" content="https://tradewithmrk.com/book-consultation" />
-        <meta property="og:type" content="website" />
-      </Helmet>
       <Header />
       <div className="min-h-screen pt-16 bg-gradient-to-br from-background via-background to-muted/30">
        

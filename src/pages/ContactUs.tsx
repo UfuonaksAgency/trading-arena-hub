@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Mail, Send, MessageSquare, Clock, CheckCircle, User, HelpCircle, CreditCard, BookOpen, Users, Briefcase, Camera } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
+
 import { ScrollReveal } from '@/hooks/useScrollReveal';
 
 const ContactUs = () => {
@@ -105,27 +105,7 @@ const ContactUs = () => {
   const selectedReason = contactReasons.find(reason => reason.value === formData.reason);
 
   return (
-    <>
-      <Helmet>
-        <title>Contact Us - Mr. K Trading Arena | Get Expert Trading Support</title>
-        <meta name="description" content="Contact Mr. K Trading Arena for technical support, payment issues, consultation questions, and more. Get expert help from our professional trading team." />
-        <meta name="keywords" content="contact trading support, trading help, technical support, payment assistance, consultation questions" />
-        <link rel="canonical" href="https://tradewithmrk.com/contact" />
-        
-        {/* Open Graph / Facebook */}
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://tradewithmrk.com/contact" />
-        <meta property="og:title" content="Contact Us - Mr. K Trading Arena | Get Expert Trading Support" />
-        <meta property="og:description" content="Contact Mr. K Trading Arena for technical support, payment issues, consultation questions, and more. Get expert help from our professional trading team." />
-        
-        {/* Twitter */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://tradewithmrk.com/contact" />
-        <meta property="twitter:title" content="Contact Us - Mr. K Trading Arena | Get Expert Trading Support" />
-        <meta property="twitter:description" content="Contact Mr. K Trading Arena for technical support, payment issues, consultation questions, and more. Get expert help from our professional trading team." />
-      </Helmet>
-
-      <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
         <Header />
         
         <main className="pt-20">
@@ -392,7 +372,6 @@ const ContactUs = () => {
 
         <Footer />
       </div>
-    </>
   );
 };
 
