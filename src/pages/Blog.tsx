@@ -32,6 +32,43 @@ const Blog = () => {
 
   useEffect(() => {
     fetchPosts();
+    
+    // Set up real-time subscription for view count updates
+    const channel = supabase
+      .channel('blog-views')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'blog_posts',
+          filter: 'is_published=eq.true'
+        },
+        (payload) => {
+          // Update the specific post in our state
+          setPosts(currentPosts => 
+            currentPosts.map(post => 
+              post.id === payload.new.id 
+                ? { ...post, view_count: payload.new.view_count }
+                : post
+            )
+          );
+          
+          // Also update featured posts if needed
+          setFeaturedPosts(currentFeatured =>
+            currentFeatured.map(post =>
+              post.id === payload.new.id
+                ? { ...post, view_count: payload.new.view_count }
+                : post
+            )
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchPosts = async () => {

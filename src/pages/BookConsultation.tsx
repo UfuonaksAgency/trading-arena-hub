@@ -77,6 +77,7 @@ const BookConsultation = () => {
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
   const [invoiceUrl, setInvoiceUrl] = useState<string>('');
+  const [paymentPopup, setPaymentPopup] = useState<Window | null>(null);
 
   // Add state for consultation ID to persist between steps
   const [consultationId, setConsultationId] = useState<string | null>(null);
@@ -160,6 +161,74 @@ const BookConsultation = () => {
 
     return () => clearTimeout(timer);
   }, [isScheduleClicked]);
+
+  // Add effect for window messaging (popup communication)
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // Only accept messages from NOWPayments domains
+      if (!event.origin.includes('nowpayments.io')) return;
+      
+      if (event.data.type === 'PAYMENT_SUCCESS') {
+        toast({
+          title: "Payment Successful! 🎉",
+          description: "Your payment has been confirmed. Processing...",
+        });
+        setPaymentStatus('processing');
+        
+        // Close popup if it exists
+        if (paymentPopup && !paymentPopup.closed) {
+          paymentPopup.close();
+          setPaymentPopup(null);
+        }
+        
+        // Check payment status after a short delay
+        setTimeout(() => checkPaymentStatus(), 2000);
+      } else if (event.data.type === 'PAYMENT_CANCELLED') {
+        toast({
+          title: "Payment Cancelled",
+          description: "Payment was cancelled. You can try again.",
+          variant: "destructive",
+        });
+        
+        // Close popup if it exists
+        if (paymentPopup && !paymentPopup.closed) {
+          paymentPopup.close();
+          setPaymentPopup(null);
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    
+    // Cleanup popup on unmount
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      if (paymentPopup && !paymentPopup.closed) {
+        paymentPopup.close();
+      }
+    };
+  }, [paymentPopup, toast]);
+
+  // Monitor popup closure
+  useEffect(() => {
+    if (!paymentPopup) return;
+    
+    const checkClosed = setInterval(() => {
+      if (paymentPopup.closed) {
+        setPaymentPopup(null);
+        // Check payment status when popup is closed
+        setTimeout(() => checkPaymentStatus(), 1000);
+        clearInterval(checkClosed);
+        
+        toast({
+          title: "Payment Window Closed",
+          description: "Checking your payment status...",
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(checkClosed);
+  }, [paymentPopup, toast]);
 
   const checkPaymentStatus = useCallback(async () => {
     if (!formData.email && !consultationId && !paymentId) return;
@@ -768,12 +837,46 @@ const BookConsultation = () => {
     openPaymentInvoice();
   };
 
-  // Function to open the payment invoice
+  // Function to open the payment invoice in popup
   const openPaymentInvoice = () => {
     if (invoiceUrl) {
-      console.log('🔗 Opening payment URL:', invoiceUrl);
+      console.log('🔗 Opening payment URL in popup:', invoiceUrl);
       setPaymentWindowOpened(true);
-      window.open(invoiceUrl, '_blank');
+      setPaymentStatus('processing');
+      
+      // Open popup with specific dimensions and features
+      const popup = window.open(
+        invoiceUrl, 
+        'payment-window',
+        'width=800,height=700,scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no'
+      );
+      
+      if (popup) {
+        setPaymentPopup(popup);
+        popup.focus();
+        
+        toast({
+          title: "Payment Window Opened",
+          description: "Complete your payment in the popup. It will close automatically when done.",
+        });
+      } else {
+        // Fallback to new tab if popup is blocked
+        window.open(invoiceUrl, '_blank');
+        toast({
+          title: "Payment Window Opened",
+          description: "Complete your payment and return to this page.",
+        });
+      }
+      
+      // Start checking payment status
+      setTimeout(() => checkPaymentStatus(), 5000);
+    } else {
+      console.error('❌ No invoice URL available');
+      toast({
+        title: "Payment Error",
+        description: "No payment URL available. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -1107,10 +1210,10 @@ const BookConsultation = () => {
                          <span>Important Payment Instructions</span>
                        </div>
                        <p>• Please verify the payment amount (${CONSULTATION_FEE_USD} USD) is correct before proceeding</p>
-                       <p>• Payment will open in a <strong>new tab</strong> - keep this page open</p>
+                       <p>• Payment will open in a <strong>popup window</strong> - keep this page open</p>
                        <p>• Complete the <strong>full payment</strong> in the new tab</p>
-                       <p>• <strong className="text-yellow-800 dark:text-yellow-200">IMPORTANT: Return to this page after payment</strong></p>
-                       <p>• We'll automatically detect your payment when you return</p>
+                       <p>• <strong className="text-yellow-800 dark:text-yellow-200">IMPORTANT: Complete payment in popup - it will auto-close</strong></p>
+                         <p>• We'll automatically detect your payment and update this page</p>
                      </div>
 
                      {/* Invoice Payment Button */}
@@ -1126,9 +1229,9 @@ const BookConsultation = () => {
                                 Pay with Crypto - ${CONSULTATION_FEE_USD} USD
                               </div>
                             </Button>
-                            <p className="text-sm text-muted-foreground">
-                              Click to open secure payment page in a new tab
-                            </p>
+                             <p className="text-sm text-muted-foreground">
+                               Click to open secure payment popup
+                             </p>
                          </div>
                        ) : consultationId ? (
                          <div className="space-y-4">
@@ -1317,20 +1420,20 @@ const BookConsultation = () => {
                     <p className="font-medium text-yellow-800 dark:text-yellow-200">
                       📋 Before you proceed, please read carefully:
                     </p>
-                    <div className="space-y-1 text-yellow-700 dark:text-yellow-300">
-                      <p>• Payment will open in a <strong>NEW TAB</strong></p>
-                      <p>• <strong>Keep this page open</strong> at all times</p>
-                      <p>• Complete your payment in the new tab</p>
-                      <p>• <strong className="text-lg">⚠️ RETURN TO THIS TAB after payment</strong></p>
-                      <p>• We'll automatically detect your payment when you return</p>
-                    </div>
+                     <div className="space-y-1 text-yellow-700 dark:text-yellow-300">
+                       <p>• Payment will open in a <strong>POPUP WINDOW</strong></p>
+                       <p>• <strong>Keep this page open</strong> at all times</p>
+                       <p>• Complete your payment in the popup</p>
+                       <p>• <strong className="text-lg">✅ Popup will close automatically when done</strong></p>
+                       <p>• We'll automatically detect your payment completion</p>
+                     </div>
                   </div>
                 </div>
-                <div className="bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200 dark:border-red-800">
-                  <p className="text-sm font-medium text-red-800 dark:text-red-200">
-                    ❌ If you close this tab, you may lose your booking progress
-                  </p>
-                </div>
+                 <div className="bg-red-50 dark:bg-red-950/30 p-3 rounded-lg border border-red-200 dark:border-red-800">
+                   <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                     ❌ If you close this page, you may lose your booking progress
+                   </p>
+                 </div>
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="gap-2 sm:gap-0">
