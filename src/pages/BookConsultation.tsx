@@ -160,6 +160,7 @@ const BookConsultation = () => {
     if (!formData.email && !consultationId && !paymentId) return;
     
     setIsCheckingPayment(true);
+    console.log('🔍 Checking payment status...', { email: formData.email, consultationId, paymentId });
     
     try {
       let consultationData;
@@ -177,6 +178,7 @@ const BookConsultation = () => {
           console.error('Consultation check by ID error:', error);
         } else {
           consultationData = data;
+          console.log('Found consultation by ID:', consultationData);
           // Update formData.email if not set
           if (!formData.email && data?.email) {
             setFormData(prev => ({ ...prev, email: data.email }));
@@ -199,6 +201,7 @@ const BookConsultation = () => {
           console.error('Consultation check by email error:', error);
         } else {
           consultationData = data;
+          console.log('Found consultation by email:', consultationData);
           // Set consultation ID if found
           if (data?.id && !consultationId) {
             setConsultationId(data.id);
@@ -239,6 +242,13 @@ const BookConsultation = () => {
           if (verifyData?.success && verifyData?.payment) {
             console.log('Payment verification response:', verifyData.payment);
             
+            // Map verification response to consultation status
+            const verifiedStatus = verifyData.payment.consultation_payment_status || verifyData.payment.status;
+            if (verifiedStatus === 'paid' || verifiedStatus === 'completed') {
+              // Update local data to reflect confirmed payment
+              consultationData = { ...consultationData, payment_status: 'paid' };
+            }
+            
             // Re-check consultation status after verification
             if (consultationId) {
               const { data: updatedConsultation } = await supabase
@@ -249,6 +259,7 @@ const BookConsultation = () => {
               
               if (updatedConsultation) {
                 consultationData = { ...consultationData, payment_status: updatedConsultation.payment_status };
+                console.log('Updated consultation status after verification:', updatedConsultation.payment_status);
               }
             }
           }
@@ -263,16 +274,29 @@ const BookConsultation = () => {
       }
 
       // Update UI based on final payment status
+      console.log('Final consultation payment status:', consultationData?.payment_status);
+      
       if (consultationData?.payment_status === 'paid') {
+        console.log('✅ Payment confirmed, advancing to schedule step');
         setPaymentStatus('confirmed');
-        setCurrentStep('schedule');
-        toast({
-          title: "Payment Confirmed! 🎉",
-          description: "Your payment has been confirmed. You can now schedule your consultation.",
-        });
+        
+        // Only auto-advance if we're currently on the payment step
+        if (currentStep === 'payment') {
+          setCurrentStep('schedule');
+          toast({
+            title: "Payment Confirmed! 🎉",
+            description: "Your payment has been confirmed. You can now schedule your consultation.",
+          });
+        }
       } else if (consultationData?.payment_status === 'processing') {
+        console.log('⏳ Payment processing');
         setPaymentStatus('processing');
+        toast({
+          title: "Payment Processing",
+          description: "Your payment is being verified. Please wait a moment...",
+        });
       } else {
+        console.log('❌ Payment not confirmed');
         setPaymentStatus('unpaid');
         if (shouldVerifyPayment) {
           toast({
@@ -291,11 +315,13 @@ const BookConsultation = () => {
     } finally {
       setIsCheckingPayment(false);
     }
-  }, [formData.email, consultationId, paymentId, toast]);
+  }, [formData.email, consultationId, paymentId, currentStep, toast]);
 
   // Real-time payment status updates
   useEffect(() => {
     if (currentStep === 'payment' && (formData.email || consultationId)) {
+      console.log('🔄 Setting up real-time payment listeners...', { email: formData.email, consultationId });
+      
       const channel = supabase
         .channel('consultation-payments')
         .on(
@@ -307,15 +333,19 @@ const BookConsultation = () => {
             filter: formData.email ? `email=eq.${formData.email}` : `id=eq.${consultationId}`
           },
           (payload) => {
-            console.log('Consultation updated:', payload);
-            if (payload.new.payment_status === 'paid') {
+            console.log('📡 Consultation updated via real-time:', payload);
+            const newPaymentStatus = payload.new.payment_status;
+            
+            if (newPaymentStatus === 'paid') {
+              console.log('✅ Real-time: Payment confirmed, advancing to schedule');
               setPaymentStatus('confirmed');
               setCurrentStep('schedule');
               toast({
                 title: "Payment Confirmed! 🎉",
                 description: "Your payment has been confirmed. You can now schedule your consultation.",
               });
-            } else if (payload.new.payment_status === 'processing') {
+            } else if (newPaymentStatus === 'processing') {
+              console.log('⏳ Real-time: Payment processing');
               setPaymentStatus('processing');
               toast({
                 title: "Payment Processing",
@@ -336,20 +366,22 @@ const BookConsultation = () => {
             filter: `consultation_id=eq.${consultationId}`,
           },
           (payload) => {
-            console.log('Payment update received:', payload);
+            console.log('📡 Payment update received via real-time:', payload);
             if (payload.new && typeof payload.new === 'object' && 'status' in payload.new) {
               const newStatus = payload.new.status as string;
-              console.log('New payment status:', newStatus);
-              const mappedStatus = newStatus === 'completed' ? 'confirmed' : newStatus;
-              setPaymentStatus(mappedStatus as any);
+              console.log('📊 New payment status from real-time:', newStatus);
               
               if (newStatus === 'completed') {
-                console.log('Payment confirmed, moving to schedule step');
+                console.log('✅ Real-time: Crypto payment completed, advancing to schedule');
+                setPaymentStatus('confirmed');
                 setCurrentStep('schedule');
                 toast({
-                  title: "Payment Confirmed!",
+                  title: "Payment Confirmed! 🎉",
                   description: "Your payment has been successfully processed. You can now schedule your consultation.",
                 });
+              } else if (newStatus === 'processing' || payload.new.status === 'partial') {
+                console.log('⏳ Real-time: Crypto payment processing');
+                setPaymentStatus('processing');
               }
             }
           }
@@ -361,10 +393,14 @@ const BookConsultation = () => {
       // Initial check
       checkPaymentStatus();
       
-      // Fallback polling every 30 seconds
-      const interval = setInterval(checkPaymentStatus, 30000);
+      // More frequent polling for better UX
+      const interval = setInterval(() => {
+        console.log('🔄 Polling payment status...');
+        checkPaymentStatus();
+      }, 15000); // Check every 15 seconds
 
       return () => {
+        console.log('🧹 Cleaning up real-time listeners');
         supabase.removeChannel(channel);
         clearInterval(interval);
       };
@@ -1062,26 +1098,27 @@ const BookConsultation = () => {
                     
                      {/* Payment Status Information */}
                      <div className="mt-6 p-4 bg-muted/30 rounded-lg border">
-                       <h4 className="font-semibold text-center mb-3 flex items-center justify-center gap-2">
-                         <div className={`w-3 h-3 rounded-full ${
-                           paymentStatus === 'completed' ? 'bg-green-500' : 
-                           paymentStatus === 'processing' ? 'bg-yellow-500' : 'bg-red-500'
-                         }`}></div>
-                         Payment Status: {paymentStatus === 'completed' ? 'Confirmed' : 
-                                         paymentStatus === 'processing' ? 'Processing' : 'Awaiting Payment'}
-                       </h4>
-                       {paymentStatus === 'completed' && (
-                         <div className="text-center text-green-600 dark:text-green-400">
-                           <CheckCircle className="h-6 w-6 mx-auto mb-2" />
-                           <p className="font-medium">Payment confirmed! You can now proceed to scheduling.</p>
-                         </div>
-                       )}
-                       {paymentStatus === 'processing' && (
-                         <div className="text-center text-yellow-600 dark:text-yellow-400">
-                           <Clock className="h-6 w-6 mx-auto mb-2" />
-                           <p className="font-medium">Payment received, verifying transaction...</p>
-                         </div>
-                       )}
+                        <h4 className="font-semibold text-center mb-3 flex items-center justify-center gap-2">
+                          <div className={`w-3 h-3 rounded-full ${
+                            paymentStatus === 'completed' || paymentStatus === 'confirmed' ? 'bg-green-500' : 
+                            paymentStatus === 'processing' ? 'bg-yellow-500' : 'bg-red-500'
+                          }`}></div>
+                          Payment Status: {(paymentStatus === 'completed' || paymentStatus === 'confirmed') ? 'Confirmed' : 
+                                          paymentStatus === 'processing' ? 'Processing' : 'Awaiting Payment'}
+                        </h4>
+                        {(paymentStatus === 'completed' || paymentStatus === 'confirmed') && (
+                          <div className="text-center text-green-600 dark:text-green-400">
+                            <CheckCircle className="h-6 w-6 mx-auto mb-2" />
+                            <p className="font-medium">Payment confirmed! You can now proceed to scheduling.</p>
+                          </div>
+                        )}
+                        {paymentStatus === 'processing' && (
+                          <div className="text-center text-yellow-600 dark:text-yellow-400">
+                            <Clock className="h-6 w-6 mx-auto mb-2 animate-spin" />
+                            <p className="font-medium">Payment received, verifying transaction...</p>
+                            <p className="text-sm text-yellow-500 mt-1">This usually takes 1-5 minutes</p>
+                          </div>
+                        )}
                         {paymentStatus === 'unpaid' && (
                           <div className="text-center text-muted-foreground">
                             <p>Complete your payment using the button above to proceed.</p>
@@ -1118,35 +1155,66 @@ const BookConsultation = () => {
                          </Button>
                        </div>
                        
-                       {/* Auto-advance notice */}
-                       {paymentStatus === 'completed' && (
-                         <div className="text-center text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 p-3 rounded-lg border border-green-200 dark:border-green-800">
-                           <div className="flex items-center justify-center gap-2 mb-2">
-                             <CheckCircle className="h-4 w-4" />
-                             <span className="font-semibold">Payment Confirmed!</span>
-                           </div>
-                           <p>Automatically advancing to scheduling...</p>
-                         </div>
-                       )}
-                       
-                        {/* Manual Continue Button - hidden when payment is completed since auto-advance will handle it */}
-                        {paymentStatus !== 'completed' && (
-                          <div>
-                            <Button 
-                              onClick={() => setCurrentStep('schedule')}
-                              disabled={true}
-                              className="w-full max-w-md h-12 text-lg font-semibold bg-muted text-muted-foreground cursor-not-allowed transition-all duration-200"
-                            >
-                              <div className="flex items-center gap-2">
-                                <Clock className="h-5 w-5" />
-                                Complete Payment to Continue
-                              </div>
-                            </Button>
-                            <p className="text-xs text-muted-foreground mt-2 text-center">
-                              This button will be enabled once your payment is confirmed
-                            </p>
+                        {/* Auto-advance notice */}
+                        {(paymentStatus === 'completed' || paymentStatus === 'confirmed') && (
+                          <div className="text-center text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 p-3 rounded-lg border border-green-200 dark:border-green-800 animate-pulse">
+                            <div className="flex items-center justify-center gap-2 mb-2">
+                              <CheckCircle className="h-4 w-4" />
+                              <span className="font-semibold">Payment Confirmed!</span>
+                            </div>
+                            <p>Automatically advancing to scheduling...</p>
                           </div>
                         )}
+                       
+                         {/* Manual Continue Button and Override Option */}
+                         {paymentStatus !== 'completed' && paymentStatus !== 'confirmed' && (
+                           <div className="space-y-4">
+                             {/* Disabled continue button */}
+                             <Button 
+                               onClick={() => setCurrentStep('schedule')}
+                               disabled={true}
+                               className="w-full max-w-md h-12 text-lg font-semibold bg-muted text-muted-foreground cursor-not-allowed transition-all duration-200"
+                             >
+                               <div className="flex items-center gap-2">
+                                 <Clock className="h-5 w-5" />
+                                 Complete Payment to Continue
+                               </div>
+                             </Button>
+                             <p className="text-xs text-muted-foreground text-center">
+                               This button will be enabled once your payment is confirmed
+                             </p>
+                             
+                             {/* Manual Override - Available after payment creation */}
+                             {(invoiceUrl || paymentId) && (
+                               <div className="pt-4 border-t border-muted-foreground/20">
+                                 <p className="text-sm text-muted-foreground text-center mb-3">
+                                   Already completed your payment but not detected yet?
+                                 </p>
+                                 <Button 
+                                   onClick={() => {
+                                     console.log('🚀 Manual override: proceeding to schedule');
+                                     setPaymentStatus('confirmed');
+                                     setCurrentStep('schedule');
+                                     toast({
+                                       title: "Proceeding to Schedule",
+                                       description: "You can now schedule your consultation. If payment wasn't completed, please contact support.",
+                                     });
+                                   }}
+                                   variant="outline"
+                                   className="w-full max-w-md h-11 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-all duration-200"
+                                 >
+                                   <div className="flex items-center gap-2">
+                                     <CheckCircle className="h-4 w-4" />
+                                     I've Completed Payment - Continue to Schedule
+                                   </div>
+                                 </Button>
+                                 <p className="text-xs text-muted-foreground/80 text-center mt-2">
+                                   Use this if automatic verification is taking too long
+                                 </p>
+                               </div>
+                             )}
+                           </div>
+                         )}
                      </div>
                   </div>
                 </CardContent>
