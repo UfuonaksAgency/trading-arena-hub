@@ -84,8 +84,8 @@ const BlogCard = ({ post, className = '' }: BlogCardProps) => {
               )}
             </div>
             
-            {post.view_count !== undefined && (
-              <span>{post.view_count} views</span>
+            {post.view_count !== undefined && post.view_count > 0 && (
+              <span>{post.view_count.toLocaleString()} views</span>
             )}
           </div>
         </div>
