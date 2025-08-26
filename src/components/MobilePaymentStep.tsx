@@ -169,8 +169,8 @@ export const MobilePaymentStep: React.FC<MobilePaymentStepProps> = ({
                 <h4 className="font-medium text-sm">Need Help?</h4>
                 <p className="text-xs text-muted-foreground">
                   Payment issues? Contact support at{' '}
-                  <a href="mailto:support@tradejourneyoptions.com" className="text-accent underline">
-                    support@tradejourneyoptions.com
+                  <a href="mailto:contact@tradewithmrk" className="text-accent underline">
+                    contact@tradewithmrk
                   </a>
                 </p>
               </div>
