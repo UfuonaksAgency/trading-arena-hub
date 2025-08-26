@@ -12,9 +12,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Coins, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, CheckCircle, Clock, AlertTriangle, RefreshCw, CreditCard, ExternalLink, ArrowLeft } from 'lucide-react';
-
-
+import { useIsMobile } from '@/hooks/use-mobile';
 import { ScrollReveal } from '@/hooks/useScrollReveal';
+import MobileOptimizedReveal from '@/components/MobileOptimizedReveal';
 
 // Testing configuration - will change to 300 after testing
 const CONSULTATION_FEE_USD = 17;
@@ -61,6 +61,7 @@ const handleCalendlyMessage = (e: MessageEvent) => {
 
 const BookConsultation = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [currentStep, setCurrentStep] = useState<'form' | 'payment' | 'schedule'>('form');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isScheduleClicked, setIsScheduleClicked] = useState(false);
@@ -754,18 +755,18 @@ const BookConsultation = () => {
         <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%)] animate-pulse"></div>
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="text-center">
-            <ScrollReveal>
+            <MobileOptimizedReveal>
               <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
                 Book Your Trading
                 <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"> Strategy Session</span>
               </h1>
-            </ScrollReveal>
-            <ScrollReveal delay={100}>
+            </MobileOptimizedReveal>
+            <MobileOptimizedReveal delay={100}>
               <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
                 Get personalized trading guidance from our expert. Complete the form, make payment, and schedule your one-on-one consultation.
               </p>
-            </ScrollReveal>
-            <ScrollReveal delay={200}>
+            </MobileOptimizedReveal>
+            <MobileOptimizedReveal delay={200}>
               {/* Progress Steps */}
               <div className="mt-12 flex justify-center">
                 <div className="flex items-center space-x-4">
@@ -798,7 +799,7 @@ const BookConsultation = () => {
                   ))}
                 </div>
               </div>
-            </ScrollReveal>
+            </MobileOptimizedReveal>
           </div>
         </div>
       </div>
@@ -808,7 +809,7 @@ const BookConsultation = () => {
         {currentStep === 'form' && (
           <div className="space-y-8">
             {/* Fee Information - Prominent Display */}
-            <ScrollReveal delay={0} distance="30px" duration={600}>
+            <MobileOptimizedReveal delay={0} distance="30px" duration={600}>
               <Card className="border-2 border-primary/30 bg-gradient-to-r from-primary/5 to-accent/5 mb-8">
                 <CardHeader className="text-center pb-3">
                   <CardTitle className="flex items-center justify-center gap-2 text-2xl">
@@ -830,11 +831,11 @@ const BookConsultation = () => {
                   </div>
                 </CardContent>
               </Card>
-            </ScrollReveal>
+            </MobileOptimizedReveal>
 
             {/* What You'll Get Section - Moved to Top */}
             <div className="grid md:grid-cols-2 gap-6">
-              <ScrollReveal delay={100} distance="30px" duration={600}>
+              <MobileOptimizedReveal delay={100} distance="30px" duration={600}>
                 <Card className="border-2 border-accent/20 bg-accent/5">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-lg">
@@ -846,9 +847,9 @@ const BookConsultation = () => {
                     <p className="text-muted-foreground">Get a customized trading strategy tailored specifically to your experience level, goals, and risk tolerance.</p>
                   </CardContent>
                 </Card>
-              </ScrollReveal>
+              </MobileOptimizedReveal>
 
-              <ScrollReveal delay={150} distance="30px" duration={600}>
+              <MobileOptimizedReveal delay={150} distance="30px" duration={600}>
                 <Card className="border-2 border-accent/20 bg-accent/5">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-lg">
@@ -860,9 +861,9 @@ const BookConsultation = () => {
                     <p className="text-muted-foreground">Receive professional analysis of current market conditions and opportunities you might be missing.</p>
                   </CardContent>
                 </Card>
-              </ScrollReveal>
+              </MobileOptimizedReveal>
 
-              <ScrollReveal delay={200} distance="30px" duration={600}>
+              <MobileOptimizedReveal delay={200} distance="30px" duration={600}>
                 <Card className="border-2 border-accent/20 bg-accent/5">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-lg">
@@ -874,9 +875,9 @@ const BookConsultation = () => {
                     <p className="text-muted-foreground">Intensive one-on-one consultation designed to maximize value and provide actionable insights quickly.</p>
                   </CardContent>
                 </Card>
-              </ScrollReveal>
+              </MobileOptimizedReveal>
 
-              <ScrollReveal delay={250} distance="30px" duration={600}>
+              <MobileOptimizedReveal delay={250} distance="30px" duration={600}>
                 <Card className="border-2 border-accent/20 bg-accent/5">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-lg">
@@ -888,10 +889,10 @@ const BookConsultation = () => {
                     <p className="text-muted-foreground">Walk away with a concrete plan and next steps to immediately improve your trading performance.</p>
                   </CardContent>
                 </Card>
-              </ScrollReveal>
+              </MobileOptimizedReveal>
             </div>
 
-            <ScrollReveal delay={300} distance="30px" duration={700}>
+            <MobileOptimizedReveal delay={300} distance="30px" duration={700}>
               <Card className="mx-auto shadow-lg max-w-2xl">
                 <CardHeader className="text-center space-y-4 px-4 sm:px-6">
                   <CardTitle className="flex items-center justify-center gap-2 text-2xl sm:text-3xl">
@@ -902,7 +903,7 @@ const BookConsultation = () => {
                 </CardHeader>
                 <CardContent className="space-y-6 px-4 sm:px-6">
                 <form onSubmit={handleFormSubmit} className="space-y-6">
-                  <ScrollReveal delay={400} distance="20px" duration={500}>
+                  <MobileOptimizedReveal delay={400} distance="20px" duration={500}>
                     <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="name" className="text-sm font-medium">Full Name *</Label>
@@ -929,9 +930,9 @@ const BookConsultation = () => {
                         />
                       </div>
                     </div>
-                  </ScrollReveal>
+                  </MobileOptimizedReveal>
 
-                  <ScrollReveal delay={450} distance="20px" duration={500}>
+                  <MobileOptimizedReveal delay={450} distance="20px" duration={500}>
                     <div className="grid gap-6 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="telegram" className="text-sm font-medium">Telegram Username</Label>
@@ -961,9 +962,9 @@ const BookConsultation = () => {
                         </Select>
                       </div>
                     </div>
-                  </ScrollReveal>
+                  </MobileOptimizedReveal>
 
-                  <ScrollReveal delay={500} distance="20px" duration={500}>
+                  <MobileOptimizedReveal delay={500} distance="20px" duration={500}>
                     <div className="space-y-2">
                       <Label htmlFor="experienceLevel" className="text-sm font-medium">Trading Experience Level *</Label>
                       <Select value={formData.experienceLevel} onValueChange={(value) => setFormData({ ...formData, experienceLevel: value })}>
@@ -978,9 +979,9 @@ const BookConsultation = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                  </ScrollReveal>
+                  </MobileOptimizedReveal>
 
-                  <ScrollReveal delay={550} distance="20px" duration={500}>
+                  <MobileOptimizedReveal delay={550} distance="20px" duration={500}>
                     <div className="space-y-2">
                       <Label htmlFor="purpose" className="text-sm font-medium">What would you like to discuss? *</Label>
                       <Textarea
@@ -992,9 +993,9 @@ const BookConsultation = () => {
                         className="min-h-[120px] resize-none text-base"
                       />
                     </div>
-                  </ScrollReveal>
+                  </MobileOptimizedReveal>
 
-                  <ScrollReveal delay={600} distance="20px" duration={600}>
+                  <MobileOptimizedReveal delay={600} distance="20px" duration={600}>
                     <Button 
                       type="submit" 
                       disabled={isSubmitting} 
@@ -1009,19 +1010,19 @@ const BookConsultation = () => {
                         'Continue to Payment'
                       )}
                     </Button>
-                  </ScrollReveal>
+                  </MobileOptimizedReveal>
                 </form>
 
               </CardContent>
             </Card>
-            </ScrollReveal>
+            </MobileOptimizedReveal>
           </div>
         )}
 
         {/* Step 2: Payment */}
         {currentStep === 'payment' && (
           <div className="space-y-6">
-            <ScrollReveal delay={0} distance="30px" duration={600}>
+            <MobileOptimizedReveal delay={0} distance="30px" duration={600}>
               <Card className="border-2 shadow-lg">
                 <CardHeader className="text-center">
                   <CardTitle className="flex items-center justify-center gap-2 text-3xl">
@@ -1036,9 +1037,9 @@ const BookConsultation = () => {
                   </p>
                 </CardHeader>
               </Card>
-            </ScrollReveal>
+            </MobileOptimizedReveal>
 
-            <ScrollReveal delay={100} distance="30px" duration={600}>
+            <MobileOptimizedReveal delay={100} distance="30px" duration={600}>
               <Card className="border-2 shadow-lg">
                 <CardContent className="p-6">
                   <div className="text-center space-y-6">
@@ -1243,18 +1244,18 @@ const BookConsultation = () => {
                          )}
                      </div>
                   </div>
-                </CardContent>
-              </Card>
-            </ScrollReveal>
-          </div>
-        )}
+                 </CardContent>
+               </Card>
+             </MobileOptimizedReveal>
+           </div>
+         )}
 
 
         {/* Step 3: Schedule */}
         {currentStep === 'schedule' && (
           <div className="space-y-6 sm:space-y-8 w-full max-w-2xl mx-auto">
             {/* Session Info Header */}
-            <ScrollReveal>
+            <MobileOptimizedReveal>
               <div className="text-center space-y-4 sm:space-y-6 px-4">
                 <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-green-800 dark:bg-green-900 dark:text-green-200">
                   <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -1269,10 +1270,10 @@ const BookConsultation = () => {
                   Your payment has been confirmed! Click the button below to schedule your 30-minute consultation.
                 </p>
               </div>
-            </ScrollReveal>
+            </MobileOptimizedReveal>
 
             {/* Session Details Card */}
-            <ScrollReveal delay={100} distance="30px" duration={600}>
+            <MobileOptimizedReveal delay={100} distance="30px" duration={600}>
               <Card className="mx-4 sm:mx-auto sm:max-w-md">
                 <CardContent className="p-4 sm:p-6">
                   <h3 className="mb-3 sm:mb-4 text-lg sm:text-xl font-semibold text-center">Session Details</h3>
@@ -1292,10 +1293,10 @@ const BookConsultation = () => {
                   </div>
                 </CardContent>
               </Card>
-            </ScrollReveal>
+            </MobileOptimizedReveal>
 
             {/* Main Scheduling Action */}
-            <ScrollReveal delay={150} distance="30px" duration={700}>
+            <MobileOptimizedReveal delay={150} distance="30px" duration={700}>
               <Card className="text-center shadow-lg mx-4 sm:mx-0">
                 <CardContent className="p-6 sm:p-8 lg:p-12">
                   <div className="space-y-4 sm:space-y-6">
@@ -1345,7 +1346,7 @@ const BookConsultation = () => {
 
                     {/* Booking Confirmation - Appears after actual booking */}
                     {hasBookedAppointment && (
-                      <ScrollReveal delay={200} distance="20px" duration={600}>
+                      <MobileOptimizedReveal delay={200} distance="20px" duration={600}>
                         <Card className="bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800 mt-6">
                           <CardContent className="p-6">
                             <div className="text-center space-y-4">
@@ -1366,7 +1367,7 @@ const BookConsultation = () => {
                             </div>
                           </CardContent>
                         </Card>
-                      </ScrollReveal>
+                      </MobileOptimizedReveal>
                     )}
 
                     {isScheduleClicked && (
@@ -1377,10 +1378,10 @@ const BookConsultation = () => {
                   </div>
                 </CardContent>
               </Card>
-            </ScrollReveal>
+            </MobileOptimizedReveal>
 
             {/* Alternative Contact Information */}
-            <ScrollReveal delay={250} distance="30px" duration={600}>
+            <MobileOptimizedReveal delay={250} distance="30px" duration={600}>
               <Card className="bg-muted/50 mx-4 sm:mx-0">
                 <CardContent className="p-4 sm:p-6 text-center">
                   <h4 className="font-semibold mb-2 text-sm sm:text-base">Having Issues?</h4>
@@ -1401,11 +1402,11 @@ const BookConsultation = () => {
                        </a>
                      </Button>
                    </div>
-                 </CardContent>
-               </Card>
-             </ScrollReveal>
-           </div>
-           )}
+                  </CardContent>
+                </Card>
+              </MobileOptimizedReveal>
+            </div>
+            )}
          </div>
          
         </div>
