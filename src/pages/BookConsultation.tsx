@@ -69,7 +69,7 @@ const BookConsultation = () => {
   const [hasBookedAppointment, setHasBookedAppointment] = useState(false);
   const [isCalendlyLoading, setIsCalendlyLoading] = useState(false);
   const [isCalendlyLoaded, setIsCalendlyLoaded] = useState(false);
-  const [mobileStepTransition, setMobileStepTransition] = useState(false);
+  const [mobileError, setMobileError] = useState<string | null>(null);
 
   // Payment status tracking
   const [paymentStatus, setPaymentStatus] = useState<'unpaid' | 'processing' | 'completed' | 'confirmed'>('unpaid');
@@ -136,17 +136,16 @@ const BookConsultation = () => {
 
   // Scroll to top when step changes with mobile optimization
   useEffect(() => {
-    if (isMobile) {
-      // Add delay for mobile to prevent black screen during transition
-      setMobileStepTransition(true);
-      setTimeout(() => {
-        window.scrollTo(0, 0);
-        setMobileStepTransition(false);
-      }, 100);
-    } else {
-      window.scrollTo(0, 0);
-    }
+    // Simple scroll without transition delays to prevent black screen
+    window.scrollTo({ top: 0, behavior: isMobile ? 'auto' : 'smooth' });
   }, [currentStep, isMobile]);
+
+  // Add mobile error boundary and debugging
+  useEffect(() => {
+    if (isMobile) {
+      console.log('[MOBILE DEBUG] Current step:', currentStep, 'isMobile:', isMobile, 'paymentStatus:', paymentStatus);
+    }
+  }, [currentStep, isMobile, paymentStatus]);
 
   // Reset schedule button state when step changes
   useEffect(() => {
@@ -319,95 +318,103 @@ const BookConsultation = () => {
     }
   }, [formData.email, consultationId, paymentId, currentStep, toast]);
 
-  // Real-time payment status updates
+  // Real-time payment status updates - optimized for mobile
   useEffect(() => {
     if (currentStep === 'payment' && (formData.email || consultationId)) {
-      console.log('🔄 Setting up real-time payment listeners...', { email: formData.email, consultationId });
+      console.log('🔄 Setting up payment listeners...', { email: formData.email, consultationId, isMobile });
       
-      const channel = supabase
-        .channel('consultation-payments')
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'consultations',
-            filter: formData.email ? `email=eq.${formData.email}` : `id=eq.${consultationId}`
-          },
-          (payload) => {
-            console.log('📡 Consultation updated via real-time:', payload);
-            const newPaymentStatus = payload.new.payment_status;
-            
-            if (newPaymentStatus === 'paid') {
-              console.log('✅ Real-time: Payment confirmed, advancing to schedule');
-              setPaymentStatus('confirmed');
-              setCurrentStep('schedule');
-              toast({
-                title: "Payment Confirmed! 🎉",
-                description: "Your payment has been confirmed. You can now schedule your consultation.",
-              });
-            } else if (newPaymentStatus === 'processing') {
-              console.log('⏳ Real-time: Payment processing');
-              setPaymentStatus('processing');
-              toast({
-                title: "Payment Processing",
-                description: "Your payment is being verified...",
-              });
-            }
-          }
-        );
-
-      // Also listen to crypto_payments table updates
-      if (consultationId) {
-        channel.on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'crypto_payments',
-            filter: `consultation_id=eq.${consultationId}`,
-          },
-          (payload) => {
-            console.log('📡 Payment update received via real-time:', payload);
-            if (payload.new && typeof payload.new === 'object' && 'status' in payload.new) {
-              const newStatus = payload.new.status as string;
-              console.log('📊 New payment status from real-time:', newStatus);
+      // Disable heavy real-time listeners on mobile for performance
+      if (!isMobile) {
+        const channel = supabase
+          .channel('consultation-payments')
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'consultations',
+              filter: formData.email ? `email=eq.${formData.email}` : `id=eq.${consultationId}`
+            },
+            (payload) => {
+              console.log('📡 Consultation updated via real-time:', payload);
+              const newPaymentStatus = payload.new.payment_status;
               
-              if (newStatus === 'completed') {
-                console.log('✅ Real-time: Crypto payment completed, advancing to schedule');
+              if (newPaymentStatus === 'paid') {
+                console.log('✅ Real-time: Payment confirmed, advancing to schedule');
                 setPaymentStatus('confirmed');
                 setCurrentStep('schedule');
                 toast({
                   title: "Payment Confirmed! 🎉",
-                  description: "Your payment has been successfully processed. You can now schedule your consultation.",
+                  description: "Your payment has been confirmed. You can now schedule your consultation.",
                 });
-              } else if (newStatus === 'processing' || payload.new.status === 'partial') {
-                console.log('⏳ Real-time: Crypto payment processing');
+              } else if (newPaymentStatus === 'processing') {
+                console.log('⏳ Real-time: Payment processing');
                 setPaymentStatus('processing');
+                toast({
+                  title: "Payment Processing",
+                  description: "Your payment is being verified...",
+                });
               }
             }
-          }
-        );
+          );
+
+        // Also listen to crypto_payments table updates
+        if (consultationId) {
+          channel.on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'crypto_payments',
+              filter: `consultation_id=eq.${consultationId}`,
+            },
+            (payload) => {
+              console.log('📡 Payment update received via real-time:', payload);
+              if (payload.new && typeof payload.new === 'object' && 'status' in payload.new) {
+                const newStatus = payload.new.status as string;
+                console.log('📊 New payment status from real-time:', newStatus);
+                
+                if (newStatus === 'completed') {
+                  console.log('✅ Real-time: Crypto payment completed, advancing to schedule');
+                  setPaymentStatus('confirmed');
+                  setCurrentStep('schedule');
+                  toast({
+                    title: "Payment Confirmed! 🎉",
+                    description: "Your payment has been successfully processed. You can now schedule your consultation.",
+                  });
+                } else if (newStatus === 'processing' || payload.new.status === 'partial') {
+                  console.log('⏳ Real-time: Crypto payment processing');
+                  setPaymentStatus('processing');
+                }
+              }
+            }
+          );
+        }
+
+        channel.subscribe();
+
+        // Cleanup for desktop
+        return () => {
+          console.log('🧹 Cleaning up real-time listeners');
+          supabase.removeChannel(channel);
+        };
       }
 
-      channel.subscribe();
-
-      // Initial check
+      // Initial check for both mobile and desktop
       checkPaymentStatus();
       
-      // More frequent polling for better UX
+      // Reduced polling frequency on mobile to prevent performance issues
+      const pollInterval = isMobile ? 30000 : 15000; // 30s on mobile, 15s on desktop
       const interval = setInterval(() => {
-        console.log('🔄 Polling payment status...');
+        console.log('🔄 Polling payment status... (mobile:', isMobile, ')');
         checkPaymentStatus();
-      }, 15000); // Check every 15 seconds
+      }, pollInterval);
 
       return () => {
-        console.log('🧹 Cleaning up real-time listeners');
-        supabase.removeChannel(channel);
         clearInterval(interval);
       };
     }
-  }, [currentStep, formData.email, consultationId, checkPaymentStatus, toast]);
+  }, [currentStep, formData.email, consultationId, checkPaymentStatus, toast, isMobile]);
 
   
 
@@ -1033,8 +1040,8 @@ const BookConsultation = () => {
         {/* Step 2: Payment */}
         {currentStep === 'payment' && (
           <>
-            {/* Mobile-optimized payment step */}
-            {isMobile && !mobileStepTransition ? (
+            {/* Mobile-optimized payment step - ALWAYS render on mobile */}
+            {isMobile ? (
               <MobilePaymentStep
                 paymentStatus={paymentStatus}
                 isCheckingPayment={isCheckingPayment}
@@ -1045,26 +1052,24 @@ const BookConsultation = () => {
                 consultationFeeUSD={CONSULTATION_FEE_USD}
               />
             ) : (
-              /* Desktop payment step */
+              /* Desktop payment step - Remove heavy animations */
               <div className="space-y-6">
-                <MobileOptimizedReveal delay={0} distance="30px" duration={600}>
-                  <Card className="border-2 shadow-lg">
-                    <CardHeader className="text-center">
-                      <CardTitle className="flex items-center justify-center gap-2 text-3xl">
-                        <Coins className="h-8 w-8 text-primary" />
-                        Complete Your Payment
-                      </CardTitle>
-                      <div className="text-2xl font-bold text-accent">
-                        ${CONSULTATION_FEE_USD} USD
-                      </div>
-                      <p className="text-muted-foreground">
-                        Click the secure payment button to complete your consultation booking
-                      </p>
-                    </CardHeader>
-                  </Card>
-                </MobileOptimizedReveal>
+                <Card className="border-2 shadow-lg">
+                  <CardHeader className="text-center">
+                    <CardTitle className="flex items-center justify-center gap-2 text-3xl">
+                      <Coins className="h-8 w-8 text-primary" />
+                      Complete Your Payment
+                    </CardTitle>
+                    <div className="text-2xl font-bold text-accent">
+                      ${CONSULTATION_FEE_USD} USD
+                    </div>
+                    <p className="text-muted-foreground">
+                      Click the secure payment button to complete your consultation booking
+                    </p>
+                  </CardHeader>
+                </Card>
 
-                <MobileOptimizedReveal delay={100} distance="30px" duration={600}>
+                <div>
                   <Card className="border-2 shadow-lg">
                     <CardContent className="p-6">
                       <div className="text-center space-y-6">
@@ -1270,9 +1275,9 @@ const BookConsultation = () => {
                          </div>
                       </div>
                      </CardContent>
-                   </Card>
-                 </MobileOptimizedReveal>
-               </div>
+                  </Card>
+                </div>
+              </div>
             )}
           </>
         )}

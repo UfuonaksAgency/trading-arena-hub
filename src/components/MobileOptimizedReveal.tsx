@@ -22,27 +22,18 @@ export const MobileOptimizedReveal: React.FC<MobileOptimizedRevealProps> = ({
   const isMobile = useIsMobile();
   const [isVisible, setIsVisible] = useState(false);
 
-  // On mobile, use simple fade-in without heavy animations
+  // On mobile, use simple static rendering to prevent performance issues
   useEffect(() => {
     if (isMobile) {
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-      }, delay);
-      return () => clearTimeout(timer);
+      // Immediate visibility on mobile to prevent black screens
+      setIsVisible(true);
     }
-  }, [isMobile, delay]);
+  }, [isMobile]);
 
-  // On mobile, render with lightweight animation to prevent performance issues
+  // On mobile, render without any animations for better performance
   if (isMobile) {
     return (
-      <div 
-        className={`transition-opacity duration-200 ${
-          isVisible ? 'opacity-100' : 'opacity-0'
-        } ${mobileClassName} ${className}`}
-        style={{
-          transitionDelay: `${delay}ms`
-        }}
-      >
+      <div className={`${mobileClassName} ${className}`}>
         {children}
       </div>
     );
