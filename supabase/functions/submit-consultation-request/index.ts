@@ -139,17 +139,16 @@ serve(async (req) => {
             </div>
 
             <div style="background: #eff6ff; border: 2px solid #3b82f6; border-radius: 8px; padding: 25px; margin: 25px 0; text-align: center;">
-              <h3 style="color: #1e40af; margin: 0 0 15px 0;">💳 Make Your Payment</h3>
-              <p style="color: #1e40af; margin: 0 0 20px 0;">Use the secure NOWPayments widget on the booking page:</p>
-              <a href="https://tradewithmrk.com/book-consultation" 
-                 style="background: #0369ff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; margin-bottom: 15px;">
-                Complete Payment & Schedule
-              </a>
-              <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 6px; font-size: 13px;">
-                <p style="color: #374151; margin: 0 0 8px 0;"><strong>Payment Options:</strong></p>
-                <p style="color: #6b7280; margin: 0;">✅ Full Payment: $300 USD - Immediate scheduling access</p>
-                <p style="color: #6b7280; margin: 0;">✅ Partial Payment: Minimum $150 USD (50%) - Schedule with balance due</p>
+              <h3 style="color: #1e40af; margin: 0 0 15px 0;">💳 Next Step: Complete Payment</h3>
+              <p style="color: #1e40af; margin: 0 0 20px 0; font-size: 16px; font-weight: 600;">Please return to the booking webpage to complete your payment</p>
+              <div style="background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 6px; padding: 20px; margin: 15px 0;">
+                <p style="color: #0c4a6e; margin: 0 0 10px 0; font-weight: bold;">📋 What to do next:</p>
+                <p style="color: #0c4a6e; margin: 0 0 8px 0;">1. Go back to the consultation booking page</p>
+                <p style="color: #0c4a6e; margin: 0 0 8px 0;">2. Complete your secure cryptocurrency payment</p>
+                <p style="color: #0c4a6e; margin: 0 0 8px 0;">3. Schedule your session immediately after payment</p>
+                <p style="color: #0c4a6e; margin: 0; font-weight: bold;">💰 Consultation Fee: $17 USD (temporary rate)</p>
               </div>
+              <p style="color: #1e40af; margin: 10px 0 0 0; font-size: 14px;">Your consultation request is saved and ready for payment completion.</p>
             </div>
 
             <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px; text-align: center;">

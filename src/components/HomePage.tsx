@@ -258,11 +258,25 @@ const HomePage = () => {
               <p className="text-white/70 text-lg mb-8">Professional-grade platforms and analytics that power my trading success</p>
             </div>
             <div className="relative mb-12">
-              <div className="flex animate-scroll-brands md:animate-scroll-brands-md lg:animate-scroll-brands-lg">
+              {/* Static grid on mobile, scrolling animation on larger screens */}
+              <div className="hidden md:flex animate-scroll-brands md:animate-scroll-brands-md lg:animate-scroll-brands-lg">
                 {[...tradingBrands, ...tradingBrands].map((brand, index) => (
                   <div 
                     key={index} 
                     className="text-2xl md:text-3xl font-bold text-white/60 hover:text-white/90 transition-all duration-300 cursor-default whitespace-nowrap mx-12 flex-shrink-0"
+                    style={{ fontFamily: 'Dancing Script, cursive' }}
+                  >
+                    {brand}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Mobile static grid - no animation */}
+              <div className="grid grid-cols-2 gap-4 md:hidden">
+                {tradingBrands.map((brand, index) => (
+                  <div 
+                    key={index} 
+                    className="text-lg font-bold text-white/60 hover:text-white/90 transition-all duration-300 cursor-default text-center py-3 px-4 bg-white/5 rounded-lg backdrop-blur-sm"
                     style={{ fontFamily: 'Dancing Script, cursive' }}
                   >
                     {brand}
