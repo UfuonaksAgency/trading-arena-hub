@@ -70,26 +70,56 @@ export const MobilePaymentStep: React.FC<MobilePaymentStepProps> = ({
           </CardHeader>
           <CardContent className="space-y-4">
             {paymentStatus === 'unpaid' && (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Click below to open your payment invoice and complete the transaction.
-                </p>
-                <Button 
-                  onClick={onOpenInvoice}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                  disabled={!invoiceUrl}
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Open Payment Invoice
-                </Button>
-                <Button 
-                  onClick={onRetryPayment}
-                  variant="outline"
-                  className="w-full"
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Retry Payment
-                </Button>
+              <div className="space-y-4">
+                {/* Important Payment Instructions */}
+                <div className="text-xs space-y-2 bg-red-50 dark:bg-red-950/20 p-3 rounded-lg border border-red-200 dark:border-red-800">
+                  <div className="flex items-center gap-2 font-medium text-red-700 dark:text-red-400">
+                    <AlertTriangle className="h-3 w-3" />
+                    <span>Important Payment Instructions</span>
+                  </div>
+                  <div className="space-y-1 text-red-700 dark:text-red-400">
+                    <p>• Verify the payment amount (${consultationFeeUSD} USD) is correct before proceeding</p>
+                    <p>• <strong>A new TradeWithMrk payment page will open in a separate tab</strong></p>
+                    <p>• <strong>Complete the full payment in that new tab</strong></p>
+                    <p>• <strong className="text-red-800 dark:text-red-300">CRITICAL: Return to this page after payment to confirm your consultation</strong></p>
+                    <p>• We'll automatically detect your payment and update this page when you return</p>
+                  </div>
+                </div>
+
+                {invoiceUrl ? (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Click below to open your payment invoice and complete the transaction.
+                    </p>
+                    <Button 
+                      onClick={onOpenInvoice}
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Pay with Crypto - ${consultationFeeUSD} USD
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {/* Payment Setup Issue */}
+                    <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                      <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200 mb-2">
+                        <AlertTriangle className="h-4 w-4" />
+                        <span className="font-medium text-sm">Payment Setup Issue</span>
+                      </div>
+                      <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                        Your consultation request is saved, but there was an issue setting up the payment. Please try again.
+                      </p>
+                    </div>
+                    <Button 
+                      onClick={onRetryPayment}
+                      className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Retry Payment Setup
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
 
