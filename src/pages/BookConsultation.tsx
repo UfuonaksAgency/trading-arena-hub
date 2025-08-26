@@ -15,6 +15,7 @@ import { Coins, Calendar, User, Mail, MessageSquare, Target, Award, Loader2, Che
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ScrollReveal } from '@/hooks/useScrollReveal';
 import MobileOptimizedReveal from '@/components/MobileOptimizedReveal';
+import MobilePaymentStep from '@/components/MobilePaymentStep';
 
 // Testing configuration - will change to 300 after testing
 const CONSULTATION_FEE_USD = 17;
@@ -68,6 +69,7 @@ const BookConsultation = () => {
   const [hasBookedAppointment, setHasBookedAppointment] = useState(false);
   const [isCalendlyLoading, setIsCalendlyLoading] = useState(false);
   const [isCalendlyLoaded, setIsCalendlyLoaded] = useState(false);
+  const [mobileStepTransition, setMobileStepTransition] = useState(false);
 
   // Payment status tracking
   const [paymentStatus, setPaymentStatus] = useState<'unpaid' | 'processing' | 'completed' | 'confirmed'>('unpaid');
@@ -132,10 +134,19 @@ const BookConsultation = () => {
     }
   }, [currentStep, paymentStatus, toast]);
 
-  // Scroll to top when step changes
+  // Scroll to top when step changes with mobile optimization
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [currentStep]);
+    if (isMobile) {
+      // Add delay for mobile to prevent black screen during transition
+      setMobileStepTransition(true);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        setMobileStepTransition(false);
+      }, 100);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [currentStep, isMobile]);
 
   // Reset schedule button state when step changes
   useEffect(() => {
@@ -1021,234 +1032,250 @@ const BookConsultation = () => {
 
         {/* Step 2: Payment */}
         {currentStep === 'payment' && (
-          <div className="space-y-6">
-            <MobileOptimizedReveal delay={0} distance="30px" duration={600}>
-              <Card className="border-2 shadow-lg">
-                <CardHeader className="text-center">
-                  <CardTitle className="flex items-center justify-center gap-2 text-3xl">
-                    <Coins className="h-8 w-8 text-primary" />
-                    Complete Your Payment
-                  </CardTitle>
-                  <div className="text-2xl font-bold text-accent">
-                    ${CONSULTATION_FEE_USD} USD
-                  </div>
-                  <p className="text-muted-foreground">
-                    Click the secure payment button to complete your consultation booking
-                  </p>
-                </CardHeader>
-              </Card>
-            </MobileOptimizedReveal>
+          <>
+            {/* Mobile-optimized payment step */}
+            {isMobile && !mobileStepTransition ? (
+              <MobilePaymentStep
+                paymentStatus={paymentStatus}
+                isCheckingPayment={isCheckingPayment}
+                invoiceUrl={invoiceUrl}
+                onRetryPayment={handleRetryPayment}
+                onCheckPayment={checkPaymentStatus}
+                onOpenInvoice={openPaymentInvoice}
+                consultationFeeUSD={CONSULTATION_FEE_USD}
+              />
+            ) : (
+              /* Desktop payment step */
+              <div className="space-y-6">
+                <MobileOptimizedReveal delay={0} distance="30px" duration={600}>
+                  <Card className="border-2 shadow-lg">
+                    <CardHeader className="text-center">
+                      <CardTitle className="flex items-center justify-center gap-2 text-3xl">
+                        <Coins className="h-8 w-8 text-primary" />
+                        Complete Your Payment
+                      </CardTitle>
+                      <div className="text-2xl font-bold text-accent">
+                        ${CONSULTATION_FEE_USD} USD
+                      </div>
+                      <p className="text-muted-foreground">
+                        Click the secure payment button to complete your consultation booking
+                      </p>
+                    </CardHeader>
+                  </Card>
+                </MobileOptimizedReveal>
 
-            <MobileOptimizedReveal delay={100} distance="30px" duration={600}>
-              <Card className="border-2 shadow-lg">
-                <CardContent className="p-6">
-                  <div className="text-center space-y-6">
-                    <h3 className="text-xl font-semibold">Complete Your Crypto Payment</h3>
-                    
-                     {/* Important Payment Instructions */}
-                     <div className="text-sm space-y-2 bg-red-50 dark:bg-red-950/20 p-4 rounded-lg border border-red-200 dark:border-red-800 mb-6">
-                       <div className="flex items-center gap-2 font-medium text-red-700 dark:text-red-400">
-                         <AlertTriangle className="h-4 w-4" />
-                         <span>Important Payment Instructions</span>
-                       </div>
-                       <div className="space-y-1 text-red-700 dark:text-red-400">
-                         <p>• Verify the payment amount (${CONSULTATION_FEE_USD} USD) is correct before proceeding</p>
-                         <p>• <strong>A new TradeWithMrk payment page will open in a separate tab</strong></p>
-                         <p>• <strong>Complete the full payment in that new tab</strong></p>
-                         <p>• <strong className="text-red-800 dark:text-red-300">CRITICAL: Return to this page after payment to confirm your consultation</strong></p>
-                         <p>• We'll automatically detect your payment and update this page when you return</p>
-                       </div>
-                     </div>
-
-                     {/* Invoice Payment Button */}
-                     <div className="flex justify-center">
-                        {invoiceUrl ? (
-                          <div className="space-y-4">
-                              <Button
-                                onClick={openPaymentInvoice}
-                                className="w-full max-w-md h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-105 transition-all duration-200"
-                              >
-                               <div className="flex items-center gap-2">
-                                 <Coins className="h-6 w-6" />
-                                 Pay with Crypto - ${CONSULTATION_FEE_USD} USD
-                               </div>
-                             </Button>
-                              <p className="text-sm text-red-700 dark:text-red-400 font-medium">
-                                Click to open TradeWithMrk payment page in new tab
-                              </p>
-                          </div>
-                       ) : consultationId ? (
-                         <div className="space-y-4">
-                           <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                             <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200 mb-2">
-                               <AlertTriangle className="h-4 w-4" />
-                               <span className="font-medium">Payment Setup Issue</span>
-                             </div>
-                             <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                               Your consultation request is saved, but there was an issue setting up the payment. Please try again.
-                             </p>
+                <MobileOptimizedReveal delay={100} distance="30px" duration={600}>
+                  <Card className="border-2 shadow-lg">
+                    <CardContent className="p-6">
+                      <div className="text-center space-y-6">
+                        <h3 className="text-xl font-semibold">Complete Your Crypto Payment</h3>
+                        
+                         {/* Important Payment Instructions */}
+                         <div className="text-sm space-y-2 bg-red-50 dark:bg-red-950/20 p-4 rounded-lg border border-red-200 dark:border-red-800 mb-6">
+                           <div className="flex items-center gap-2 font-medium text-red-700 dark:text-red-400">
+                             <AlertTriangle className="h-4 w-4" />
+                             <span>Important Payment Instructions</span>
                            </div>
-                           <Button
-                             onClick={handleRetryPayment}
-                             disabled={isSubmitting}
-                             className="w-full max-w-md h-14 text-lg font-semibold bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 hover:scale-105 transition-all duration-200"
-                           >
-                             {isSubmitting ? (
-                               <div className="flex items-center gap-2">
-                                 <Loader2 className="h-5 w-5 animate-spin" />
-                                 Setting up payment...
-                               </div>
-                             ) : (
-                               <div className="flex items-center gap-2">
-                                 <RefreshCw className="h-6 w-6" />
-                                 Retry Payment Setup
-                               </div>
-                             )}
-                           </Button>
-                           <p className="text-sm text-muted-foreground">
-                             Click to retry setting up your payment
-                           </p>
+                           <div className="space-y-1 text-red-700 dark:text-red-400">
+                             <p>• Verify the payment amount (${CONSULTATION_FEE_USD} USD) is correct before proceeding</p>
+                             <p>• <strong>A new TradeWithMrk payment page will open in a separate tab</strong></p>
+                             <p>• <strong>Complete the full payment in that new tab</strong></p>
+                             <p>• <strong className="text-red-800 dark:text-red-300">CRITICAL: Return to this page after payment to confirm your consultation</strong></p>
+                             <p>• We'll automatically detect your payment and update this page when you return</p>
+                           </div>
                          </div>
-                       ) : (
-                         <div className="flex items-center gap-2 text-muted-foreground">
-                           <Loader2 className="h-4 w-4 animate-spin" />
-                           Loading payment options...
-                         </div>
-                       )}
-                     </div>
-                    
-                      {/* Payment Status Information */}
-                      <div className="mt-6 p-4 bg-muted/30 rounded-lg border">
-                         <h4 className="font-semibold text-center mb-3 flex items-center justify-center gap-2">
-                           <div className={`w-3 h-3 rounded-full ${
-                             paymentStatus === 'completed' || paymentStatus === 'confirmed' ? 'bg-green-500' : 
-                             paymentStatus === 'processing' ? 'bg-yellow-500' : 'bg-red-500'
-                           }`}></div>
-                           {isCheckingPayment ? "Checking Payment Status..." : 
-                            `Payment Status: ${(paymentStatus === 'completed' || paymentStatus === 'confirmed') ? 'Confirmed' : 
-                                               paymentStatus === 'processing' ? 'Processing' : 'Awaiting Payment'}`}
-                         </h4>
-                        {(paymentStatus === 'completed' || paymentStatus === 'confirmed') && (
-                          <div className="text-center text-green-600 dark:text-green-400">
-                            <CheckCircle className="h-6 w-6 mx-auto mb-2" />
-                            <p className="font-medium">Payment confirmed! You can now proceed to scheduling.</p>
-                          </div>
-                        )}
-                        {paymentStatus === 'processing' && (
-                          <div className="text-center text-yellow-600 dark:text-yellow-400">
-                            <Clock className="h-6 w-6 mx-auto mb-2 animate-spin" />
-                            <p className="font-medium">Payment received, verifying transaction...</p>
-                            <p className="text-sm text-yellow-500 mt-1">This usually takes 1-5 minutes</p>
-                          </div>
-                        )}
-                          {paymentStatus === 'unpaid' && (
-                            <div className="text-center">
-                              {paymentStatus === 'unpaid' ? (
-                                <p className="text-muted-foreground">Complete your payment using the button above to proceed.</p>
-                              ) : (
-                                <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4 space-y-3">
-                                  <div className="flex items-center justify-center gap-2 text-red-800 dark:text-red-200">
-                                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                                    <span className="font-semibold text-lg">Payment Page Opened</span>
-                                  </div>
-                                  <div className="text-red-700 dark:text-red-300 space-y-2">
-                                    <p className="text-lg font-medium">💳 Complete your payment in the TradeWithMrk tab</p>
-                                    <p className="text-base"><strong className="text-red-800 dark:text-red-200">THEN RETURN TO THIS PAGE</strong> - We'll detect your payment automatically</p>
-                                    <div className="flex items-center justify-center gap-2 mt-3 text-sm bg-red-100 dark:bg-red-900/50 p-2 rounded">
-                                      <ArrowLeft className="h-4 w-4" />
-                                      <span className="font-medium">Keep this page open and return after payment</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                              {consultationId && (
-                                <p className="mt-2 text-xs font-mono bg-muted/50 p-2 rounded">
-                                  Order ID: {consultationId}
-                                </p>
-                              )}
-                            </div>
-                          )}
-                     </div>
 
-                     {/* Payment Status Check and Continue Button */}
-                     <div className="pt-6 border-t space-y-4">
-                       {/* Manual Payment Check Button */}
-                       <div className="flex items-center justify-center">
-                         <Button 
-                           onClick={checkPaymentStatus}
-                           disabled={isCheckingPayment}
-                           variant="outline"
-                           className="w-full max-w-sm h-10 text-sm"
-                         >
-                           {isCheckingPayment ? (
-                             <div className="flex items-center gap-2">
-                               <Loader2 className="h-4 w-4 animate-spin" />
-                               Checking Status...
+                         {/* Invoice Payment Button */}
+                         <div className="flex justify-center">
+                            {invoiceUrl ? (
+                              <div className="space-y-4">
+                                  <Button
+                                    onClick={openPaymentInvoice}
+                                    className="w-full max-w-md h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 hover:scale-105 transition-all duration-200"
+                                  >
+                                   <div className="flex items-center gap-2">
+                                     <Coins className="h-6 w-6" />
+                                     Pay with Crypto - ${CONSULTATION_FEE_USD} USD
+                                   </div>
+                                 </Button>
+                                  <p className="text-sm text-red-700 dark:text-red-400 font-medium">
+                                    Click to open TradeWithMrk payment page in new tab
+                                  </p>
+                              </div>
+                           ) : consultationId ? (
+                             <div className="space-y-4">
+                               <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                                 <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200 mb-2">
+                                   <AlertTriangle className="h-4 w-4" />
+                                   <span className="font-medium">Payment Setup Issue</span>
+                                 </div>
+                                 <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                                   Your consultation request is saved, but there was an issue setting up the payment. Please try again.
+                                 </p>
+                               </div>
+                               <Button
+                                 onClick={handleRetryPayment}
+                                 disabled={isSubmitting}
+                                 className="w-full max-w-md h-14 text-lg font-semibold bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 hover:scale-105 transition-all duration-200"
+                               >
+                                 {isSubmitting ? (
+                                   <div className="flex items-center gap-2">
+                                     <Loader2 className="h-5 w-5 animate-spin" />
+                                     Setting up payment...
+                                   </div>
+                                 ) : (
+                                   <div className="flex items-center gap-2">
+                                     <RefreshCw className="h-6 w-6" />
+                                     Retry Payment Setup
+                                   </div>
+                                 )}
+                               </Button>
+                               <p className="text-sm text-muted-foreground">
+                                 Click to retry setting up your payment
+                               </p>
                              </div>
                            ) : (
-                             <div className="flex items-center gap-2">
-                               <RefreshCw className="h-4 w-4" />
-                               Check Payment Status
+                             <div className="flex items-center gap-2 text-muted-foreground">
+                               <Loader2 className="h-4 w-4 animate-spin" />
+                               Loading payment options...
                              </div>
                            )}
-                         </Button>
-                       </div>
-                       
-                        {/* Auto-advance notice */}
-                        {(paymentStatus === 'completed' || paymentStatus === 'confirmed') && (
-                          <div className="text-center text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 p-3 rounded-lg border border-green-200 dark:border-green-800 animate-pulse">
-                            <div className="flex items-center justify-center gap-2 mb-2">
-                              <CheckCircle className="h-4 w-4" />
-                              <span className="font-semibold">Payment Confirmed!</span>
-                            </div>
-                            <p>Automatically advancing to scheduling...</p>
-                          </div>
-                        )}
-                       
-                         {/* Manual Continue Button and Override Option */}
-                         {paymentStatus !== 'completed' && paymentStatus !== 'confirmed' && (
-                           <div className="space-y-4">
-                             {/* Disabled continue button */}
-                             <Button 
-                               onClick={() => setCurrentStep('schedule')}
-                               disabled={true}
-                               className="w-full max-w-md h-12 text-lg font-semibold bg-muted text-muted-foreground cursor-not-allowed transition-all duration-200"
-                             >
-                               <div className="flex items-center gap-2">
-                                 <Clock className="h-5 w-5" />
-                                 Complete Payment to Continue
-                               </div>
-                             </Button>
-                              <p className="text-xs text-muted-foreground text-center">
-                                Payment will be automatically detected when completed
-                              </p>
-                              
-                              {/* Payment Detection Information */}
-                              {(invoiceUrl || paymentId) && (
-                                <div className="pt-4 border-t border-muted-foreground/20">
-                                  <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-                                    <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                                      <RefreshCw className="h-4 w-4" />
-                                      Automatic Payment Detection Active
+                         </div>
+                        
+                          {/* Payment Status Information */}
+                          <div className="mt-6 p-4 bg-muted/30 rounded-lg border">
+                             <h4 className="font-semibold text-center mb-3 flex items-center justify-center gap-2">
+                               <div className={`w-3 h-3 rounded-full ${
+                                 paymentStatus === 'completed' || paymentStatus === 'confirmed' ? 'bg-green-500' : 
+                                 paymentStatus === 'processing' ? 'bg-yellow-500' : 'bg-red-500'
+                               }`}></div>
+                               {isCheckingPayment ? "Checking Payment Status..." : 
+                                `Payment Status: ${(paymentStatus === 'completed' || paymentStatus === 'confirmed') ? 'Confirmed' : 
+                                                   paymentStatus === 'processing' ? 'Processing' : 'Awaiting Payment'}`}
+                             </h4>
+                            {(paymentStatus === 'completed' || paymentStatus === 'confirmed') && (
+                              <div className="text-center text-green-600 dark:text-green-400">
+                                <CheckCircle className="h-6 w-6 mx-auto mb-2" />
+                                <p className="font-medium">Payment confirmed! You can now proceed to scheduling.</p>
+                              </div>
+                            )}
+                            {paymentStatus === 'processing' && (
+                              <div className="text-center text-yellow-600 dark:text-yellow-400">
+                                <Clock className="h-6 w-6 mx-auto mb-2 animate-spin" />
+                                <p className="font-medium">Payment received, verifying transaction...</p>
+                                <p className="text-sm text-yellow-500 mt-1">This usually takes 1-5 minutes</p>
+                              </div>
+                            )}
+                              {paymentStatus === 'unpaid' && (
+                                <div className="text-center">
+                                  {paymentStatus === 'unpaid' ? (
+                                    <p className="text-muted-foreground">Complete your payment using the button above to proceed.</p>
+                                  ) : (
+                                    <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4 space-y-3">
+                                      <div className="flex items-center justify-center gap-2 text-red-800 dark:text-red-200">
+                                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                                        <span className="font-semibold text-lg">Payment Page Opened</span>
+                                      </div>
+                                      <div className="text-red-700 dark:text-red-300 space-y-2">
+                                        <p className="text-lg font-medium">💳 Complete your payment in the TradeWithMrk tab</p>
+                                        <p className="text-base"><strong className="text-red-800 dark:text-red-200">THEN RETURN TO THIS PAGE</strong> - We'll detect your payment automatically</p>
+                                        <div className="flex items-center justify-center gap-2 mt-3 text-sm bg-red-100 dark:bg-red-900/50 p-2 rounded">
+                                          <ArrowLeft className="h-4 w-4" />
+                                          <span className="font-medium">Keep this page open and return after payment</span>
+                                        </div>
+                                      </div>
                                     </div>
-                                    <div className="space-y-2 text-xs text-muted-foreground">
-                                      <p>• Real-time monitoring for instant detection</p>
-                                      <p>• Automatic checks when you return to this tab</p>
-                                      <p>• Status updates every 15 seconds</p>
-                                      <p>• You'll be automatically redirected when payment is confirmed</p>
-                                    </div>
-                                  </div>
+                                  )}
+                                  {consultationId && (
+                                    <p className="mt-2 text-xs font-mono bg-muted/50 p-2 rounded">
+                                      Order ID: {consultationId}
+                                    </p>
+                                  )}
                                 </div>
                               )}
+                         </div>
+
+                         {/* Payment Status Check and Continue Button */}
+                         <div className="pt-6 border-t space-y-4">
+                           {/* Manual Payment Check Button */}
+                           <div className="flex items-center justify-center">
+                             <Button 
+                               onClick={checkPaymentStatus}
+                               disabled={isCheckingPayment}
+                               variant="outline"
+                               className="w-full max-w-sm h-10 text-sm"
+                             >
+                               {isCheckingPayment ? (
+                                 <div className="flex items-center gap-2">
+                                   <Loader2 className="h-4 w-4 animate-spin" />
+                                   Checking Status...
+                                 </div>
+                               ) : (
+                                 <div className="flex items-center gap-2">
+                                   <RefreshCw className="h-4 w-4" />
+                                   Check Payment Status
+                                 </div>
+                               )}
+                             </Button>
                            </div>
-                         )}
-                     </div>
-                  </div>
-                 </CardContent>
-               </Card>
-             </MobileOptimizedReveal>
-           </div>
-         )}
+                           
+                            {/* Auto-advance notice */}
+                            {(paymentStatus === 'completed' || paymentStatus === 'confirmed') && (
+                              <div className="text-center text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 p-3 rounded-lg border border-green-200 dark:border-green-800 animate-pulse">
+                                <div className="flex items-center justify-center gap-2 mb-2">
+                                  <CheckCircle className="h-4 w-4" />
+                                  <span className="font-semibold">Payment Confirmed!</span>
+                                </div>
+                                <p>Automatically advancing to scheduling...</p>
+                              </div>
+                            )}
+                           
+                             {/* Manual Continue Button and Override Option */}
+                             {paymentStatus !== 'completed' && paymentStatus !== 'confirmed' && (
+                               <div className="space-y-4">
+                                 {/* Disabled continue button */}
+                                 <Button 
+                                   onClick={() => setCurrentStep('schedule')}
+                                   disabled={true}
+                                   className="w-full max-w-md h-12 text-lg font-semibold bg-muted text-muted-foreground cursor-not-allowed transition-all duration-200"
+                                 >
+                                   <div className="flex items-center gap-2">
+                                     <Clock className="h-5 w-5" />
+                                     Complete Payment to Continue
+                                   </div>
+                                 </Button>
+                                  <p className="text-xs text-muted-foreground text-center">
+                                    Payment will be automatically detected when completed
+                                  </p>
+                                  
+                                  {/* Payment Detection Information */}
+                                  {(invoiceUrl || paymentId) && (
+                                    <div className="pt-4 border-t border-muted-foreground/20">
+                                      <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                                        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                                          <RefreshCw className="h-4 w-4" />
+                                          Automatic Payment Detection Active
+                                        </div>
+                                        <div className="space-y-2 text-xs text-muted-foreground">
+                                          <p>• Real-time monitoring for instant detection</p>
+                                          <p>• Automatic checks when you return to this tab</p>
+                                          <p>• Status updates every 15 seconds</p>
+                                          <p>• You'll be automatically redirected when payment is confirmed</p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                               </div>
+                             )}
+                         </div>
+                      </div>
+                     </CardContent>
+                   </Card>
+                 </MobileOptimizedReveal>
+               </div>
+            )}
+          </>
+        )}
 
 
         {/* Step 3: Schedule */}

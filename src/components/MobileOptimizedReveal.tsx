@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollReveal } from '@/hooks/useScrollReveal';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -20,11 +20,29 @@ export const MobileOptimizedReveal: React.FC<MobileOptimizedRevealProps> = ({
   mobileClassName = "",
 }) => {
   const isMobile = useIsMobile();
+  const [isVisible, setIsVisible] = useState(false);
 
-  // On mobile, render without ScrollReveal to prevent performance issues
+  // On mobile, use simple fade-in without heavy animations
+  useEffect(() => {
+    if (isMobile) {
+      const timer = setTimeout(() => {
+        setIsVisible(true);
+      }, delay);
+      return () => clearTimeout(timer);
+    }
+  }, [isMobile, delay]);
+
+  // On mobile, render with lightweight animation to prevent performance issues
   if (isMobile) {
     return (
-      <div className={`animate-fade-in ${mobileClassName} ${className}`}>
+      <div 
+        className={`transition-opacity duration-200 ${
+          isVisible ? 'opacity-100' : 'opacity-0'
+        } ${mobileClassName} ${className}`}
+        style={{
+          transitionDelay: `${delay}ms`
+        }}
+      >
         {children}
       </div>
     );
