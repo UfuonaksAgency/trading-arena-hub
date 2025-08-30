@@ -146,7 +146,7 @@ serve(async (req) => {
                 <p style="color: #0c4a6e; margin: 0 0 8px 0;">1. Go back to the consultation booking page</p>
                 <p style="color: #0c4a6e; margin: 0 0 8px 0;">2. Complete your secure cryptocurrency payment</p>
                 <p style="color: #0c4a6e; margin: 0 0 8px 0;">3. Schedule your session immediately after payment</p>
-                <p style="color: #0c4a6e; margin: 0; font-weight: bold;">💰 Consultation Fee: $17 USD (temporary rate)</p>
+                <p style="color: #0c4a6e; margin: 0; font-weight: bold;">💰 Consultation Fee: $300 USD</p>
               </div>
               <p style="color: #1e40af; margin: 10px 0 0 0; font-size: 14px;">Your consultation request is saved and ready for payment completion.</p>
             </div>

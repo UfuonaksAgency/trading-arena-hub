@@ -17,8 +17,7 @@ import { ScrollReveal } from '@/hooks/useScrollReveal';
 import MobileOptimizedReveal from '@/components/MobileOptimizedReveal';
 import MobilePaymentStep from '@/components/MobilePaymentStep';
 
-// Testing configuration - will change to 300 after testing
-const CONSULTATION_FEE_USD = 17;
+const CONSULTATION_FEE_USD = 300;
 
 // Calendly interface for TypeScript
 declare global {
