@@ -5,7 +5,7 @@ const Footer = () => {
   const socialLinks = [
     {
       name: 'Telegram',
-      href: 'https://t.me/Mrk_trading',
+      href: 'https://t.me/Mrktradingchannel',
       icon: Send,
     },
     {
