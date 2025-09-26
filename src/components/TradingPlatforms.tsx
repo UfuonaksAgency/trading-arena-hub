@@ -20,6 +20,14 @@ const TradingPlatforms = () => {
       badge: 'Partner Code: KELVINARENA',
       features: ['Copy Trading', 'Futures Trading', 'Social Features'],
       color: 'bg-orange-500'
+    },
+    {
+      name: 'BloFin',
+      description: 'Professional crypto derivatives trading with up to 150X leverage and 400+ trading pairs',
+      url: 'https://partner.blofin.com/d/MrKelvin',
+      badge: 'Partner Link: MrKelvin',
+      features: ['Up to 150X Leverage', '400+ Trading Pairs', 'Perpetual Contracts', 'Professional Tools'],
+      color: 'bg-purple-500'
     }
   ];
 
@@ -38,7 +46,7 @@ const TradingPlatforms = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {platforms.map((platform) => (
             <Card key={platform.name} className="group hover:shadow-2xl transition-all duration-300 border-2 hover:border-primary/20">
               <CardHeader>
