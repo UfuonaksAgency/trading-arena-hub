@@ -20,14 +20,6 @@ const TradingPlatforms = () => {
       badge: 'Partner Code: KELVINARENA',
       features: ['Copy Trading', 'Futures Trading', 'Social Features'],
       color: 'bg-orange-500'
-    },
-    {
-      name: 'BloFin',
-      description: 'Professional crypto derivatives trading with up to 150X leverage and 400+ trading pairs',
-      url: 'https://partner.blofin.com/d/MrKelvin',
-      badge: 'Partner Link: MrKelvin',
-      features: ['Up to 150X Leverage', '400+ Trading Pairs', 'Perpetual Contracts', 'Professional Tools'],
-      color: 'bg-purple-500'
     }
   ];
 
