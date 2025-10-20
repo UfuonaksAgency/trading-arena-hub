@@ -13,9 +13,6 @@ import { ScrollReveal } from '@/hooks/useScrollReveal';
 import BlogCard from '@/components/BlogCard';
 import TradingPlatforms from '@/components/TradingPlatforms';
 
-// Import promotional image
-import blofinPartnerImage from '@/assets/images/blofin-partner.jpg';
-
 interface FreeResource {
   id: string;
   title: string;
@@ -64,12 +61,6 @@ const HomePage = () => {
       description: 'Advanced derivatives trading platform with VIP access',
       icon: BarChart3,
       url: 'https://support.weex.com/en/register?vipCode=mp9nh',
-    },
-    {
-      name: 'BloFin',
-      description: 'Professional crypto exchange with up to 150X leverage',
-      icon: TrendingUp,
-      url: 'https://partner.blofin.com/d/MrKelvin',
     },
   ];
 
@@ -152,7 +143,7 @@ const HomePage = () => {
     }
   };
 
-  const tradingBrands = ['TradingView', 'Notion', 'Coinglass', 'CoinMarketMan', 'BingX (Exchange)', 'WEEX (Exchange)', 'BloFin (Exchange)'];
+  const tradingBrands = ['TradingView', 'Notion', 'Coinglass', 'CoinMarketMan', 'BingX (Exchange)', 'WEEX (Exchange)'];
 
   const BlogPreviewSection = () => (
     <ScrollReveal delay={600} duration={800}>
@@ -308,51 +299,6 @@ const HomePage = () => {
       {/* Trading Platforms Section */}
       <TradingPlatforms />
 
-      {/* New Partner Highlight - BloFin */}
-      <ScrollReveal delay={450} duration={800}>
-        <section className="py-16 px-4 bg-gradient-to-br from-purple-900/20 to-black/40">
-          <div className="max-w-6xl mx-auto">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-8 md:p-12">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                  <div className="inline-flex items-center px-4 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-sm font-medium mb-6">
-                    <Star className="w-4 h-4 mr-2" />
-                    New Partner
-                  </div>
-                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                    Welcome BloFin
-                  </h2>
-                  <p className="text-white/80 text-lg mb-6 leading-relaxed">
-                    We're excited to announce our new partnership with BloFin, a leading professional crypto derivatives exchange. 
-                    Access up to 150X leverage across 400+ trading pairs with institutional-grade security and advanced trading tools.
-                  </p>
-                  <div className="flex flex-wrap gap-3 mb-6">
-                    <span className="px-3 py-1 bg-white/10 text-white text-sm rounded-full">150X Leverage</span>
-                    <span className="px-3 py-1 bg-white/10 text-white text-sm rounded-full">400+ Pairs</span>
-                    <span className="px-3 py-1 bg-white/10 text-white text-sm rounded-full">Partner Benefits</span>
-                  </div>
-                  <Button 
-                    asChild 
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3"
-                  >
-                    <a href="https://partner.blofin.com/d/MrKelvin" target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="mr-2 w-4 h-4" />
-                      Start Trading on BloFin
-                    </a>
-                  </Button>
-                </div>
-                <div className="relative">
-                  <img 
-                    src={blofinPartnerImage} 
-                    alt="BloFin Partnership Announcement"
-                    className="w-full h-auto rounded-xl shadow-lg"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </ScrollReveal>
 
       {/* Free Resources Preview Section */}
       <ScrollReveal delay={500} duration={800}>

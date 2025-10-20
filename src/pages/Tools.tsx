@@ -63,14 +63,6 @@ const Tools = () => {
       url: 'https://support.weex.com/en/register?vipCode=mp9nh',
       features: ['Perpetual Contracts', 'Options Trading', 'Deep Liquidity', 'API Access', 'Risk Management Tools']
     },
-    {
-      name: 'BloFin',
-      description: 'Professional crypto derivatives exchange offering up to 150X leverage across 400+ trading pairs with institutional-grade security and advanced trading tools.',
-      icon: TrendingUp,
-      logo: null,
-      url: 'https://partner.blofin.com/d/MrKelvin',
-      features: ['Up to 150X Leverage', '400+ Trading Pairs', 'Perpetual Contracts', 'Copy Trading', 'Professional API', 'Advanced Risk Management']
-    },
   ];
 
   return (
