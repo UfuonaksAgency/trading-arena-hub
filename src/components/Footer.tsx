@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { TrendingUp, Send, Twitter, Instagram } from 'lucide-react';
+import { TrendingUp, Send, Twitter, Instagram, MessageCircle } from 'lucide-react';
 
 const Footer = () => {
   const socialLinks = [
@@ -15,8 +15,13 @@ const Footer = () => {
     },
     {
       name: 'Instagram',
-      href: 'https://www.instagram.com/mrktradingarena?igsh=bjI4ZGRsZmI2cWdo&utm_source=qr',
+      href: 'https://www.instagram.com/mrktradingarena?igsh=bjI4ZGRsZmI2cWho&utm_source=qr',
       icon: Instagram,
+    },
+    {
+      name: 'Discord',
+      href: 'https://discord.gg/7vrPJ3Gf7',
+      icon: MessageCircle,
     },
   ];
 

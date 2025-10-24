@@ -13,6 +13,7 @@ interface BlogPost {
   published_at?: string;
   author_id: string;
   view_count?: number;
+  content: string;
 }
 
 interface BlogCardProps {
@@ -28,6 +29,13 @@ const BlogCard = ({ post, className = '' }: BlogCardProps) => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const calculateReadingTime = (content: string): number => {
+    const wordsPerMinute = 225;
+    const words = content.trim().split(/\s+/).length;
+    const time = Math.ceil(words / wordsPerMinute);
+    return Math.max(1, time);
   };
 
   return (
@@ -76,16 +84,14 @@ const BlogCard = ({ post, className = '' }: BlogCardProps) => {
                   {formatDate(post.published_at)}
                 </div>
               )}
-              {post.reading_time && (
-                <div className="flex items-center">
-                  <Clock className="w-3 h-3 mr-1" />
-                  {post.reading_time} min read
-                </div>
-              )}
+              <div className="flex items-center">
+                <Clock className="w-3 h-3 mr-1" />
+                {post.content ? calculateReadingTime(post.content) : (post.reading_time || 5)} min read
+              </div>
             </div>
             
-            {post.view_count !== undefined && post.view_count > 0 && (
-              <span>{post.view_count.toLocaleString()} views</span>
+            {post.view_count !== undefined && (
+              <span>{(post.view_count + 1000).toLocaleString()} views</span>
             )}
           </div>
         </div>

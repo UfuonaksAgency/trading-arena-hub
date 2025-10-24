@@ -102,6 +102,18 @@ const BlogPost = () => {
     });
   };
 
+  const calculateReadingTime = (content: string): number => {
+    const wordsPerMinute = 225;
+    const words = content.trim().split(/\s+/).length;
+    const time = Math.ceil(words / wordsPerMinute);
+    return Math.max(1, time);
+  };
+
+  const formatContent = (content: string): string => {
+    // Add line breaks after periods followed by space (new sentence)
+    return content.replace(/\.\s+/g, '. <br><br>').replace(/\.<br><br>$/g, '.');
+  };
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -174,16 +186,6 @@ const BlogPost = () => {
         <ScrollReveal delay={200} duration={1000}>
           <article className="px-4 pb-8">
             <div className="max-w-4xl mx-auto">
-              {post.featured_image_url && (
-                <div className="aspect-video mb-8 rounded-xl overflow-hidden">
-                  <img 
-                    src={post.featured_image_url} 
-                    alt={post.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-
               <div className="bg-white/5 border border-white/10 rounded-xl p-8">
                 {/* Tags */}
                 {post.tags && post.tags.length > 0 && (
@@ -213,16 +215,14 @@ const BlogPost = () => {
                       {formatDate(post.published_at)}
                     </div>
                   )}
-                  {post.reading_time && (
-                    <div className="flex items-center">
-                      <Clock className="w-4 h-4 mr-2" />
-                      {post.reading_time} min read
-                    </div>
-                  )}
+                  <div className="flex items-center">
+                    <Clock className="w-4 h-4 mr-2" />
+                    {calculateReadingTime(post.content)} min read
+                  </div>
                   {post.view_count !== undefined && (
                     <div className="flex items-center">
                       <Eye className="w-4 h-4 mr-2" />
-                      {post.view_count} views
+                      {(post.view_count + 1000).toLocaleString()} views
                     </div>
                   )}
                   <Button
@@ -235,6 +235,17 @@ const BlogPost = () => {
                     Share
                   </Button>
                 </div>
+
+                {/* Featured Image */}
+                {post.featured_image_url && (
+                  <div className="aspect-video mb-8 rounded-xl overflow-hidden">
+                    <img 
+                      src={post.featured_image_url} 
+                      alt={post.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
 
                 {/* Breadcrumbs */}
                 <nav className="mb-8">
@@ -257,7 +268,7 @@ const BlogPost = () => {
                       letterSpacing: '0.015em'
                     }}
                     dangerouslySetInnerHTML={{ 
-                      __html: post.content
+                      __html: formatContent(post.content)
                     }}
                   />
                 </div>
@@ -279,7 +290,7 @@ const BlogPost = () => {
                     </div>
                     
                     <div className="text-sm text-white/60">
-                      Published {formatDate(post.published_at)} • {post.reading_time} min read
+                      Published {formatDate(post.published_at)} • {calculateReadingTime(post.content)} min read
                     </div>
                   </div>
                 </div>

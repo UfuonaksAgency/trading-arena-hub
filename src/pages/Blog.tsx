@@ -20,6 +20,7 @@ interface BlogPost {
   author_id: string;
   view_count?: number;
   is_featured: boolean;
+  content: string;
 }
 
 const Blog = () => {
