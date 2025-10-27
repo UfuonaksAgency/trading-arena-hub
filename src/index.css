@@ -248,4 +248,14 @@
     transform: translateY(0);
   }
 
+  /* Mobile-specific overrides to prevent black screens */
+  @media (max-width: 767px) {
+    .mobile-visible,
+    [style*="opacity: 0"],
+    [style*="opacity:0"] {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+
 }

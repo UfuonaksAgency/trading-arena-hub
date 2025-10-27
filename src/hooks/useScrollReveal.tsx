@@ -25,13 +25,20 @@ export const useScrollReveal = (options: ScrollRevealOptions = {}) => {
     const element = elementRef.current;
     if (!element) return;
 
+    // Force visibility on mobile viewports immediately
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setIsVisible(true);
+      if (!reset) setHasAnimated(true);
+      return;
+    }
+
     // Safety timeout to prevent blank screens if IntersectionObserver fails
     const safetyTimeout = setTimeout(() => {
       if (!isVisible && (!hasAnimated || reset)) {
         setIsVisible(true);
         if (!reset) setHasAnimated(true);
       }
-    }, 2000);
+    }, 500);
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -58,9 +65,10 @@ export const useScrollReveal = (options: ScrollRevealOptions = {}) => {
   }, [threshold, delay, reset, hasAnimated, isVisible]);
 
   const style = {
-    opacity: isVisible ? 1 : 0,
+    opacity: isVisible ? 1 : 0.3,
     transform: isVisible ? 'translateY(0)' : `translateY(${distance})`,
     transition: `opacity ${duration}ms ease-out, transform ${duration}ms ease-out`,
+    willChange: 'opacity, transform',
   };
 
   return { ref: elementRef, style, isVisible };

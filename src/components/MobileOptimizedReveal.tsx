@@ -20,20 +20,11 @@ export const MobileOptimizedReveal: React.FC<MobileOptimizedRevealProps> = ({
   mobileClassName = "",
 }) => {
   const isMobile = useIsMobile();
-  const [isVisible, setIsVisible] = useState(false);
 
-  // On mobile, use simple static rendering to prevent performance issues
-  useEffect(() => {
-    if (isMobile) {
-      // Immediate visibility on mobile to prevent black screens
-      setIsVisible(true);
-    }
-  }, [isMobile]);
-
-  // On mobile, render without any animations for better performance
+  // On mobile, render immediately without any animations or state management
   if (isMobile) {
     return (
-      <div className={`${mobileClassName} ${className}`}>
+      <div className={`${mobileClassName} ${className}`} style={{ opacity: 1 }}>
         {children}
       </div>
     );
