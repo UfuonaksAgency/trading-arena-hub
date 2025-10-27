@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { TrendingUp, Send, Twitter, Instagram, MessageCircle } from 'lucide-react';
+import { TrendingUp, Send, Twitter, Instagram } from 'lucide-react';
+import { DiscordIcon } from '@/components/icons/DiscordIcon';
 
 const Footer = () => {
   const socialLinks = [
@@ -21,7 +22,7 @@ const Footer = () => {
     {
       name: 'Discord',
       href: 'https://discord.gg/7vrPJ3Gf7',
-      icon: MessageCircle,
+      icon: DiscordIcon,
     },
   ];
 

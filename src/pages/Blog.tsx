@@ -6,7 +6,7 @@ import BlogCard from '@/components/BlogCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { ScrollReveal } from '@/hooks/useScrollReveal';
+import { MobileOptimizedReveal } from '@/components/MobileOptimizedReveal';
 
 interface BlogPost {
   id: string;
@@ -127,7 +127,7 @@ const Blog = () => {
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
         {/* Hero Section */}
         <section className="pt-24 pb-12 px-4">
-          <ScrollReveal delay={200} duration={1000}>
+          <MobileOptimizedReveal delay={200} duration={1000}>
             <div className="max-w-6xl mx-auto text-center">
               <div className="inline-flex items-center px-6 py-3 border border-white/20 rounded-full text-white text-sm font-medium mb-8 backdrop-blur-sm bg-white/5">
                 <BookOpen className="w-4 h-4 mr-2" />
@@ -140,12 +140,12 @@ const Blog = () => {
                 Discover proven trading strategies, market analysis, and insights to elevate your trading journey
               </p>
             </div>
-          </ScrollReveal>
+          </MobileOptimizedReveal>
         </section>
 
         {/* Featured Posts */}
         {featuredPosts.length > 0 && (
-          <ScrollReveal delay={300} duration={800}>
+          <MobileOptimizedReveal delay={100} duration={800}>
             <section className="py-12 px-4">
               <div className="max-w-6xl mx-auto">
                 <div className="flex items-center mb-8">
@@ -154,18 +154,18 @@ const Blog = () => {
                 </div>
                 <div className="grid md:grid-cols-3 gap-8">
                   {featuredPosts.map((post, index) => (
-                    <ScrollReveal key={post.id} delay={400 + (index * 100)} duration={600}>
+                    <MobileOptimizedReveal key={post.id} delay={index * 50} duration={600}>
                       <BlogCard post={post} />
-                    </ScrollReveal>
+                    </MobileOptimizedReveal>
                   ))}
                 </div>
               </div>
             </section>
-          </ScrollReveal>
+          </MobileOptimizedReveal>
         )}
 
         {/* Search and Filter */}
-        <ScrollReveal delay={500} duration={800}>
+        <MobileOptimizedReveal delay={0} duration={800}>
           <section className="py-12 px-4">
             <div className="max-w-6xl mx-auto">
               <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-8">
@@ -208,10 +208,10 @@ const Blog = () => {
               </div>
             </div>
           </section>
-        </ScrollReveal>
+        </MobileOptimizedReveal>
 
         {/* All Posts */}
-        <ScrollReveal delay={600} duration={800}>
+        <MobileOptimizedReveal delay={0} duration={800}>
           <section className="py-12 px-4">
             <div className="max-w-6xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-8">
@@ -224,9 +224,9 @@ const Blog = () => {
               {filteredPosts.length > 0 ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {filteredPosts.map((post, index) => (
-                    <ScrollReveal key={post.id} delay={700 + (index * 50)} duration={600}>
+                    <MobileOptimizedReveal key={post.id} delay={index * 30} duration={600}>
                       <BlogCard post={post} />
-                    </ScrollReveal>
+                    </MobileOptimizedReveal>
                   ))}
                 </div>
               ) : (
@@ -243,7 +243,7 @@ const Blog = () => {
               )}
             </div>
           </section>
-        </ScrollReveal>
+        </MobileOptimizedReveal>
       </div>
       <Footer />
     </>

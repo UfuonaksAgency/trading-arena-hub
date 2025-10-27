@@ -39,8 +39,8 @@ const BlogCard = ({ post, className = '' }: BlogCardProps) => {
   };
 
   return (
-    <Card className={`bg-white/5 border-white/10 hover:bg-white/10 transition-all duration-300 group overflow-hidden ${className}`}>
-      <Link to={`/blog/${post.slug}`}>
+    <Card className={`bg-white/5 border-white/10 hover:bg-white/10 transition-all duration-300 group overflow-hidden min-w-0 ${className}`}>
+      <Link to={`/blog/${post.slug}`} className="block min-w-0">
         {post.featured_image_url && (
           <div className="aspect-video overflow-hidden">
             <img 

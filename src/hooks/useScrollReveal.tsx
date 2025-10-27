@@ -25,6 +25,14 @@ export const useScrollReveal = (options: ScrollRevealOptions = {}) => {
     const element = elementRef.current;
     if (!element) return;
 
+    // Safety timeout to prevent blank screens if IntersectionObserver fails
+    const safetyTimeout = setTimeout(() => {
+      if (!isVisible && (!hasAnimated || reset)) {
+        setIsVisible(true);
+        if (!reset) setHasAnimated(true);
+      }
+    }, 2000);
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -44,9 +52,10 @@ export const useScrollReveal = (options: ScrollRevealOptions = {}) => {
     observer.observe(element);
 
     return () => {
+      clearTimeout(safetyTimeout);
       observer.disconnect();
     };
-  }, [threshold, delay, reset, hasAnimated]);
+  }, [threshold, delay, reset, hasAnimated, isVisible]);
 
   const style = {
     opacity: isVisible ? 1 : 0,
