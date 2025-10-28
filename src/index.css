@@ -258,8 +258,23 @@
       -webkit-transform: translateZ(0) !important;
     }
     
-    /* iOS-specific fixes - only targets iOS Safari */
+    /* iOS-specific fixes - AGGRESSIVE overrides for iOS Safari, Chrome, Brave */
     @supports (-webkit-touch-callout: none) {
+      /* Force all elements to be visible on iOS */
+      * {
+        opacity: 1 !important;
+      }
+      
+      /* Disable ALL animations on iOS */
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+        transition-duration: 0s !important;
+        transition-delay: 0s !important;
+      }
+      
       body * {
         -webkit-transform: translateZ(0);
         -webkit-backface-visibility: hidden;

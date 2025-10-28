@@ -25,12 +25,28 @@ export const useScrollReveal = (options: ScrollRevealOptions = {}) => {
     const element = elementRef.current;
     if (!element) return;
 
-    // Force visibility on mobile viewports immediately
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    // Detect iOS and mobile early
+    const isIOS = typeof window !== 'undefined' && (
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+    );
+    const isMobileViewport = typeof window !== 'undefined' && window.innerWidth < 768;
+
+    // On iOS or mobile, set visible immediately and exit (no observer, no inline styles)
+    if (isIOS || isMobileViewport) {
       setIsVisible(true);
       if (!reset) setHasAnimated(true);
       return;
     }
+
+    // Emergency timeout - force visibility after 200ms
+    const emergencyTimeout = setTimeout(() => {
+      if (!isVisible && (!hasAnimated || reset)) {
+        console.log('[iOS Emergency] Forcing visibility after 200ms timeout');
+        setIsVisible(true);
+        if (!reset) setHasAnimated(true);
+      }
+    }, 200);
 
     // Safety timeout to prevent blank screens if IntersectionObserver fails
     const safetyTimeout = setTimeout(() => {
@@ -53,24 +69,24 @@ export const useScrollReveal = (options: ScrollRevealOptions = {}) => {
           setIsVisible(false);
         }
       },
-      { threshold: 0.000001 } // iOS-compatible threshold
+      { threshold: 0.1 } // iOS-compatible threshold (0.1 instead of 0.000001)
     );
 
     observer.observe(element);
 
     return () => {
+      clearTimeout(emergencyTimeout);
       clearTimeout(safetyTimeout);
       observer.disconnect();
     };
   }, [threshold, delay, reset, hasAnimated, isVisible]);
 
   const style = {
-    opacity: isVisible ? 1 : 0.5,
+    opacity: isVisible ? 1 : 0,
     transform: isVisible ? 'translateY(0)' : `translateY(${distance})`,
     WebkitTransform: isVisible ? 'translateY(0) translateZ(0)' : `translateY(${distance}) translateZ(0)`,
     transition: `opacity ${duration}ms ease-out, transform ${duration}ms ease-out`,
     WebkitTransition: `opacity ${duration}ms ease-out, -webkit-transform ${duration}ms ease-out`,
-    willChange: 'opacity, transform',
   };
 
   return { ref: elementRef, style, isVisible };

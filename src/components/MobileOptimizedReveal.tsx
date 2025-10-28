@@ -19,25 +19,23 @@ export const MobileOptimizedReveal: React.FC<MobileOptimizedRevealProps> = ({
   className = "",
   mobileClassName = "",
 }) => {
+  // CRITICAL: Detect iOS BEFORE any hook calls to prevent animation system from running
+  const isIOS = typeof window !== 'undefined' && (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+  
+  // On iOS, return immediately without calling any hooks or applying styles
+  if (isIOS) {
+    return <div className={`${mobileClassName} ${className}`}>{children}</div>;
+  }
+  
+  // Only call hooks for non-iOS devices
   const isMobile = useIsMobile();
   
-  // Detect iOS specifically
-  const isIOS = typeof window !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
-  
-  // On mobile OR iOS, render immediately without any animations
-  if (isMobile || isIOS) {
-    return (
-      <div 
-        className={`${mobileClassName} ${className}`} 
-        style={{ 
-          opacity: 1,
-          transform: 'translateZ(0)',
-          WebkitTransform: 'translateZ(0)',
-        }}
-      >
-        {children}
-      </div>
-    );
+  // On mobile (non-iOS), render immediately without animations
+  if (isMobile) {
+    return <div className={`${mobileClassName} ${className}`}>{children}</div>;
   }
 
   // Desktop uses ScrollReveal
