@@ -124,10 +124,17 @@ const Blog = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
+      <div 
+        className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black"
+        style={{
+          minHeight: '100vh',
+          opacity: 1,
+          WebkitBackfaceVisibility: 'hidden',
+        }}
+      >
         {/* Hero Section */}
         <section className="pt-24 pb-12 px-4">
-          <MobileOptimizedReveal delay={200} duration={1000}>
+          <MobileOptimizedReveal delay={0} duration={800}>
             <div className="max-w-6xl mx-auto text-center">
               <div className="inline-flex items-center px-6 py-3 border border-white/20 rounded-full text-white text-sm font-medium mb-8 backdrop-blur-sm bg-white/5">
                 <BookOpen className="w-4 h-4 mr-2" />
@@ -145,7 +152,7 @@ const Blog = () => {
 
         {/* Featured Posts */}
         {featuredPosts.length > 0 && (
-          <MobileOptimizedReveal delay={100} duration={800}>
+          <MobileOptimizedReveal delay={0} duration={600}>
             <section className="py-12 px-4">
               <div className="max-w-6xl mx-auto">
                 <div className="flex items-center mb-8">
@@ -153,10 +160,8 @@ const Blog = () => {
                   <h2 className="text-2xl md:text-3xl font-bold text-white">Featured Posts</h2>
                 </div>
                 <div className="grid md:grid-cols-3 gap-8">
-                  {featuredPosts.map((post, index) => (
-                    <MobileOptimizedReveal key={post.id} delay={index * 50} duration={600}>
-                      <BlogCard post={post} />
-                    </MobileOptimizedReveal>
+                  {featuredPosts.map((post) => (
+                    <BlogCard key={post.id} post={post} />
                   ))}
                 </div>
               </div>
@@ -223,10 +228,8 @@ const Blog = () => {
               
               {filteredPosts.length > 0 ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {filteredPosts.map((post, index) => (
-                    <MobileOptimizedReveal key={post.id} delay={index * 30} duration={600}>
-                      <BlogCard post={post} />
-                    </MobileOptimizedReveal>
+                  {filteredPosts.map((post) => (
+                    <BlogCard key={post.id} post={post} />
                   ))}
                 </div>
               ) : (

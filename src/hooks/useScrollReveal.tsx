@@ -53,7 +53,7 @@ export const useScrollReveal = (options: ScrollRevealOptions = {}) => {
           setIsVisible(false);
         }
       },
-      { threshold }
+      { threshold: 0.000001 } // iOS-compatible threshold
     );
 
     observer.observe(element);
@@ -65,9 +65,11 @@ export const useScrollReveal = (options: ScrollRevealOptions = {}) => {
   }, [threshold, delay, reset, hasAnimated, isVisible]);
 
   const style = {
-    opacity: isVisible ? 1 : 0.3,
+    opacity: isVisible ? 1 : 0.5,
     transform: isVisible ? 'translateY(0)' : `translateY(${distance})`,
+    WebkitTransform: isVisible ? 'translateY(0) translateZ(0)' : `translateY(${distance}) translateZ(0)`,
     transition: `opacity ${duration}ms ease-out, transform ${duration}ms ease-out`,
+    WebkitTransition: `opacity ${duration}ms ease-out, -webkit-transform ${duration}ms ease-out`,
     willChange: 'opacity, transform',
   };
 

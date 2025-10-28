@@ -16,8 +16,16 @@ export function useIsMobile() {
     const onChange = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     }
-    mql.addEventListener("change", onChange)
-    return () => mql.removeEventListener("change", onChange)
+    
+    // iOS compatibility: use addListener for older iOS, addEventListener for modern
+    if (mql.addEventListener) {
+      mql.addEventListener("change", onChange)
+      return () => mql.removeEventListener("change", onChange)
+    } else {
+      // Fallback for iOS < 14
+      mql.addListener(onChange)
+      return () => mql.removeListener(onChange)
+    }
   }, [])
 
   return isMobile

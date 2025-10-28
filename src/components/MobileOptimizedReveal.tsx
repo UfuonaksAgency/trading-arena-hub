@@ -20,17 +20,27 @@ export const MobileOptimizedReveal: React.FC<MobileOptimizedRevealProps> = ({
   mobileClassName = "",
 }) => {
   const isMobile = useIsMobile();
-
-  // On mobile, render immediately without any animations or state management
-  if (isMobile) {
+  
+  // Detect iOS specifically
+  const isIOS = typeof window !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+  
+  // On mobile OR iOS, render immediately without any animations
+  if (isMobile || isIOS) {
     return (
-      <div className={`${mobileClassName} ${className}`} style={{ opacity: 1 }}>
+      <div 
+        className={`${mobileClassName} ${className}`} 
+        style={{ 
+          opacity: 1,
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
+        }}
+      >
         {children}
       </div>
     );
   }
 
-  // On desktop, use full ScrollReveal functionality
+  // Desktop uses ScrollReveal
   return (
     <ScrollReveal delay={delay} distance={distance} duration={duration} className={className}>
       {children}
