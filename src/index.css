@@ -250,36 +250,44 @@
 
   /* Mobile-specific overrides to prevent black screens */
   @media (max-width: 767px) {
-    .mobile-visible,
+    /* Force visibility on all mobile devices */
+    html, body {
+      opacity: 1 !important;
+    }
+    
+    body > * {
+      opacity: 1 !important;
+    }
+    
+    /* Target elements with inline opacity styles */
     [style*="opacity: 0"],
-    [style*="opacity:0"] {
+    [style*="opacity:0"],
+    [style*="opacity: 0."] {
       opacity: 1 !important;
       transform: none !important;
       -webkit-transform: translateZ(0) !important;
     }
     
-    /* iOS-specific fixes - AGGRESSIVE overrides for iOS Safari, Chrome, Brave */
-    @supports (-webkit-touch-callout: none) {
-      /* Force all elements to be visible on iOS */
-      * {
-        opacity: 1 !important;
-      }
-      
-      /* Disable ALL animations on iOS */
-      *,
-      *::before,
-      *::after {
-        animation-duration: 0s !important;
-        animation-delay: 0s !important;
-        transition-duration: 0s !important;
-        transition-delay: 0s !important;
-      }
-      
-      body * {
-        -webkit-transform: translateZ(0);
-        -webkit-backface-visibility: hidden;
-        -webkit-perspective: 1000;
-      }
+    /* Disable animations on mobile */
+    * {
+      animation-duration: 0s !important;
+      animation-delay: 0s !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
+    }
+    
+    /* Force GPU acceleration */
+    body * {
+      -webkit-transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
+      -webkit-perspective: 1000;
+    }
+  }
+
+  /* Additional iOS-specific targeting */
+  @supports (-webkit-touch-callout: none) {
+    html {
+      opacity: 1 !important;
     }
   }
 

@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: 'dist',
+    target: 'es2019',
     sourcemap: false,
     rollupOptions: {
       output: {

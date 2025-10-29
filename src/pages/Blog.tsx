@@ -129,9 +129,17 @@ const Blog = () => {
         style={{
           minHeight: '100vh',
           opacity: 1,
+          visibility: 'visible',
           WebkitBackfaceVisibility: 'hidden',
         }}
+        data-ios-safe="true"
       >
+        <noscript>
+          <div style={{ padding: '2rem', color: 'white', textAlign: 'center' }}>
+            <h1>JavaScript Required</h1>
+            <p>This page requires JavaScript to function. Please enable JavaScript in your browser settings.</p>
+          </div>
+        </noscript>
         {/* Hero Section */}
         <section className="pt-24 pb-12 px-4">
           <MobileOptimizedReveal delay={0} duration={800}>
