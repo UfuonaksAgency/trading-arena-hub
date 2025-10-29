@@ -259,35 +259,18 @@
       opacity: 1 !important;
     }
     
-    /* Target elements with inline opacity styles */
-    [style*="opacity: 0"],
-    [style*="opacity:0"],
-    [style*="opacity: 0."] {
+    /* Skip animations on mobile */
+    .animate-fade-in {
+      animation: none;
       opacity: 1 !important;
-      transform: none !important;
-      -webkit-transform: translateZ(0) !important;
-    }
-    
-    /* Disable animations on mobile */
-    * {
-      animation-duration: 0s !important;
-      animation-delay: 0s !important;
-      transition-duration: 0s !important;
-      transition-delay: 0s !important;
-    }
-    
-    /* Force GPU acceleration */
-    body * {
-      -webkit-transform: translateZ(0);
-      -webkit-backface-visibility: hidden;
-      -webkit-perspective: 1000;
     }
   }
 
-  /* Additional iOS-specific targeting */
+  /* iOS-specific: minimal overrides */
   @supports (-webkit-touch-callout: none) {
-    html {
-      opacity: 1 !important;
+    body {
+      -webkit-transform: translateZ(0);
+      -webkit-backface-visibility: hidden;
     }
   }
 
