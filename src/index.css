@@ -248,29 +248,31 @@
     transform: translateY(0);
   }
 
-  /* Mobile-specific overrides to prevent black screens */
+  /* Phase 6: Force visibility on ALL devices - no feature detection */
+  body {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  /* Remove animation delays on mobile */
   @media (max-width: 767px) {
-    /* Force visibility on all mobile devices */
-    html, body {
-      opacity: 1 !important;
+    * {
+      animation-duration: 0s !important;
+      animation-delay: 0s !important;
     }
     
-    body > * {
-      opacity: 1 !important;
-    }
-    
-    /* Skip animations on mobile */
     .animate-fade-in {
-      animation: none;
+      animation: none !important;
       opacity: 1 !important;
+      transform: none !important;
     }
   }
 
-  /* iOS-specific: minimal overrides */
-  @supports (-webkit-touch-callout: none) {
+  /* iOS: Force hardware acceleration WITHOUT transform bugs */
+  @media (max-width: 767px) and (-webkit-min-device-pixel-ratio: 2) {
     body {
-      -webkit-transform: translateZ(0);
       -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
     }
   }
 

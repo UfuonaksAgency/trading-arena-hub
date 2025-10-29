@@ -8,9 +8,32 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY |
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+// Phase 3: Safe localStorage wrapper for iOS
+const safeLocalStorage = (() => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      // Test if we can actually use it
+      window.localStorage.setItem('__test__', '1');
+      window.localStorage.removeItem('__test__');
+      return window.localStorage;
+    }
+  } catch (e) {
+    console.warn('localStorage unavailable, using memory storage');
+  }
+  
+  // Fallback in-memory storage
+  const memoryStorage = {
+    data: {} as Record<string, string>,
+    getItem(key: string) { return this.data[key] || null; },
+    setItem(key: string, value: string) { this.data[key] = value; },
+    removeItem(key: string) { delete this.data[key]; },
+  };
+  return memoryStorage;
+})();
+
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: safeLocalStorage as any,
     persistSession: true,
     autoRefreshToken: true,
   }

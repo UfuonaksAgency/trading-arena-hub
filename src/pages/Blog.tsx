@@ -31,6 +31,28 @@ const Blog = () => {
   const [selectedTag, setSelectedTag] = useState<string>('');
   const [allTags, setAllTags] = useState<string[]>([]);
 
+  // Phase 7: Client-side error tracking
+  useEffect(() => {
+    // Global error handler for debugging
+    window.onerror = (message, source, lineno, colno, error) => {
+      console.error('Global error:', { message, source, lineno, colno, error });
+    };
+    
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+    });
+    
+    // Log environment info
+    console.log('Blog page loaded:', {
+      userAgent: navigator.userAgent,
+      viewport: `${window.innerWidth}x${window.innerHeight}`,
+      connection: (navigator as any).connection?.effectiveType,
+      memory: (performance as any).memory?.usedJSHeapSize,
+      supabaseConfigured: !!(import.meta.env.VITE_SUPABASE_URL)
+    });
+  }, []);
+
+  // Phase 4: Fixed realtime subscription with proper cleanup
   useEffect(() => {
     // Health check
     fetch('/health.json')
@@ -40,43 +62,53 @@ const Blog = () => {
 
     fetchPosts();
     
-    // Set up real-time subscription for view count updates
-    const channel = supabase
-      .channel('blog-views')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'blog_posts',
-          filter: 'is_published=eq.true'
-        },
-        (payload) => {
-          // Update the specific post in our state
-          setPosts(currentPosts => 
-            currentPosts.map(post => 
-              post.id === payload.new.id 
-                ? { ...post, view_count: payload.new.view_count }
-                : post
-            )
-          );
-          
-          // Also update featured posts if needed
-          setFeaturedPosts(currentFeatured =>
-            currentFeatured.map(post =>
-              post.id === payload.new.id
-                ? { ...post, view_count: payload.new.view_count }
-                : post
-            )
-          );
-        }
-      )
-      .subscribe();
+    // Use a ref to prevent double subscription in Strict Mode
+    let channelRef: any = null;
+    
+    const setupRealtime = () => {
+      if (channelRef) return; // Already subscribed
+      
+      channelRef = supabase
+        .channel('blog-views-' + Date.now()) // Unique channel name
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'blog_posts',
+            filter: 'is_published=eq.true'
+          },
+          (payload) => {
+            setPosts(currentPosts => 
+              currentPosts.map(post => 
+                post.id === payload.new.id 
+                  ? { ...post, view_count: payload.new.view_count }
+                  : post
+              )
+            );
+            
+            setFeaturedPosts(currentFeatured =>
+              currentFeatured.map(post =>
+                post.id === payload.new.id
+                  ? { ...post, view_count: payload.new.view_count }
+                  : post
+              )
+            );
+          }
+        )
+        .subscribe();
+    };
+    
+    // Delay realtime setup until after initial data load
+    const realtimeTimer = setTimeout(setupRealtime, 1000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearTimeout(realtimeTimer);
+      if (channelRef) {
+        supabase.removeChannel(channelRef);
+      }
     };
-  }, []);
+  }, []); // Empty deps - only run once
 
   const fetchPosts = async () => {
     try {
@@ -127,12 +159,18 @@ const Blog = () => {
     return matchesSearch && matchesTag;
   });
 
+  // Phase 8: Force loading state visibility
   if (loading) {
     return (
       <>
         <Header />
-        <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
-          <div className="text-white text-lg">Loading blog posts...</div>
+        <div 
+          className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center"
+          style={{ opacity: 1, visibility: 'visible' }}
+        >
+          <div className="text-white text-lg" style={{ opacity: 1 }}>
+            Loading blog posts...
+          </div>
         </div>
         <Footer />
       </>
@@ -161,16 +199,7 @@ const Blog = () => {
   return (
     <>
       <Header />
-      <div 
-        className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black"
-        style={{
-          minHeight: '100vh',
-          opacity: 1,
-          visibility: 'visible',
-          WebkitBackfaceVisibility: 'hidden',
-        }}
-        data-ios-safe="true"
-      >
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
         <noscript>
           <div style={{ padding: '2rem', color: 'white', textAlign: 'center' }}>
             <h1>JavaScript Required</h1>
@@ -178,7 +207,7 @@ const Blog = () => {
           </div>
         </noscript>
         {/* Hero Section */}
-        <section className="pt-24 pb-12 px-4 animate-fade-in">
+        <section className="pt-24 pb-12 px-4">
           <div className="max-w-6xl mx-auto text-center">
             <div className="inline-flex items-center px-6 py-3 border border-white/20 rounded-full text-white text-sm font-medium mb-8 backdrop-blur-sm bg-white/5">
               <BookOpen className="w-4 h-4 mr-2" />
@@ -195,7 +224,7 @@ const Blog = () => {
 
         {/* Featured Posts */}
         {featuredPosts.length > 0 && (
-          <section className="py-12 px-4 animate-fade-in">
+          <section className="py-12 px-4">
             <div className="max-w-6xl mx-auto">
               <div className="flex items-center mb-8">
                 <TrendingUp className="w-6 h-6 text-primary mr-3" />
@@ -211,7 +240,7 @@ const Blog = () => {
         )}
 
         {/* Search and Filter */}
-        <section className="py-12 px-4 animate-fade-in">
+        <section className="py-12 px-4">
           <div className="max-w-6xl mx-auto">
             <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-8">
               <div className="flex flex-col md:flex-row gap-4">
@@ -255,7 +284,7 @@ const Blog = () => {
         </section>
 
         {/* All Posts */}
-        <section className="py-12 px-4 animate-fade-in">
+        <section className="py-12 px-4">
           <div className="max-w-6xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-8">
               {searchTerm || selectedTag ? 'Search Results' : 'All Posts'}
